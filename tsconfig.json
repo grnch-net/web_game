@@ -1,0 +1,14 @@
+{
+	"files": [
+    "src/main.ts"
+  ],
+	"compilerOptions": {
+		"target": "es5",
+		"noImplicitAny": true,
+		"out": "bundle.js",
+		"lib": [
+		  "dom",
+		  "es7"
+		]
+	}
+}
