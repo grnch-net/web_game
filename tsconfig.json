@@ -3,9 +3,10 @@
     "src/main.ts"
   ],
 	"compilerOptions": {
-		"target": "es5",
+		"allowJs": true,
+		"target": "ES5",
+		"moduleResolution": "Classic",
 		"noImplicitAny": true,
-		"out": "bundle.js",
 		"lib": [
 		  "dom",
 		  "es7"
