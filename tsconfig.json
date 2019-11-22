@@ -7,6 +7,7 @@
 		"target": "ES5",
 		"moduleResolution": "Classic",
 		"noImplicitAny": true,
+		"declaration": true,
 		"lib": [
 		  "dom",
 		  "es7"
