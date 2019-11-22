@@ -1,57 +1,77 @@
-class Attribute {
+import * as effects from './effects';
+
+class Range {
+  value: number;
+
   constructor(
-    public val: number = 100,
     public max: number = 100,
     public min: number = 0
-  ) {}
-}
-
-enum eEffects {
-  weariness
-}
-
-class Effects {
-  list: any = {};
-  protected tick_handlers: any[] = [];
-
-  add(name: eEffects, effect: any) {
-    effect.onTick && this.tick_handlers.push(effect.onTick);
-    this.list[name] = effect;
+  ) {
+    this.value = this.max;
   }
 
-  remove(name: eEffects) {
-    const effect = this.list[name];
-    delete this.list[name];
-    if (effect.onTick) {
-      const index = this.tick_handlers.indexOf(effect.onTick);
-      this.tick_handlers.splice(index, 1);
+  set(value: number, force?: boolean): number {
+    if (force) this.value = value;
+    else if (value < this.min) this.value = this.min;
+    else if (value > this.max) this.value = this.max;
+    else this.value = value;
+    return this.value;
+  }
+}
+
+class EffectsManager {
+  list: effects.Effect[] = [];
+
+  add(effect: effects.Effect) {
+    if (!this.list.includes(effect)) {
+      this.list.push(effect);
     }
-    effect.onRemove && effect.onRemove();
+    effect.added();
   }
 
-  tick(dt: number = 0) {
-    this.tick_handlers.forEach(handler => handler(dt));
+  remove(effect: effects.Effect) {
+    if (!this.list.includes(effect)) {
+      return;
+    }
+    const index = this.list.indexOf(effect);
+    this.list.splice(index, 1);
+    effect.removed();
+  }
+
+  tick(dt: number) {
+    this.list.forEach(effect => {
+      effect.tick(dt) || this.remove(effect);
+    });
   }
 }
+
+const config = {
+  health: 100,
+  stamina: 150,
+  experience_multiply: 1
+};
 
 export default class Character {
-  health: Attribute;
-  stamina: Attribute;
-  // weariness: Attribute;
-  effects: Effects;
-  statistic: any;
+  health: Range;
+  stamina: Range;
+  experience: number;
+  effects: EffectsManager;
 
   constructor() {
     this.initialize();
   }
 
-  initialize() {
-    this.health = new Attribute();
-    this.stamina = new Attribute();
-    this.effects = new Effects();
+  protected initialize() {
+    this.health = new Range(config.health);
+    this.stamina = new Range(config.stamina);
+    this.effects = new EffectsManager();
   }
 
-  updateStatistic() {
+  tick(dt: number) {
+    this.effects.tick(dt);
+  }
 
+  upExperience(value: number) {
+    this.experience += value * config.experience_multiply;
   }
 }
