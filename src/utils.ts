@@ -13,16 +13,36 @@ export function getAttribute(
 export function setAttribute(
   target: any,
   path: string|string[],
-  value: any
-): boolean {
+  value: any,
+  force: boolean = false
+) {
   if (!Array.isArray(path)) {
     path = path.split('.');
   }
   const attribute = path.pop();
   target = path.reduce((deep: any, key: string) => {
-    return deep && deep[key];
+    if (force) return deep[key] = deep[key] || {};
+    else return deep && deep[key];
   }, target);
-  if (!target) return false;
   target[attribute] = value;
-  return true;
+}
+
+export function addAttribute(
+  target: any,
+  path: string|string[],
+  value: number,
+  force: boolean = false
+) {
+  if (!Array.isArray(path)) {
+    path = path.split('.');
+  }
+  const attribute = path.pop();
+  target = path.reduce((deep: any, key: string) => {
+    if (force) return deep[key] = deep[key] || {};
+    else return deep && deep[key];
+  }, target);
+  if (force) {
+    target[attribute] = target[attribute] || 0;
+  }
+  target[attribute] += value;
 }
