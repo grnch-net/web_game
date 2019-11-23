@@ -1,25 +1,19 @@
-enum influenceTypes {
-  'static',
-  'progressive'
-}
-
 class Influence {
-  static types = influenceTypes;
-
-  constructor(
-    public type?: influenceTypes,
-    public target?: string|string[],
-    public value?: number
-  ) {}
+  public attribute: string;
+  public value: number;
+  public perSecond: boolean;
 
   set(
-    type: influenceTypes,
-    target: string|string[],
-    value: number
+    attribute: string|string[],
+    value: number,
+    perSecond: boolean = false
   ) {
-    this.type = type;
-    this.target = target;
+    if (Array.isArray(attribute)) {
+      attribute = attribute.join('.');
+    }
+    this.attribute = attribute as string;
     this.value = value;
+    this.perSecond = perSecond;
   }
 }
 
@@ -28,7 +22,7 @@ export abstract class Effect {
   influences: Influence[];
 
   constructor(...options: any[]) {
-    this.initialize(options);
+    this.initialize(...options);
   }
 
   protected initialize(...options: any[]) {
@@ -36,9 +30,7 @@ export abstract class Effect {
     this.influences = [];
   }
 
-  tick(dt: number) {
-    return this.active;
-  }
+  tick(dt: number) {}
 
   added() {
     this.active = true;
@@ -67,11 +59,7 @@ export class HealthRegeneration extends Effect {
 
   protected initialize_inflience(value: number) {
     const influence = new Influence();
-    influence.set(
-      Influence.types.progressive,
-      ['health', 'value'],
-      value
-    );
+    influence.set('health.value', value, true);
     this.addInfluence(influence);
   }
 }
@@ -88,11 +76,7 @@ export class StaminaRegeneration extends Effect {
 
   protected initialize_inflience(value:number) {
     const influence = new Influence();
-    influence.set(
-      Influence.types.progressive,
-      ['stamina', 'value'],
-      value
-    );
+    influence.set('stamina.value', value, true);
     this.addInfluence(influence);
   }
 }
