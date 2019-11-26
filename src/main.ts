@@ -1,1 +1,3 @@
-import './character';
+import World from './world';
+
+new World();
