@@ -14,8 +14,8 @@ class Range {
   get value() { return this._value }
   set value(value: number) {
     if (value < this.min) this._value = this.min;
-    if (value > this.max) this._value = this.max;
-    this._value = value;
+    else if (value > this.max) this._value = this.max;
+    else this._value = value;
   }
 }
 
@@ -45,29 +45,41 @@ class EffectsManager {
 
   tick(dt: number): any {
     return this.list.reduce((counter: any, effect) => {
+      if (!effect.active) return counter;
       effect.tick(dt);
-      if (!effect.active) return this.remove(effect);
       effect.influences.forEach(influence => {
-        const { attribute, perSecond } = influence;
-        let value = influence.value;
-        if (perSecond) value *= dt;
+        const { attribute, deltaValue } = influence;
         counter[attribute] = counter[attribute] || 0;
-        counter[attribute] += value;
+        counter[attribute] += deltaValue;
       });
+      if (effect.once) {
+        this.remove(effect);
+      }
+      return counter;
     }, {});
+  }
+
+  onUseSkill(influences_result: any): any {
+    return this.list.reduce((counter: any, effect) => {
+      if (!effect.active) return counter;
+      return effect.onUseSkill(counter);
+    }, influences_result);
   }
 }
 
 const config = {
   health: 100,
   stamina: 150,
+  armor: 0,
   stamina_regeneration: 10,
   experience_multiply: 1
 };
 
 export default class Character {
+  name: string;
   health: Range;
   stamina: Range;
+  armor: number;
   experience: number;
   effects: EffectsManager;
 
@@ -78,26 +90,31 @@ export default class Character {
   protected initialize() {
     this.health = new Range(config.health);
     this.stamina = new Range(config.stamina);
+    this.armor = config.armor;
     this.initialize_effects();
   }
 
   protected initialize_effects() {
     this.effects = new EffectsManager();
     this.effects.add([
-      new effects.StaminaRegeneration(config.stamina_regeneration)
+      new effects.StaminaRegeneration(config.stamina_regeneration),
+      new effects.Weariness()
     ]);
   }
 
   tick(dt: number) {
-    this.effects.tick(dt);
-    const influences = this.effects.tick(dt);
-    this.updateAttributes(influences);
+    const influences_result = this.effects.tick(dt);
+    this.updateAttributes();
+    this.applyInfluences(influences_result);
   }
 
-  protected updateAttributes(influences: any) {
+  protected updateAttributes() {
     this.health.max = config.health;
     this.stamina.max = config.stamina;
-    Object.entries(influences)
+  }
+
+  applyInfluences(influences_result: any) {
+    Object.entries(influences_result)
     .forEach(([attribute, value]) => {
       addAttribute(this, attribute, value as number);
     });
@@ -106,4 +123,10 @@ export default class Character {
   upExperience(value: number) {
     this.experience += value * config.experience_multiply;
   }
+
+  useSkill(name: string) {
+    const influences_result = {};
+    this.effects.onUseSkill(influences_result);
+  }
+
 }
