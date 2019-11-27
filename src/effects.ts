@@ -1,3 +1,52 @@
+export class Controller {
+  list: Effect[] = [];
+
+  add(effects: Effect|Effect[]) {
+    if (!Array.isArray(effects)) {
+      effects = [effects];
+    }
+    effects.forEach(effect => {
+      if (!this.list.includes(effect)) {
+        this.list.push(effect);
+      }
+      effect.added();
+    });
+  }
+
+  remove(effect: Effect) {
+    if (!this.list.includes(effect)) {
+      return;
+    }
+    const index = this.list.indexOf(effect);
+    this.list.splice(index, 1);
+    effect.removed();
+  }
+
+  tick(dt: number): any {
+    return this.list.reduce((counter: any, effect) => {
+      if (!effect.active) return counter;
+      effect.tick(dt);
+      effect.influences.forEach(influence => {
+        const { attribute, deltaValue } = influence;
+        counter[attribute] = counter[attribute] || 0;
+        counter[attribute] += deltaValue;
+      });
+      if (effect.once) {
+        this.remove(effect);
+      }
+      return counter;
+    }, {});
+  }
+
+  onUseSkill(inner_influence: any, outer_influence: any) {
+    this.list.forEach(effect => {
+      if (!effect.active) return;
+      effect.onUseSkill(inner_influence, outer_influence);
+    });
+  }
+}
+
+
 class Influence {
   attribute: string;
   value: number;
@@ -66,24 +115,28 @@ export abstract class Effect {
     this.influences.push(influence);
   }
 
-  onUseSkill(result: any): any {
-    return result;
-  }
+  onUseSkill(inner_influence: any, outer_influence: any) {}
+}
+
+enum attributes {
+  healthValue = 'health.value',
+  staminaValue = 'stamina.value',
+  staminaMax = 'stamina.max'
 }
 
 export class HealthRegeneration extends Effect {
-  constructor(value: number, time: number) {
+  constructor(value: number, time?: number) {
     super(value, time);
   }
 
-  initialize(value: number, time: number) {
+  protected initialize(value: number, time?: number) {
     super.initialize();
     if (time) this.liveTimer = time;
   }
 
   protected initialize_inflience(value: number) {
     const influence = new Influence();
-    influence.set('health.value', value, true);
+    influence.set(attributes.healthValue, value, true);
     this.addInfluence(influence);
   }
 }
@@ -95,14 +148,53 @@ export class StaminaRegeneration extends Effect {
 
   protected initialize_inflience(value: number) {
     const influence = new Influence();
-    influence.set('stamina.value', value, true);
+    influence.set(attributes.staminaValue, value, true);
     this.addInfluence(influence);
   }
 }
 
 export class Weariness extends Effect {
-  constructor() {
-    super();
+  increment: number;
+  decrement: number;
+  counter: Influence;
+
+  get value() {
+    // return Math.floor(this.counter.value);
+    return this.counter.value;
+  }
+
+  set value(value) {
+    this.counter.value = value;
+  }
+
+  constructor(increment: number, decrement: number) {
+    super(increment, decrement);
+  }
+
+  protected initialize(increment: number, decrement:number) {
+    super.initialize();
+    this.increment = increment;
+    this.decrement = decrement;
+  }
+
+  protected initialize_inflience(increment: number, decrement: number) {
+    const influence = new Influence();
+    influence.set(attributes.staminaMax, 0);
+    this.addInfluence(influence);
+    this.counter = influence;
+  }
+
+  onUseSkill(inner_influence: any, outer_influence: any) {
+    if (!inner_influence[attributes.staminaValue]) return;
+    this.counter.value -= this.decrement;
+  }
+
+  tick(dt: number) {
+    super.tick(dt);
+    this.counter.value += this.increment * dt;
+    if (this.counter.value > 0) {
+      this.counter.value = 0;
+    }
   }
 }
 
@@ -111,7 +203,7 @@ export class Damage extends Effect {
     super(value);
   }
 
-  initialize() {
+  protected initialize() {
     super.initialize();
     this.once = true;
   }
@@ -119,7 +211,7 @@ export class Damage extends Effect {
   protected initialize_inflience(value: number) {
     value *= -1;
     const influence = new Influence();
-    influence.set('health.value', value);
+    influence.set(attributes.healthValue, value);
     this.addInfluence(influence);
   }
 }

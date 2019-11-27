@@ -19,59 +19,13 @@ class Range {
   }
 }
 
-class EffectsManager {
-  list: effects.Effect[] = [];
-
-  add(effects: effects.Effect|effects.Effect[]) {
-    if (!Array.isArray(effects)) {
-      effects = [effects];
-    }
-    effects.forEach(effect => {
-      if (!this.list.includes(effect)) {
-        this.list.push(effect);
-      }
-      effect.added();
-    });
-  }
-
-  remove(effect: effects.Effect) {
-    if (!this.list.includes(effect)) {
-      return;
-    }
-    const index = this.list.indexOf(effect);
-    this.list.splice(index, 1);
-    effect.removed();
-  }
-
-  tick(dt: number): any {
-    return this.list.reduce((counter: any, effect) => {
-      if (!effect.active) return counter;
-      effect.tick(dt);
-      effect.influences.forEach(influence => {
-        const { attribute, deltaValue } = influence;
-        counter[attribute] = counter[attribute] || 0;
-        counter[attribute] += deltaValue;
-      });
-      if (effect.once) {
-        this.remove(effect);
-      }
-      return counter;
-    }, {});
-  }
-
-  onUseSkill(influences_result: any): any {
-    return this.list.reduce((counter: any, effect) => {
-      if (!effect.active) return counter;
-      return effect.onUseSkill(counter);
-    }, influences_result);
-  }
-}
-
 const config = {
   health: 100,
   stamina: 150,
   armor: 0,
   stamina_regeneration: 10,
+  weariness_increment: 1,
+  weariness_decrement: 0.1,
   experience_multiply: 1
 };
 
@@ -81,7 +35,7 @@ export default class Character {
   stamina: Range;
   armor: number;
   experience: number;
-  effects: EffectsManager;
+  effects: effects.Controller;
 
   constructor() {
     this.initialize();
@@ -95,10 +49,10 @@ export default class Character {
   }
 
   protected initialize_effects() {
-    this.effects = new EffectsManager();
+    this.effects = new effects.Controller();
     this.effects.add([
       new effects.StaminaRegeneration(config.stamina_regeneration),
-      new effects.Weariness()
+      new effects.Weariness(config.weariness_increment, config.weariness_decrement)
     ]);
   }
 
@@ -125,8 +79,9 @@ export default class Character {
   }
 
   useSkill(name: string) {
-    const influences_result = {};
-    this.effects.onUseSkill(influences_result);
+    const inner_influence = {};
+    const outer_influence = {};
+    this.effects.onUseSkill(inner_influence, outer_influence);
   }
 
 }
