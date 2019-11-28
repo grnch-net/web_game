@@ -1,3 +1,5 @@
+import { Influence, attributes } from './influences';
+
 export class Controller {
   list: Effect[] = [];
 
@@ -22,9 +24,9 @@ export class Controller {
     effect.removed();
   }
 
-  tick(dt: number): any {
-    return this.list.reduce((counter: any, effect) => {
-      if (!effect.active) return counter;
+  tick(dt: number, counter: any): any {
+    return this.list.forEach(effect => {
+      if (!effect.active) return;
       effect.tick(dt);
       effect.influences.forEach(influence => {
         const { attribute, deltaValue } = influence;
@@ -34,8 +36,7 @@ export class Controller {
       if (effect.once) {
         this.remove(effect);
       }
-      return counter;
-    }, {});
+    });
   }
 
   onUseSkill(inner_influence: any, outer_influence: any) {
@@ -43,32 +44,6 @@ export class Controller {
       if (!effect.active) return;
       effect.onUseSkill(inner_influence, outer_influence);
     });
-  }
-}
-
-
-class Influence {
-  attribute: string;
-  value: number;
-  perSecond: boolean;
-  deltaValue: number;
-
-  set(
-    attribute: string|string[],
-    value: number,
-    perSecond: boolean = false
-  ) {
-    if (Array.isArray(attribute)) {
-      attribute = attribute.join('.');
-    }
-    this.attribute = attribute as string;
-    this.value = value;
-    this.deltaValue = perSecond ? 0 : value;
-  }
-
-  tick(dt: number): boolean {
-    if (!this.perSecond) return false;
-    this.deltaValue = this.value * dt;
   }
 }
 
@@ -116,12 +91,6 @@ export abstract class Effect {
   }
 
   onUseSkill(inner_influence: any, outer_influence: any) {}
-}
-
-enum attributes {
-  healthValue = 'health.value',
-  staminaValue = 'stamina.value',
-  staminaMax = 'stamina.max'
 }
 
 export class HealthRegeneration extends Effect {
@@ -191,6 +160,7 @@ export class Weariness extends Effect {
 
   tick(dt: number) {
     super.tick(dt);
+    if (!this.counter.value) return;
     this.counter.value += this.increment * dt;
     if (this.counter.value > 0) {
       this.counter.value = 0;

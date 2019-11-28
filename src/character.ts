@@ -1,5 +1,7 @@
 import { addAttribute } from './utils';
+import { attributes } from './influences';
 import * as effects from './effects';
+import * as skills from './skills';
 
 class Range {
   _value: number;
@@ -22,7 +24,7 @@ class Range {
 const config = {
   health: 100,
   stamina: 150,
-  armor: 0,
+  armor_protects: 0.9,
   stamina_regeneration: 10,
   weariness_increment: 1,
   weariness_decrement: 0.1,
@@ -36,6 +38,7 @@ export default class Character {
   armor: number;
   experience: number;
   effects: effects.Controller;
+  skills: skills.Controller;
 
   constructor() {
     this.initialize();
@@ -44,7 +47,7 @@ export default class Character {
   protected initialize() {
     this.health = new Range(config.health);
     this.stamina = new Range(config.stamina);
-    this.armor = config.armor;
+    this.update_armor();
     this.initialize_effects();
   }
 
@@ -56,10 +59,10 @@ export default class Character {
     ]);
   }
 
-  tick(dt: number) {
-    const influences_result = this.effects.tick(dt);
+  tick(dt: number, innerInfluences: any = {}) {
+    this.effects.tick(dt, innerInfluences);
     this.updateAttributes();
-    this.applyInfluences(influences_result);
+    this.applyInfluences(innerInfluences);
   }
 
   protected updateAttributes() {
@@ -67,11 +70,43 @@ export default class Character {
     this.stamina.max = config.stamina;
   }
 
-  applyInfluences(influences_result: any) {
-    Object.entries(influences_result)
-    .forEach(([attribute, value]) => {
-      addAttribute(this, attribute, value as number);
-    });
+  protected update_armor() {
+    this.armor = 0;
+  }
+
+  applyInfluences(influences: any, effects?: any) {
+    for (let attribute in influences) {
+      let value: number = influences[attribute];
+      addAttribute(this, attribute, value);
+    }
+  }
+
+  onOuterInfluences(
+    isPhysical: boolean,
+    influences: any,
+    effects?: effects.Effect[]
+  ) {
+    if (influences) {
+      let healthValue = influences[attributes.healthValue];
+      if (isPhysical && healthValue && healthValue < 0) {
+        healthValue = this.calculateProtects(healthValue);
+        influences[attributes.healthValue] = healthValue;
+      }
+      this.applyInfluences(influences);
+    }
+    if (effects) {
+      (effects as effects.Effect[])
+      .forEach(effect => this.effects.add(effect));
+    }
+  }
+
+  protected calculateProtects(value: number) {
+    if (value < this.armor) {
+      value *= 1 - config.armor_protects;
+    } else {
+      value += this.armor * config.armor_protects;
+    }
+    return value;
   }
 
   upExperience(value: number) {
