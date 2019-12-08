@@ -1,16 +1,21 @@
-import { addAttribute } from './utils';
-import { attributes } from './influences';
+import * as utils from './utils';
 import * as effects from './effects';
 import * as skills from './skills';
+import { attributes } from "./influences";
 
 class Range {
   _value: number;
 
   constructor(
     public max: number = 100,
+    value?: number,
     public min: number = 0
   ) {
-    this._value = this.max;
+    if (value || value === 0) {
+      this._value = value;
+    } else {
+      this._value = this.max;
+    }
   }
 
   get value() { return this._value }
@@ -22,21 +27,27 @@ class Range {
 }
 
 const config = {
-  health: 100,
-  stamina: 150,
-  armor_protects: 0.9,
-  stamina_regeneration: 10,
-  weariness_increment: 1,
-  weariness_decrement: 0.1,
-  experience_multiply: 1
+  attributes: {
+    health: 100,
+    stamina: 150,
+    weariness: [1, 0]
+  },
+  counters: {
+    armor: 0,
+    experience: 0
+  },
+  effects: {
+    StaminaRegeneration: 0.1,
+    WearinessRegeneration: -0.003
+  },
+  skills: {},
+  armorProtect: 0.9
 };
 
 export default class Character {
   name: string;
-  health: Range;
-  stamina: Range;
-  armor: number;
-  experience: number;
+  attributes: ({ [name: string]: Range });
+  counters: ({ [name: string]: number });
   effects: effects.Controller;
   skills: skills.Controller;
 
@@ -45,78 +56,80 @@ export default class Character {
   }
 
   protected initialize() {
-    this.health = new Range(config.health);
-    this.stamina = new Range(config.stamina);
-    this.update_armor();
+    this.initialize_attributes();
+    this.initialize_counters();
     this.initialize_effects();
+    this.initialize_skills();
+  }
+
+  protected initialize_attributes() {
+    this.attributes = {};
+    for (let name in config.attributes) {
+      const value = (config.attributes as any)[name];
+      const args: any[] = (Array.isArray(value)) ? value : [value];
+      this.attributes[name] = new Range(...args);
+    }
+  }
+
+  protected initialize_counters() {
+    this.counters = {};
+    for (let name in config.counters) {
+      const value: number = (config.counters as any)[name];
+      this.counters[name] = value;
+    }
   }
 
   protected initialize_effects() {
     this.effects = new effects.Controller();
-    this.effects.add([
-      new effects.StaminaRegeneration(config.stamina_regeneration),
-      new effects.Weariness(config.weariness_increment, config.weariness_decrement)
-    ]);
+    for (let name in config.effects) {
+      const value = (config.effects as any)[name];
+      const args: any[] = (Array.isArray(value)) ? value : [value];
+      const effect = new effects.list[name](...args);
+      this.effects.add(effect);
+    }
   }
+
+  protected initialize_skills() {}
 
   tick(dt: number, innerInfluences: any = {}) {
     this.effects.tick(dt, innerInfluences);
-    this.updateAttributes();
-    this.applyInfluences(innerInfluences);
+    this.applyImpact(innerInfluences);
   }
 
-  protected updateAttributes() {
-    this.health.max = config.health;
-    this.stamina.max = config.stamina;
+  protected apply_weariness(impact: any) {
+    if (!impact[attributes.staminaValue]) return;
+    const multiply = this.attributes.weariness.value;
+    impact[attributes.staminaValue] *= multiply;
   }
 
-  protected update_armor() {
-    this.armor = 0;
-  }
-
-  applyInfluences(influences: any, effects?: any) {
-    for (let attribute in influences) {
-      let value: number = influences[attribute];
-      addAttribute(this, attribute, value);
+  applyImpact(impact: any) {
+    for (let name in impact) {
+      let value: number = impact[name];
+      utils.addAttribute(this, name, value);
     }
   }
 
-  onOuterInfluences(
-    isPhysical: boolean,
-    influences: any,
-    effects?: effects.Effect[]
-  ) {
-    if (influences) {
-      let healthValue = influences[attributes.healthValue];
-      if (isPhysical && healthValue && healthValue < 0) {
-        healthValue = this.calculateProtects(healthValue);
-        influences[attributes.healthValue] = healthValue;
-      }
-      this.applyInfluences(influences);
-    }
-    if (effects) {
-      (effects as effects.Effect[])
-      .forEach(effect => this.effects.add(effect));
-    }
+  onOuterImpact(impact: any) {
+    this.armor_protection(impact);
+    this.effects.onOuterImpact(impact);
+    this.applyImpact(impact);
   }
 
-  protected calculateProtects(value: number) {
-    if (value < this.armor) {
-      value *= 1 - config.armor_protects;
+  protected armor_protection(impact: any) {
+    let healthValue = impact[attributes.healthValue];
+    if (!healthValue || healthValue > 0) return;
+    if (-healthValue <= this.counters.armor) {
+      healthValue *= config.armorProtect;
     } else {
-      value += this.armor * config.armor_protects;
+      healthValue += this.counters.armor * config.armorProtect;
     }
-    return value;
-  }
-
-  upExperience(value: number) {
-    this.experience += value * config.experience_multiply;
+    impact[attributes.healthValue] = healthValue;
   }
 
   useSkill(name: string) {
-    const inner_influence = {};
-    const outer_influence = {};
-    this.effects.onUseSkill(inner_influence, outer_influence);
+    const inner_impact = {};
+    const outer_impact = {};
+    this.effects.onUseSkill(inner_impact, outer_impact);
   }
 
 }

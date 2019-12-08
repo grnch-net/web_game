@@ -1,31 +1,47 @@
 export enum attributes {
-  healthValue = 'health.value',
-  healthMax = 'health.max',
-  staminaValue = 'stamina.value',
-  staminaMax = 'stamina.max'
+  healthValue = 'attributes.health.value',
+  healthMax = 'attributes.health.max',
+  staminaValue = 'attributes.stamina.value',
+  staminaMax = 'attributes.stamina.max',
+  wearinessValue = 'attributes.weariness.value'
+}
+
+export enum influenceTypes {
+  positive,
+  negative,
+  native,
+  unimportant
 }
 
 export class Influence {
   attribute: string;
   value: number;
-  perSecond: boolean;
-  deltaValue: number;
 
   set(
     attribute: string|string[],
-    value: number,
-    perSecond: boolean = false
+    value: number
   ) {
     if (Array.isArray(attribute)) {
       attribute = attribute.join('.');
     }
     this.attribute = attribute as string;
     this.value = value;
-    this.deltaValue = perSecond ? 0 : value;
+  }
+}
+
+export  class GradualInfluence extends Influence {
+  deltaValue: number;
+
+  set(
+    attribute: string|string[],
+    valuePerSecond: number
+  ) {
+    super.set(attribute, valuePerSecond);
+    this.deltaValue = 0;
   }
 
-  tick(dt: number): boolean {
-    if (!this.perSecond) return false;
+  tick(dt: number) {
     this.deltaValue = this.value * dt;
   }
+
 }

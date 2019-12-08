@@ -14,4 +14,8 @@ class Location {
 
 export default class World {
   location: Location;
+
+  constructor() {
+    this.location = new Location();
+  }
 }
