@@ -26,7 +26,7 @@ class Range {
   }
 }
 
-const config = {
+const config: any = {
   attributes: {
     health: 100,
     stamina: 150,
@@ -40,7 +40,9 @@ const config = {
     StaminaRegeneration: 0.1,
     WearinessRegeneration: -0.003
   },
-  skills: {},
+  skills: {
+    recreation: []
+  },
   armorProtect: 0.9
 };
 
@@ -50,6 +52,7 @@ export default class Character {
   counters: ({ [name: string]: number });
   effects: effects.Controller;
   skills: skills.Controller;
+  world: any;
 
   constructor() {
     this.initialize();
@@ -65,8 +68,8 @@ export default class Character {
   protected initialize_attributes() {
     this.attributes = {};
     for (let name in config.attributes) {
-      const value = (config.attributes as any)[name];
-      const args: any[] = (Array.isArray(value)) ? value : [value];
+      const value = config.attributes[name];
+      const args: any[] = utils.toArray(value);
       this.attributes[name] = new Range(...args);
     }
   }
@@ -74,7 +77,7 @@ export default class Character {
   protected initialize_counters() {
     this.counters = {};
     for (let name in config.counters) {
-      const value: number = (config.counters as any)[name];
+      const value: number = config.counters[name];
       this.counters[name] = value;
     }
   }
@@ -82,14 +85,22 @@ export default class Character {
   protected initialize_effects() {
     this.effects = new effects.Controller();
     for (let name in config.effects) {
-      const value = (config.effects as any)[name];
-      const args: any[] = (Array.isArray(value)) ? value : [value];
+      const value = config.effects[name];
+      const args: any[] = utils.toArray(value);
       const effect = new effects.list[name](...args);
       this.effects.add(effect);
     }
   }
 
-  protected initialize_skills() {}
+  protected initialize_skills() {
+    this.skills = new skills.Controller();
+    for (let name in config.skills) {
+      const value = config.skills[name];
+      const args: any[] = utils.toArray(value);
+      const skill = new skills.list[name](...args);
+      this.skills.add(skill);
+    }
+  }
 
   tick(dt: number, innerInfluences: any = {}) {
     this.effects.tick(dt, innerInfluences);
@@ -115,21 +126,45 @@ export default class Character {
     this.applyImpact(impact);
   }
 
-  protected armor_protection(impact: any) {
+  protected armor_protection(impact: any): boolean {
     let healthValue = impact[attributes.healthValue];
-    if (!healthValue || healthValue > 0) return;
+    if (!healthValue || healthValue > 0) return false;
     if (-healthValue <= this.counters.armor) {
       healthValue *= config.armorProtect;
     } else {
       healthValue += this.counters.armor * config.armorProtect;
     }
     impact[attributes.healthValue] = healthValue;
+    return true;
   }
 
-  useSkill(name: string) {
-    const inner_impact = {};
-    const outer_impact = {};
-    this.effects.onUseSkill(inner_impact, outer_impact);
+  useSkill(name: string): boolean {
+    const result = this.skills.use(name);
+    if (!result) return false;
+    const {
+      innerImpact,
+      outerImpact,
+      innerEffects,
+      outerEffects,
+      rules
+    } = result;
+    if (innerImpact || outerImpact) {
+      this.effects.onUseSkill(innerImpact, outerImpact);
+    }
+    if (innerImpact) {
+      this.applyImpact(innerImpact);
+    }
+    if (innerEffects) {
+      innerEffects.forEach((effect: effects.Effect) => {
+        this.effects.add(effect);
+      });
+    }
+    this.world.interact(this, {
+      impact: outerImpact,
+      effects: outerEffects,
+      rules: rules
+    });
+    return true;
   }
 
 }

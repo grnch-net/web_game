@@ -46,3 +46,36 @@ export function addAttribute(
   }
   target[attribute] += value;
 }
+
+export function toArray(value: any) {
+  return Array.isArray(value) ? value : [value];
+}
+
+export class Collection {
+  list: any[];
+
+  constructor() {
+    this.initialize();
+  }
+
+  protected initialize() {
+    this.list = [];
+  }
+
+  add(item: any): boolean {
+    if (this.list.includes(item)) {
+      return false;
+    }
+    this.list.push(item);
+    return true;
+  }
+
+  remove(item: any): boolean {
+    if (!this.list.includes(item)) {
+      return false;
+    }
+    const index = this.list.indexOf(item);
+    this.list.splice(index, 1);
+    return true;
+  }
+}

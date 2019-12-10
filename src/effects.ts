@@ -1,28 +1,19 @@
+import * as utils from './utils';
 import { Influence, GradualInfluence, attributes } from './influences';
 
-export class Controller {
+export class Controller extends utils.Collection {
   list: Effect[];
 
-  constructor() {
-    this.initialize();
-  }
-
-  protected initialize() {
-    this.list = [];
-  }
-
-  add(effect: Effect) {
-    if (!this.list.includes(effect)) {
-      this.list.push(effect);
-    }
+  add(effect: Effect): boolean {
+    const result = super.add(effect);
     effect.added();
+    return result;
   }
 
-  remove(effect: Effect) {
-    if (!this.list.includes(effect)) return;
-    const index = this.list.indexOf(effect);
-    this.list.splice(index, 1);
-    effect.removed();
+  remove(effect: Effect): boolean {
+    const result = super.remove(effect);
+    result && effect.removed();
+    return result;
   }
 
   tick(dt: number, impact: any) {
