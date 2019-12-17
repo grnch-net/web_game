@@ -83,13 +83,15 @@ export default class Character {
   }
 
   protected initialize_effects() {
+    const impact = {};
     this.effects = new effects.Controller();
     for (let name in config.effects) {
       const value = config.effects[name];
       const args: any[] = utils.toArray(value);
       const effect = new effects.list[name](...args);
-      this.effects.add(effect);
+      this.effects.add(effect, impact);
     }
+    this.applyImpact(impact);
   }
 
   protected initialize_skills() {
@@ -102,9 +104,9 @@ export default class Character {
     }
   }
 
-  tick(dt: number, innerInfluences: any = {}) {
-    this.effects.tick(dt, innerInfluences);
-    this.applyImpact(innerInfluences);
+  tick(dt: number, impact: any = {}) {
+    this.effects.tick(dt, impact);
+    this.applyImpact(impact);
   }
 
   protected apply_weariness(impact: any) {
@@ -120,7 +122,7 @@ export default class Character {
     }
   }
 
-  onOuterImpact(impact: any) {
+  applyOuterImpact(impact: any) {
     this.armor_protection(impact);
     this.effects.onOuterImpact(impact);
     this.applyImpact(impact);
@@ -142,23 +144,17 @@ export default class Character {
     const result = this.skills.use(name);
     if (!result) return false;
     const {
-      innerImpact,
-      outerImpact,
-      innerEffects,
+      innerImpact = {},
+      outerImpact = {},
+      innerEffects = [],
       outerEffects,
       rules
     } = result;
-    if (innerImpact || outerImpact) {
-      this.effects.onUseSkill(innerImpact, outerImpact);
-    }
-    if (innerImpact) {
-      this.applyImpact(innerImpact);
-    }
-    if (innerEffects) {
-      innerEffects.forEach((effect: effects.Effect) => {
-        this.effects.add(effect);
-      });
-    }
+    this.effects.onUseSkill(innerImpact, outerImpact);
+    innerEffects.forEach((effect: effects.Effect) => {
+      this.effects.add(effect, innerImpact);
+    });
+    this.applyImpact(innerImpact);
     this.world.interact(this, {
       impact: outerImpact,
       effects: outerEffects,

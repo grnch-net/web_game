@@ -4,15 +4,15 @@ import { Influence, GradualInfluence, attributes } from './influences';
 export class Controller extends utils.Collection {
   list: Effect[];
 
-  add(effect: Effect): boolean {
+  add(effect: Effect, impact: any): boolean {
     const result = super.add(effect);
-    effect.added();
+    effect.added(impact);
     return result;
   }
 
-  remove(effect: Effect): boolean {
+  remove(effect: Effect, impact: any): boolean {
     const result = super.remove(effect);
-    result && effect.removed();
+    result && effect.removed(impact);
     return result;
   }
 
@@ -21,7 +21,7 @@ export class Controller extends utils.Collection {
       if (!effect.active) return;
       effect.tick(dt, impact);
       if (effect.ended) {
-        this.remove(effect);
+        this.remove(effect, impact);
       }
     });
   }
@@ -45,8 +45,8 @@ export abstract class Effect {
   active: boolean;
   ended: boolean;
   liveTimer: number;
-  staticInfluences: Influence[];
-  gradualInfluences: GradualInfluence[];
+  protected static_influences: Influence[];
+  protected gradual_influences: GradualInfluence[];
 
   constructor(...options: any[]) {
     this.initialize(...options);
@@ -57,8 +57,8 @@ export abstract class Effect {
     this.active = false;
     this.ended = false;
     this.liveTimer = Infinity;
-    this.staticInfluences = [];
-    this.gradualInfluences = [];
+    this.static_influences = [];
+    this.gradual_influences = [];
   }
 
   protected initialize_influence(...options: any[]) {}
@@ -71,21 +71,18 @@ export abstract class Effect {
       this.liveTimer = 0;
       this.ended = true;
     }
-    this.gradualInfluences
-    .forEach(influence => {
-      influence.tick(dt);
-      const { attribute, deltaValue } = influence;
-      impact[attribute] = impact[attribute] || 0;
-      impact[attribute] += deltaValue;
-    });
+    this.gradual_influences
+    .forEach(influence => influence.tick(dt, impact));
   }
 
-  added() {
+  added(impact: any) {
     this.active = true;
+    this.static_influences.forEach(influence => influence.apply(impact));
   }
 
-  removed() {
+  removed(impact: any) {
     this.active = false;
+    this.static_influences.forEach(influence => influence.cancel(impact));
   }
 
   protected add_static_influence(
@@ -94,7 +91,7 @@ export abstract class Effect {
   ) {
     const influence = new Influence();
     influence.set(attribute, value);
-    this.staticInfluences.push(influence);
+    this.static_influences.push(influence);
   }
 
   protected add_gradual_influence(
@@ -103,7 +100,7 @@ export abstract class Effect {
   ) {
     const influence = new GradualInfluence();
     influence.set(attribute, value);
-    this.gradualInfluences.push(influence);
+    this.gradual_influences.push(influence);
   }
 
   onOuterImpact(impact: any) {}

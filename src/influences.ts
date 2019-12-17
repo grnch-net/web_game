@@ -27,6 +27,16 @@ export class Influence {
     this.attribute = attribute as string;
     this.value = value;
   }
+
+  apply(impact: any) {
+    impact[this.attribute] = impact[this.attribute] || 0;
+    impact[this.attribute] += this.value;
+  }
+
+  cancel(impact: any) {
+    impact[this.attribute] = impact[this.attribute] || 0;
+    impact[this.attribute] -= this.value;
+  }
 }
 
 export  class GradualInfluence extends Influence {
@@ -40,8 +50,19 @@ export  class GradualInfluence extends Influence {
     this.deltaValue = 0;
   }
 
-  tick(dt: number) {
+  tick(dt: number, impact: any) {
     this.deltaValue = this.value * dt;
+    this.apply(impact);
+  }
+
+  apply(impact:any) {
+    impact[this.attribute] = impact[this.attribute] || 0;
+    impact[this.attribute] += this.deltaValue;
+  }
+
+  cancel(impact:any) {
+    impact[this.attribute] = impact[this.attribute] || 0;
+    impact[this.attribute] -= this.deltaValue;
   }
 
 }

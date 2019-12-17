@@ -54,15 +54,15 @@ export function toArray(value: any) {
 export class Collection {
   list: any[];
 
-  constructor() {
-    this.initialize();
+  constructor(...options: any) {
+    this.initialize(...options);
   }
 
-  protected initialize() {
+  protected initialize(...options: any) {
     this.list = [];
   }
 
-  add(item: any): boolean {
+  add(item: any, ...options: any): boolean {
     if (this.list.includes(item)) {
       return false;
     }
@@ -70,7 +70,7 @@ export class Collection {
     return true;
   }
 
-  remove(item: any): boolean {
+  remove(item: any, ...options: any): boolean {
     if (!this.list.includes(item)) {
       return false;
     }
