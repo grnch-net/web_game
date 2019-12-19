@@ -28,13 +28,21 @@ export class Controller extends utils.Collection {
   }
 
   tick(dt: number, innerImpact: any, outerImpact: any) {
+    this.tick_recoveries(dt);
+    this.tick_using(dt, innerImpact, outerImpact);
+  }
+
+  protected tick_recoveries(dt: number) {
     this.recoveries.filter(skill => {
-      skill.tick(dt, innerImpact, outerImpact);
+      skill.tickRecovery(dt);
       if (!skill.recoveryTime) {
         skill.reset();
       }
       return skill.recoveryTime;
     });
+  }
+
+  protected tick_using(dt: number, innerImpact: any, outerImpact: any) {
     if (this.using) {
       this.using.tick(dt, innerImpact, outerImpact);
       if (this.using.ended) {
@@ -51,19 +59,41 @@ export class Controller extends utils.Collection {
   }
 
   use(name: string): any {
-    const index = this.names.indexOf(name);
-    const skill = this.list[index];
-    if (!skill) {
+    if (this.using) {
+      console.info(`Another skill using: ${this.using.name || this.using.constructor.name}.`);
       return null;
     }
+    const skill = this.find_by_name(name);
+    if (!skill) {
+      console.error(`Skill "${name}" is undefined.`);
+      return null;
+    }
+    const is_ready = this.recoveries.includes(skill);
+    if (!is_ready) {
+      console.info(`Skill recovery: ${skill.recoveryTime}s.`);
+      return null;
+    }
+    const result = skill.use();
+    return result;
+  }
 
-    const innerImpact = {};
-    const outerImpact = {};
+  protected find_by_name(name: string) {
+    const index = this.names.indexOf(name);
+    const skill = this.list[index];
+    return skill;
+  }
 
-    return {
-      innerImpact,
-      outerImpact
-    };
+  cancel() {
+    if (!this.using) {
+      return;
+    }
+    if (!this.using.castTime) {
+      this.using.onCancel();
+      if (this.using.recoveryTime) {
+        this.recoveries.push(this.using)
+      }
+    }
+    this.using = null;
   }
 }
 
@@ -102,7 +132,7 @@ export class Skill {
       if (dt < this.castTime) {
         this.castTime -= dt;
       } else {
-        this.on_end_cast(innerImpact, outerImpact);
+        this.on_cast_complete(innerImpact, outerImpact);
         dt -= this.castTime;
         this.castTime = 0;
         this.tick(dt, innerImpact, outerImpact);
@@ -114,18 +144,11 @@ export class Skill {
         this.tick_influences(dt, innerImpact, outerImpact);
       } else {
         this.tick_influences(this.usageTime, innerImpact, outerImpact);
+        this.on_use_complete(innerImpact, outerImpact);
         dt -= this.usageTime;
         this.usageTime = 0;
         this.ended = true;
-        this.tick(dt, innerImpact, outerImpact);
-      }
-    } else
-    if (this.recoveryTime > 0) {
-      if (dt < this.recoveryTime) {
-        this.recoveryTime -= dt;
-      } else {
-        dt = this.recoveryTime;
-        this.recoveryTime = 0;
+        this.tickRecovery(dt);
       }
     }
     // return {
@@ -136,14 +159,22 @@ export class Skill {
     // };
   }
 
-  protected on_end_cast(innerImpact: any, outerImpact: any) {
+  tickRecovery(dt: number) {
+    if (dt < this.recoveryTime) {
+      this.recoveryTime -= dt;
+    } else {
+      this.recoveryTime = 0;
+    }
+  }
+
+  protected on_cast_complete(innerImpact: any, outerImpact: any) {
     this.inner_static_influences
     .forEach(influence => influence.apply(innerImpact));
     this.outer_static_influences
     .forEach(influence => influence.apply(outerImpact));
   }
 
-  on_end_use(innerImpact: any, outerImpact: any) {}
+  protected on_use_complete(innerImpact: any, outerImpact: any) {}
 
   protected tick_influences(dt: number, innerImpact: any, outerImpact: any) {
     this.inner_gradual_influences
@@ -165,7 +196,7 @@ export class Skill {
     // };
   }
 
-  onBreak() {
+  onCancel() {
 
   }
 }
