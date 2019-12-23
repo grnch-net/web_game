@@ -29,7 +29,7 @@ class Range {
 const config: any = {
   attributes: {
     health: 100,
-    stamina: 150,
+    stamina: 1.5,
     weariness: [1, 0]
   },
   counters: {
@@ -38,7 +38,7 @@ const config: any = {
   },
   effects: {
     StaminaRegeneration: 0.1,
-    WearinessRegeneration: -0.003
+    // WearinessRegeneration: -0.003
   },
   skills: {
     recreation: []
@@ -111,7 +111,12 @@ export default class Character {
 
   protected apply_weariness(impact: any) {
     if (!impact[attributes.staminaValue]) return;
-    const multiply = this.attributes.weariness.value;
+    let multiply = 1;
+    const stamina = this.attributes.stamina.value;
+    if (stamina < 1) {
+      multiply *= stamina * 0.5 + 0.5;
+    }
+    multiply *= this.attributes.weariness.value;
     impact[attributes.staminaValue] *= multiply;
   }
 
