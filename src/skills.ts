@@ -1,6 +1,6 @@
 import * as utils from './utils';
 import * as effects from './effects';
-import { Influence, GradualInfluence } from './influences';
+import { Influence, GradualInfluence, attributes } from './influences';
 
 export class Controller extends utils.Collection {
   names: string[];
@@ -43,14 +43,13 @@ export class Controller extends utils.Collection {
   }
 
   protected tick_using(dt: number, innerImpact: any, outerImpact: any) {
-    if (this.using) {
-      this.using.tick(dt, innerImpact, outerImpact);
-      if (this.using.ended) {
-        if (this.using.recoveryTime) {
-          this.recoveries.push(this.using)
-        }
-        this.using = null;
+    if (!this.using) return;
+    this.using.tick(dt, innerImpact, outerImpact);
+    if (this.using.ended) {
+      if (this.using.recoveryTime) {
+        this.recoveries.push(this.using);
       }
+      this.using = null;
     }
   }
 
@@ -70,7 +69,7 @@ export class Controller extends utils.Collection {
     }
     const is_ready = this.recoveries.includes(skill);
     if (!is_ready) {
-      console.info(`Skill recovery: ${skill.recoveryTime}s.`);
+      console.info(`Skill recovery: ${skill.recoveryTime}.`);
       return null;
     }
     const result = skill.use();
@@ -84,13 +83,11 @@ export class Controller extends utils.Collection {
   }
 
   cancel() {
-    if (!this.using) {
-      return;
-    }
+    if (!this.using) return;
     if (!this.using.castTime) {
       this.using.onCancel();
       if (this.using.recoveryTime) {
-        this.recoveries.push(this.using)
+        this.recoveries.push(this.using);
       }
     }
     this.using = null;
@@ -110,6 +107,8 @@ export class Skill {
 
   constructor(...options: any[]) {
     this.initialize(...options);
+    this.reset();
+    this.initialize_influence(...options);
   }
 
   protected initialize(...options: any[]) {
@@ -117,10 +116,11 @@ export class Skill {
     this.inner_gradual_influences = [];
     this.outer_static_influences = [];
     this.outer_gradual_influences = [];
-    this.reset();
   }
 
-  reset() {
+  protected initialize_influence(...options: any[]) {}
+
+  reset(...options: any[]) {
     this.castTime = 0;
     this.usageTime = 0;
     this.recoveryTime = 0;
@@ -129,27 +129,47 @@ export class Skill {
 
   tick(dt: any, innerImpact: any, outerImpact: any): any {
     if (this.castTime > 0) {
-      if (dt < this.castTime) {
-        this.castTime -= dt;
-      } else {
-        this.on_cast_complete(innerImpact, outerImpact);
-        dt -= this.castTime;
-        this.castTime = 0;
-        this.tick(dt, innerImpact, outerImpact);
-      }
+      return this.tick_cast(dt, innerImpact, outerImpact);
     } else
     if (this.usageTime > 0) {
-      if (dt < this.usageTime) {
-        this.usageTime -= dt;
-        this.tick_influences(dt, innerImpact, outerImpact);
-      } else {
-        this.tick_influences(this.usageTime, innerImpact, outerImpact);
-        this.on_use_complete(innerImpact, outerImpact);
-        dt -= this.usageTime;
-        this.usageTime = 0;
-        this.ended = true;
-        this.tickRecovery(dt);
-      }
+      return this.tick_usage(dt, innerImpact, outerImpact);
+    }
+    // return {
+    //   cost: {},
+    //   innerEffects: [],
+    //   outerEffects: [],
+    //   rules: {}
+    // };
+  }
+
+  protected tick_cast(dt: any, innerImpact: any, outerImpact: any): any {
+    if (dt < this.castTime) {
+      this.castTime -= dt;
+    } else {
+      this.on_cast_complete(innerImpact, outerImpact);
+      dt -= this.castTime;
+      this.castTime = 0;
+      this.tick(dt, innerImpact, outerImpact);
+    }
+    // return {
+    //   cost: {},
+    //   innerEffects: [],
+    //   outerEffects: [],
+    //   rules: {}
+    // };
+  }
+
+  protected tick_usage(dt: any, innerImpact: any, outerImpact: any): any {
+    if (dt < this.usageTime) {
+      this.usageTime -= dt;
+      this.tick_influences(dt, innerImpact, outerImpact);
+    } else {
+      this.tick_influences(this.usageTime, innerImpact, outerImpact);
+      this.on_use_complete(innerImpact, outerImpact);
+      dt -= this.usageTime;
+      this.usageTime = 0;
+      this.ended = true;
+      this.tickRecovery(dt);
     }
     // return {
     //   cost: {},
@@ -199,9 +219,67 @@ export class Skill {
   onCancel() {
 
   }
+
+  protected add_inner_static_influence(
+    attribute: attributes,
+    value: number
+  ) {
+    const influence = new Influence();
+    influence.set(attribute, value);
+    this.inner_static_influences.push(influence);
+  }
+
+  protected add_inner_gradual_influence(
+    attribute: attributes,
+    value: number
+  ) {
+    const influence = new GradualInfluence();
+    influence.set(attribute, value);
+    this.inner_gradual_influences.push(influence);
+  }
+
+  protected add_outer_static_influence(
+    attribute: attributes,
+    value: number
+  ) {
+    const influence = new Influence();
+    influence.set(attribute, value);
+    this.outer_static_influences.push(influence);
+  }
+
+  protected add_outer_gradual_influence(
+    attribute: attributes,
+    value: number
+  ) {
+    const influence = new GradualInfluence();
+    influence.set(attribute, value);
+    this.outer_gradual_influences.push(influence);
+  }
 }
 
+const config = {
+  Recreation: {
+    health: -0.003,
+    weariness: -0.003
+  }
+};
+
 class Recreation extends Skill {
+  constructor() {
+    super();
+  }
+
+  reset() {
+    super.reset();
+    this.usageTime = Infinity;
+  }
+
+  protected initialize_influence() {
+    const health = config.Recreation.health;
+    this.add_inner_gradual_influence(attributes.healthValue, health);
+    const weariness = config.Recreation.weariness;
+    this.add_inner_gradual_influence(attributes.wearinessValue, weariness);
+  }
 
 }
 
