@@ -1,17 +1,17 @@
 export enum attributes {
-  healthValue = 'attributes.health.value',
+  health = 'attributes.health.value',
   healthMax = 'attributes.health.max',
-  staminaValue = 'attributes.stamina.value',
+  stamina = 'attributes.stamina.value',
   staminaMax = 'attributes.stamina.max',
-  wearinessValue = 'attributes.weariness.value'
+  weariness = 'attributes.weariness.value'
 }
 
-export enum influenceTypes {
-  positive,
-  negative,
-  native,
-  unimportant
-}
+// export enum influenceTypes {
+//   positive,
+//   negative,
+//   native,
+//   unimportant
+// }
 
 export class Influence {
   attribute: string;

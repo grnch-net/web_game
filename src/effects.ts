@@ -119,7 +119,7 @@ class HealthRegeneration extends Effect {
   }
 
   protected initialize_influence(value: number) {
-    this.add_gradual_influence(attributes.healthValue, value);
+    this.add_gradual_influence(attributes.health, value);
   }
 }
 
@@ -134,7 +134,7 @@ class StaminaRegeneration extends Effect {
   }
 
   protected initialize_influence(value: number) {
-    this.add_gradual_influence(attributes.staminaValue, value);
+    this.add_gradual_influence(attributes.stamina, value);
   }
 }
 
@@ -149,7 +149,7 @@ class WearinessRegeneration extends Effect {
   }
 
   protected initialize_influence(value: number) {
-    this.add_gradual_influence(attributes.wearinessValue, value);
+    this.add_gradual_influence(attributes.weariness, value);
   }
 }
 

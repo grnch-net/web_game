@@ -46,9 +46,7 @@ export class Controller extends utils.Collection {
     if (!this.using) return;
     this.using.tick(dt, innerImpact, outerImpact);
     if (this.using.ended) {
-      if (this.using.recoveryTime) {
-        this.recoveries.push(this.using);
-      }
+      this.add_to_recovery(this.using);
       this.using = null;
     }
   }
@@ -57,7 +55,7 @@ export class Controller extends utils.Collection {
     this.using && this.using.onOuterImpact(impact);
   }
 
-  use(name: string): any {
+  getToUse(name: string): Skill {
     if (this.using) {
       console.info(`Another skill using: ${this.using.name || this.using.constructor.name}.`);
       return null;
@@ -72,8 +70,7 @@ export class Controller extends utils.Collection {
       console.info(`Skill recovery: ${skill.recoveryTime}.`);
       return null;
     }
-    const result = skill.use();
-    return result;
+    return skill;
   }
 
   protected find_by_name(name: string) {
@@ -86,11 +83,15 @@ export class Controller extends utils.Collection {
     if (!this.using) return;
     if (!this.using.castTime) {
       this.using.onCancel();
-      if (this.using.recoveryTime) {
-        this.recoveries.push(this.using);
-      }
+      this.add_to_recovery(this.using);
     }
     this.using = null;
+  }
+
+  add_to_recovery(skill: Skill) {
+    if (skill.recoveryTime) {
+      this.recoveries.push(skill);
+    }
   }
 }
 
@@ -99,6 +100,9 @@ export class Skill {
   castTime: number;
   usageTime: number;
   recoveryTime: number;
+  rules: any;
+  cost: any;
+  gradualCost: any;
   ended: boolean;
   protected inner_static_influences: Influence[];
   protected inner_gradual_influences: GradualInfluence[];
@@ -112,6 +116,8 @@ export class Skill {
   }
 
   protected initialize(...options: any[]) {
+    this.cost = null;
+    this.gradualCost = null;
     this.inner_static_influences = [];
     this.inner_gradual_influences = [];
     this.outer_static_influences = [];
@@ -124,6 +130,7 @@ export class Skill {
     this.castTime = 0;
     this.usageTime = 0;
     this.recoveryTime = 0;
+    this.rules = {};
     this.ended = false;
   }
 
@@ -206,14 +213,14 @@ export class Skill {
   onOuterImpact(impact: any): any {}
 
   use(): any {
-    // return {
+    return {
     //   cost: {},
     //   innerImpact: {},
     //   outerImpact: {},
     //   innerEffects: [],
     //   outerEffects: [],
     //   rules: {}
-    // };
+    };
   }
 
   onCancel() {
@@ -261,6 +268,11 @@ const config = {
   Recreation: {
     health: -0.003,
     weariness: -0.003
+  },
+  Attack: {
+    castTime: 1,
+    health: -10,
+    staminaCost: 25
   }
 };
 
@@ -276,13 +288,36 @@ class Recreation extends Skill {
 
   protected initialize_influence() {
     const health = config.Recreation.health;
-    this.add_inner_gradual_influence(attributes.healthValue, health);
+    this.add_inner_gradual_influence(attributes.health, health);
     const weariness = config.Recreation.weariness;
-    this.add_inner_gradual_influence(attributes.wearinessValue, weariness);
+    this.add_inner_gradual_influence(attributes.weariness, weariness);
+  }
+
+}
+
+class Attack extends Skill {
+  constructor() {
+    super();
+  }
+
+  reset() {
+    super.reset();
+    this.castTime = config.Attack.castTime;
+  }
+
+  protected initialize() {
+    this.cost = {};
+    this.cost[attributes.stamina] = -config.Attack.staminaCost;
+  }
+
+  protected initialize_influence() {
+    const health = config.Attack.health;
+    this.add_outer_static_influence(attributes.health, health);
   }
 
 }
 
 export const list: any = {
-  Recreation
+  Recreation,
+  Attack
 }
