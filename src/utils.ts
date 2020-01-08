@@ -1,7 +1,7 @@
 export function getAttribute(
   target: any,
   path: string|string[]
-) {
+): any {
   if (!Array.isArray(path)) {
     path = path.split('.');
   }
@@ -47,22 +47,31 @@ export function addAttribute(
   target[attribute] += value;
 }
 
-export function toArray(value: any) {
+export function toArray(
+  value: any
+): any[] {
   return Array.isArray(value) ? value : [value];
 }
 
 export class Collection {
   list: any[];
 
-  constructor(...options: any) {
+  constructor(
+    ...options: any
+  ) {
     this.initialize(...options);
   }
 
-  protected initialize(...options: any) {
+  protected initialize(
+    ...options: any
+  ) {
     this.list = [];
   }
 
-  add(item: any, ...options: any): boolean {
+  add(
+    item: any,
+    ...options: any
+  ): boolean {
     if (this.list.includes(item)) {
       return false;
     }
@@ -70,7 +79,10 @@ export class Collection {
     return true;
   }
 
-  remove(item: any, ...options: any): boolean {
+  remove(
+    item: any,
+    ...options: any
+  ): boolean {
     if (!this.list.includes(item)) {
       return false;
     }

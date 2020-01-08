@@ -8,7 +8,9 @@ export class Controller extends utils.Collection {
   using: Skill;
   recoveries: Skill[];
 
-  add(skill: Skill): boolean {
+  add(
+    skill: Skill
+  ): boolean {
     const result = super.add(skill);
     if (result) {
       const name = skill.name || skill.constructor.name;
@@ -17,7 +19,9 @@ export class Controller extends utils.Collection {
     return result;
   }
 
-  remove(skill: Skill): boolean {
+  remove(
+    skill: Skill
+  ): boolean {
     const result = super.remove(skill);
     if (result) {
       const name = skill.name || skill.constructor.name;
@@ -27,12 +31,18 @@ export class Controller extends utils.Collection {
     return result;
   }
 
-  tick(dt: number, innerImpact: any, outerImpact: any): any {
+  tick(
+    dt: number,
+    innerImpact: any,
+    outerImpact: any
+  ): any {
     this.tick_recoveries(dt);
     return this.tick_using(dt, innerImpact, outerImpact);
   }
 
-  protected tick_recoveries(dt: number) {
+  protected tick_recoveries(
+    dt: number
+  ) {
     this.recoveries.filter(skill => {
       skill.tickRecovery(dt);
       !skill.recoveryTime && skill.reset();
@@ -40,7 +50,11 @@ export class Controller extends utils.Collection {
     });
   }
 
-  protected tick_using(dt: number, innerImpact: any, outerImpact: any): any {
+  protected tick_using(
+    dt: number,
+    innerImpact: any,
+    outerImpact: any
+  ): any {
     if (!this.using) return null;
     const result = this.using.tick(dt, innerImpact, outerImpact);
     if (this.using.ended) {
@@ -50,11 +64,15 @@ export class Controller extends utils.Collection {
     return result;
   }
 
-  onOuterImpact(impact: any) {
+  onOuterImpact(
+    impact: any
+  ) {
     this.using && this.using.onOuterImpact(impact);
   }
 
-  getToUse(name: string): Skill {
+  getToUse(
+    name: string
+  ): Skill {
     if (this.using) {
       console.info(`Another skill using: ${this.using.name || this.using.constructor.name}.`);
       return null;
@@ -72,7 +90,9 @@ export class Controller extends utils.Collection {
     return skill;
   }
 
-  protected find_by_name(name: string) {
+  protected find_by_name(
+    name: string
+  ) {
     const index = this.names.indexOf(name);
     const skill = this.list[index];
     return skill;
@@ -87,7 +107,9 @@ export class Controller extends utils.Collection {
     this.using = null;
   }
 
-  protected add_to_recovery(skill: Skill) {
+  protected add_to_recovery(
+    skill: Skill
+  ) {
     if (skill.recoveryTime) {
       this.recoveries.push(skill);
     }
@@ -108,13 +130,17 @@ export class Skill {
   protected outer_static_influences: Influence[];
   protected outer_gradual_influences: GradualInfluence[];
 
-  constructor(...options: any[]) {
+  constructor(
+    ...options: any[]
+  ) {
     this.initialize(...options);
     this.reset();
     this.initialize_influence(...options);
   }
 
-  protected initialize(...options: any[]) {
+  protected initialize(
+    ...options: any[]
+  ) {
     this.cost = null;
     this.gradualCost = null;
     this.inner_static_influences = [];
@@ -123,9 +149,13 @@ export class Skill {
     this.outer_gradual_influences = [];
   }
 
-  protected initialize_influence(...options: any[]) {}
+  protected initialize_influence(
+    ...options: any[]
+  ) {}
 
-  reset(...options: any[]) {
+  reset(
+    ...options: any[]
+  ) {
     this.castTime = 0;
     this.usageTime = 0;
     this.recoveryTime = 0;
@@ -133,7 +163,11 @@ export class Skill {
     this.ended = false;
   }
 
-  tick(dt: any, innerImpact: any, outerImpact: any): any {
+  tick(
+    dt: any,
+    innerImpact: any,
+    outerImpact: any
+  ): any {
     if (this.castTime > 0) {
       return this.tick_cast(dt, innerImpact, outerImpact);
     } else
@@ -148,7 +182,11 @@ export class Skill {
     // };
   }
 
-  protected tick_cast(dt: any, innerImpact: any, outerImpact: any): any {
+  protected tick_cast(
+    dt: any,
+    innerImpact: any,
+    outerImpact: any
+  ): any {
     if (dt < this.castTime) {
       this.castTime -= dt;
       return {};
@@ -166,7 +204,11 @@ export class Skill {
     // };
   }
 
-  protected tick_usage(dt: any, innerImpact: any, outerImpact: any): any {
+  protected tick_usage(
+    dt: any,
+    innerImpact: any,
+    outerImpact: any
+  ): any {
     if (dt < this.usageTime) {
       this.usageTime -= dt;
       this.tick_influences(dt, innerImpact, outerImpact);
@@ -187,7 +229,9 @@ export class Skill {
     // };
   }
 
-  tickRecovery(dt: number) {
+  tickRecovery(
+    dt: number
+  ) {
     if (dt < this.recoveryTime) {
       this.recoveryTime -= dt;
     } else {
@@ -195,23 +239,35 @@ export class Skill {
     }
   }
 
-  protected on_cast_complete(innerImpact: any, outerImpact: any) {
+  protected on_cast_complete(
+    innerImpact: any,
+    outerImpact: any
+  ) {
     this.inner_static_influences
     .forEach(influence => influence.apply(innerImpact));
     this.outer_static_influences
     .forEach(influence => influence.apply(outerImpact));
   }
 
-  protected on_use_complete(innerImpact: any, outerImpact: any) {}
+  protected on_use_complete(
+    innerImpact: any,
+    outerImpact: any
+  ) {}
 
-  protected tick_influences(dt: number, innerImpact: any, outerImpact: any) {
+  protected tick_influences(
+    dt: number,
+    innerImpact: any,
+    outerImpact: any
+  ) {
     this.inner_gradual_influences
     .forEach(influence => influence.tick(dt, innerImpact));
     this.outer_gradual_influences
     .forEach(influence => influence.tick(dt, outerImpact));
   }
 
-  onOuterImpact(impact: any): any {}
+  onOuterImpact(
+    impact: any
+  ): any {}
 
   use(): any {
     return {
@@ -225,7 +281,7 @@ export class Skill {
   }
 
   onCancel() {
-
+    // TODO: reset?
   }
 
   protected add_inner_static_influence(

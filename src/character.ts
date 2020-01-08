@@ -104,20 +104,26 @@ export default class Character {
     }
   }
 
-  tick(dt: number, innerImpact: any = {}) {
+  tick(
+    dt: number,
+    innerImpact: any = {}
+  ) {
     const outerImpact = {};
     this.effects.tick(dt, innerImpact, outerImpact);
     const skill_interact = this.tick_skills(dt, innerImpact, outerImpact);
     const { outerEffects, rules } = skill_interact || {};
     this.applyImpact(innerImpact);
     this.applyInteract(rules, outerImpact, outerEffects);
-
   }
 
-  protected tick_skills(dt: number, innerImpact: any, outerImpact: any): any {
-    const skillResult = this.skills.tick(dt, innerImpact, outerImpact);
-    if (!skillResult) return null;
-    const { innerEffects, outerEffects, rules, cost } = skillResult;
+  protected tick_skills(
+    dt: number,
+    innerImpact: any,
+    outerImpact: any
+  ): any {
+    const result = this.skills.tick(dt, innerImpact, outerImpact);
+    if (!result) return null;
+    const { innerEffects, outerEffects, rules, cost } = result;
     const success = this.apply_skill({
       innerImpact, outerImpact, innerEffects, outerEffects, rules, cost
     });
@@ -131,7 +137,9 @@ export default class Character {
     }
   }
 
-  protected apply_weariness(impact: any) {
+  protected apply_weariness(
+    impact: any
+  ) {
     if (!impact[attributes.stamina]) return;
     let multiply = 1;
     const stamina = this.attributes.stamina.value;
@@ -142,21 +150,27 @@ export default class Character {
     impact[attributes.stamina] *= multiply;
   }
 
-  applyImpact(impact: any) {
+  applyImpact(
+    impact: any
+  ) {
     for (let name in impact) {
       const value: number = impact[name];
       utils.addAttribute(this, name, value);
     }
   }
 
-  applyOuterImpact(impact: any) {
+  applyOuterImpact(
+    impact: any
+  ) {
     this.effects.onOuterImpact(impact);
     this.skills.onOuterImpact(impact);
     this.armor_protection(impact);
     this.applyImpact(impact);
   }
 
-  protected armor_protection(impact: any): boolean {
+  protected armor_protection(
+    impact: any
+  ): boolean {
     let health = impact[attributes.health];
     if (!health || health > 0) return false;
     if (-health <= this.counters.armor) {
@@ -168,7 +182,9 @@ export default class Character {
     return true;
   }
 
-  useSkill(name: string): boolean {
+  useSkill(
+    name: string
+  ): boolean {
     const skill = this.skills.getToUse(name);
     if (!skill) return false;
     const paid = this.apply_cost(skill.cost);
@@ -184,7 +200,9 @@ export default class Character {
     // TODO: apply items attributes
   }
 
-  protected apply_cost(impact: any) {
+  protected apply_cost(
+    impact: any
+  ) {
     if (!impact) return true;
     const checked = this.checkImpact(impact);
     if (!checked) return false;
@@ -208,7 +226,9 @@ export default class Character {
     return true;
   }
 
-  checkImpact(impact: any): boolean {
+  checkImpact(
+    impact: any
+  ): boolean {
     for (let name in impact) {
       const impactValue: number = impact[name];
       const attributeValue = utils.getAttribute(this, name);
@@ -218,7 +238,11 @@ export default class Character {
     return true;
   }
 
-  protected applyInteract(rules: any, impact: any, effects: any) {
+  protected applyInteract(
+    rules: any,
+    impact: any,
+    effects: any
+  ) {
     this.world.interact(this, { impact, effects, rules });
   }
 

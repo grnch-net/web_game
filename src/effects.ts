@@ -4,19 +4,30 @@ import { Influence, GradualInfluence, attributes } from './influences';
 export class Controller extends utils.Collection {
   list: Effect[];
 
-  add(effect: Effect, impact: any): boolean {
+  add(
+    effect: Effect,
+    impact: any
+  ): boolean {
     const result = super.add(effect);
     effect.added(impact);
     return result;
   }
 
-  remove(effect: Effect, innerImpact: any, outerImpact: any): boolean {
+  remove(
+    effect: Effect,
+    innerImpact: any,
+    outerImpact: any
+  ): boolean {
     const result = super.remove(effect);
     result && effect.removed(innerImpact, outerImpact);
     return result;
   }
 
-  tick(dt: number, innerImpact: any, outerImpact: any) {
+  tick(
+    dt: number,
+    innerImpact: any,
+    outerImpact: any
+  ) {
     this.list.forEach(effect => {
       if (!effect.active) return;
       effect.tick(dt, innerImpact, outerImpact);
@@ -26,14 +37,19 @@ export class Controller extends utils.Collection {
     });
   }
 
-  onOuterImpact(impact: any) {
+  onOuterImpact(
+    impact: any
+  ) {
     this.list.forEach(effect => {
       if (!effect.active) return;
       effect.onOuterImpact(impact);
     });
   }
 
-  onUseSkill(innerImpact: any, outerImpact: any) {
+  onUseSkill(
+    innerImpact: any,
+    outerImpact: any
+  ) {
     this.list.forEach(effect => {
       if (!effect.active) return;
       effect.onUseSkill(innerImpact, outerImpact);
@@ -49,12 +65,16 @@ export abstract class Effect {
   protected inner_gradual_influences: GradualInfluence[];
   protected outer_gradual_influences: GradualInfluence[];
 
-  constructor(...options: any[]) {
+  constructor(
+    ...options: any[]
+  ) {
     this.initialize(...options);
     this.initialize_influence(...options);
   }
 
-  protected initialize(...options: any[]) {
+  protected initialize(
+    ...options: any[]
+  ) {
     this.active = false;
     this.ended = false;
     this.liveTimer = Infinity;
@@ -63,9 +83,15 @@ export abstract class Effect {
     this.outer_gradual_influences = [];
   }
 
-  protected initialize_influence(...options: any[]) {}
+  protected initialize_influence(
+    ...options: any[]
+  ) {}
 
-  tick(dt: number, innerImpact: any, outerImpact: any) {
+  tick(
+    dt: number,
+    innerImpact: any,
+    outerImpact: any
+  ) {
     if (dt < this.liveTimer) {
       this.liveTimer -= dt;
     } else {
@@ -79,12 +105,17 @@ export abstract class Effect {
     .forEach(influence => influence.tick(dt, outerImpact));
   }
 
-  added(innerImpact: any) {
+  added(
+    innerImpact: any
+  ) {
     this.active = true;
     this.static_influences.forEach(influence => influence.apply(innerImpact));
   }
 
-  removed(innerImpact: any, outerImpact: any) {
+  removed(
+    innerImpact: any,
+    outerImpact: any
+  ) {
     this.active = false;
     this.static_influences
     .forEach(influence => influence.cancel(innerImpact));
@@ -117,52 +148,84 @@ export abstract class Effect {
     this.outer_gradual_influences.push(influence);
   }
 
-  onOuterImpact(impact: any) {}
+  onOuterImpact(
+    impact: any
+  ) {}
 
-  onUseSkill(innerImpact: any, outerImpact: any) {}
+  onUseSkill(
+    innerImpact: any,
+    outerImpact: any
+  ) {}
 }
 
 class HealthRegeneration extends Effect {
-  constructor(value: number, time?: number) {
+  constructor(
+    value: number,
+    time?: number
+  ) {
     super(value, time);
   }
 
-  protected initialize(value: number, time?: number) {
+  protected initialize(
+    value: number,
+    time?: number
+  ) {
     super.initialize();
     if (time) this.liveTimer = time;
   }
 
-  protected initialize_influence(value: number) {
+  protected initialize_influence(
+    value: number
+  ) {
+    super.initialize_influence();
     this.add_inner_gradual_influence(attributes.health, value);
   }
 }
 
 class StaminaRegeneration extends Effect {
-  constructor(value: number, time?: number) {
+  constructor(
+    value: number,
+    time?: number
+  ) {
     super(value, time);
   }
 
-  protected initialize(value: number, time?: number) {
+  protected initialize(
+    value: number,
+    time?: number
+  ) {
     super.initialize();
     if (time) this.liveTimer = time;
   }
 
-  protected initialize_influence(value: number) {
+  protected initialize_influence(
+    value: number
+  ) {
+    super.initialize_influence();
     this.add_inner_gradual_influence(attributes.stamina, value);
   }
 }
 
 class WearinessRegeneration extends Effect {
-  constructor(value: number, time?: number) {
+  constructor(
+    value: number,
+    time?: number
+  ) {
     super(value, time);
   }
 
-  protected initialize(value: number, time?: number) {
+  protected initialize(
+    value: number,
+    time?: number
+  ) {
     super.initialize();
     if (time) this.liveTimer = time;
   }
 
-  protected initialize_influence(value: number) {
+  protected initialize_influence(
+    value: number
+  ) {
+    super.initialize_influence();
     this.add_inner_gradual_influence(attributes.weariness, value);
   }
 }
