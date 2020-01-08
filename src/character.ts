@@ -104,9 +104,31 @@ export default class Character {
     }
   }
 
-  tick(dt: number, impact: any = {}) {
-    this.effects.tick(dt, impact);
-    this.applyImpact(impact);
+  tick(dt: number, innerImpact: any = {}) {
+    const outerImpact = {};
+    this.effects.tick(dt, innerImpact, outerImpact);
+    const skill_interact = this.tick_skills(dt, innerImpact, outerImpact);
+    const { outerEffects, rules } = skill_interact || {};
+    this.applyImpact(innerImpact);
+    this.applyInteract(rules, outerImpact, outerEffects);
+
+  }
+
+  protected tick_skills(dt: number, innerImpact: any, outerImpact: any): any {
+    const skillResult = this.skills.tick(dt, innerImpact, outerImpact);
+    if (!skillResult) return null;
+    const { innerEffects, outerEffects, rules, cost } = skillResult;
+    const success = this.apply_skill({
+      innerImpact, outerImpact, innerEffects, outerEffects, rules, cost
+    });
+    if (!success) {
+      this.skills.cancelUse();
+      return null;
+    }
+    return {
+      outerEffects,
+      rules
+    }
   }
 
   protected apply_weariness(impact: any) {
@@ -128,8 +150,9 @@ export default class Character {
   }
 
   applyOuterImpact(impact: any) {
-    this.armor_protection(impact);
     this.effects.onOuterImpact(impact);
+    this.skills.onOuterImpact(impact);
+    this.armor_protection(impact);
     this.applyImpact(impact);
   }
 
@@ -148,16 +171,20 @@ export default class Character {
   useSkill(name: string): boolean {
     const skill = this.skills.getToUse(name);
     if (!skill) return false;
-    const paid = this.applyCost(skill.cost);
+    const paid = this.apply_cost(skill.cost);
     if (!paid) return false;
-    const result = skill.use();
-    this.applySkill(result);
+    const {
+      innerImpact, outerImpact, innerEffects, outerEffects, rules
+    } = skill.use();
+    this.apply_skill({ innerImpact, outerImpact, innerEffects, rules });
     this.skills.using = skill;
+    this.applyImpact(innerImpact);
+    this.applyInteract(rules, outerImpact, outerEffects);
     return true;
     // TODO: apply items attributes
   }
 
-  protected applyCost(impact: any) {
+  protected apply_cost(impact: any) {
     if (!impact) return true;
     const checked = this.checkImpact(impact);
     if (!checked) return false;
@@ -165,25 +192,18 @@ export default class Character {
     return true;
   }
 
-  protected applySkill({
+  protected apply_skill({
     innerImpact = {},
     outerImpact = {},
     innerEffects,
-    outerEffects,
     rules,
     cost
   }: any): boolean {
-    const paid = this.applyCost(cost);
+    const paid = this.apply_cost(cost);
     if (!paid) return false;
     this.effects.onUseSkill(innerImpact, outerImpact);
     innerEffects.forEach((effect: effects.Effect) => {
       this.effects.add(effect, innerImpact);
-    });
-    this.applyImpact(innerImpact);
-    this.world.interact(this, {
-      impact: outerImpact,
-      effects: outerEffects,
-      rules: rules
     });
     return true;
   }
@@ -196,6 +216,10 @@ export default class Character {
       if (result < 0) return false;
     }
     return true;
+  }
+
+  protected applyInteract(rules: any, impact: any, effects: any) {
+    this.world.interact(this, { impact, effects, rules });
   }
 
   // TODO: add items

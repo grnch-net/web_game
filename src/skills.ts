@@ -27,28 +27,27 @@ export class Controller extends utils.Collection {
     return result;
   }
 
-  tick(dt: number, innerImpact: any, outerImpact: any) {
+  tick(dt: number, innerImpact: any, outerImpact: any): any {
     this.tick_recoveries(dt);
-    this.tick_using(dt, innerImpact, outerImpact);
+    return this.tick_using(dt, innerImpact, outerImpact);
   }
 
   protected tick_recoveries(dt: number) {
     this.recoveries.filter(skill => {
       skill.tickRecovery(dt);
-      if (!skill.recoveryTime) {
-        skill.reset();
-      }
+      !skill.recoveryTime && skill.reset();
       return skill.recoveryTime;
     });
   }
 
-  protected tick_using(dt: number, innerImpact: any, outerImpact: any) {
-    if (!this.using) return;
-    this.using.tick(dt, innerImpact, outerImpact);
+  protected tick_using(dt: number, innerImpact: any, outerImpact: any): any {
+    if (!this.using) return null;
+    const result = this.using.tick(dt, innerImpact, outerImpact);
     if (this.using.ended) {
       this.add_to_recovery(this.using);
       this.using = null;
     }
+    return result;
   }
 
   onOuterImpact(impact: any) {
@@ -79,7 +78,7 @@ export class Controller extends utils.Collection {
     return skill;
   }
 
-  cancel() {
+  cancelUse() {
     if (!this.using) return;
     if (!this.using.castTime) {
       this.using.onCancel();
@@ -88,7 +87,7 @@ export class Controller extends utils.Collection {
     this.using = null;
   }
 
-  add_to_recovery(skill: Skill) {
+  protected add_to_recovery(skill: Skill) {
     if (skill.recoveryTime) {
       this.recoveries.push(skill);
     }
@@ -152,11 +151,12 @@ export class Skill {
   protected tick_cast(dt: any, innerImpact: any, outerImpact: any): any {
     if (dt < this.castTime) {
       this.castTime -= dt;
+      return {};
     } else {
       this.on_cast_complete(innerImpact, outerImpact);
       dt -= this.castTime;
       this.castTime = 0;
-      this.tick(dt, innerImpact, outerImpact);
+      return this.tick(dt, innerImpact, outerImpact);
     }
     // return {
     //   cost: {},
@@ -178,6 +178,7 @@ export class Skill {
       this.ended = true;
       this.tickRecovery(dt);
     }
+    return {};
     // return {
     //   cost: {},
     //   innerEffects: [],

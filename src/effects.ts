@@ -10,18 +10,18 @@ export class Controller extends utils.Collection {
     return result;
   }
 
-  remove(effect: Effect, impact: any): boolean {
+  remove(effect: Effect, innerImpact: any, outerImpact: any): boolean {
     const result = super.remove(effect);
-    result && effect.removed(impact);
+    result && effect.removed(innerImpact, outerImpact);
     return result;
   }
 
-  tick(dt: number, impact: any) {
+  tick(dt: number, innerImpact: any, outerImpact: any) {
     this.list.forEach(effect => {
       if (!effect.active) return;
-      effect.tick(dt, impact);
+      effect.tick(dt, innerImpact, outerImpact);
       if (effect.ended) {
-        this.remove(effect, impact);
+        this.remove(effect, innerImpact, outerImpact);
       }
     });
   }
@@ -46,7 +46,8 @@ export abstract class Effect {
   ended: boolean;
   liveTimer: number;
   protected static_influences: Influence[];
-  protected gradual_influences: GradualInfluence[];
+  protected inner_gradual_influences: GradualInfluence[];
+  protected outer_gradual_influences: GradualInfluence[];
 
   constructor(...options: any[]) {
     this.initialize(...options);
@@ -58,12 +59,13 @@ export abstract class Effect {
     this.ended = false;
     this.liveTimer = Infinity;
     this.static_influences = [];
-    this.gradual_influences = [];
+    this.inner_gradual_influences = [];
+    this.outer_gradual_influences = [];
   }
 
   protected initialize_influence(...options: any[]) {}
 
-  tick(dt: number, impact: any) {
+  tick(dt: number, innerImpact: any, outerImpact: any) {
     if (dt < this.liveTimer) {
       this.liveTimer -= dt;
     } else {
@@ -71,18 +73,21 @@ export abstract class Effect {
       this.liveTimer = 0;
       this.ended = true;
     }
-    this.gradual_influences
-    .forEach(influence => influence.tick(dt, impact));
+    this.inner_gradual_influences
+    .forEach(influence => influence.tick(dt, innerImpact));
+    this.outer_gradual_influences
+    .forEach(influence => influence.tick(dt, outerImpact));
   }
 
-  added(impact: any) {
+  added(innerImpact: any) {
     this.active = true;
-    this.static_influences.forEach(influence => influence.apply(impact));
+    this.static_influences.forEach(influence => influence.apply(innerImpact));
   }
 
-  removed(impact: any) {
+  removed(innerImpact: any, outerImpact: any) {
     this.active = false;
-    this.static_influences.forEach(influence => influence.cancel(impact));
+    this.static_influences
+    .forEach(influence => influence.cancel(innerImpact));
   }
 
   protected add_static_influence(
@@ -94,13 +99,22 @@ export abstract class Effect {
     this.static_influences.push(influence);
   }
 
-  protected add_gradual_influence(
+  protected add_inner_gradual_influence(
     attribute: attributes,
     value: number
   ) {
     const influence = new GradualInfluence();
     influence.set(attribute, value);
-    this.gradual_influences.push(influence);
+    this.inner_gradual_influences.push(influence);
+  }
+
+  protected add_outer_gradual_influence(
+    attribute: attributes,
+    value: number
+  ) {
+    const influence = new GradualInfluence();
+    influence.set(attribute, value);
+    this.outer_gradual_influences.push(influence);
   }
 
   onOuterImpact(impact: any) {}
@@ -119,7 +133,7 @@ class HealthRegeneration extends Effect {
   }
 
   protected initialize_influence(value: number) {
-    this.add_gradual_influence(attributes.health, value);
+    this.add_inner_gradual_influence(attributes.health, value);
   }
 }
 
@@ -134,7 +148,7 @@ class StaminaRegeneration extends Effect {
   }
 
   protected initialize_influence(value: number) {
-    this.add_gradual_influence(attributes.stamina, value);
+    this.add_inner_gradual_influence(attributes.stamina, value);
   }
 }
 
@@ -149,7 +163,7 @@ class WearinessRegeneration extends Effect {
   }
 
   protected initialize_influence(value: number) {
-    this.add_gradual_influence(attributes.weariness, value);
+    this.add_inner_gradual_influence(attributes.weariness, value);
   }
 }
 
