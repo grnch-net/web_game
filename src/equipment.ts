@@ -1,4 +1,5 @@
 import * as utils from './utils';
+import ImpactObject from './impact_object';
 import * as effects from './effects';
 import { Influence, GradualInfluence, attributes } from './influences';
 
@@ -82,42 +83,12 @@ export class Controller {
 
 }
 
-export abstract class Equip {
-
-  protected static_influences: Influence[];
-  protected gradual_influences: GradualInfluence[];
-
-  constructor(
-    ...options: any[]
-  ) {
-    this.initialize(...options);
-    this.initialize_influence(...options);
-  }
+export abstract class Equip extends ImpactObject {
 
   protected initialize(
     ...options: any[]
   ) {
-    this.static_influences = [];
-    this.gradual_influences = [];
-  }
-
-  protected initialize_influence(
-    ...options: any[]
-  ) {}
-
-  tick(
-    dt: number,
-    innerImpact: any
-  ) {
-    this.tick_influences(dt, innerImpact);
-  }
-
-  protected tick_influences(
-    dt: number,
-    innerImpact: any
-  ) {
-    this.gradual_influences
-    .forEach(influence => influence.tick(dt, innerImpact));
+    super.initialize();
   }
 
 }

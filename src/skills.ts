@@ -1,5 +1,6 @@
 import * as utils from './utils';
-import * as effects from './effects';
+import ImpactObject from './impact_object';
+// import * as effects from './effects';
 import { Influence, GradualInfluence, attributes } from './influences';
 
 export class Controller extends utils.Collection {
@@ -116,7 +117,7 @@ export class Controller extends utils.Collection {
   }
 }
 
-export class Skill {
+export class Skill extends ImpactObject {
   name: string;
   castTime: number;
   usageTime: number;
@@ -125,18 +126,6 @@ export class Skill {
   cost: any;
   gradualCost: any;
   ended: boolean;
-  protected inner_static_influences: Influence[];
-  protected inner_gradual_influences: GradualInfluence[];
-  protected outer_static_influences: Influence[];
-  protected outer_gradual_influences: GradualInfluence[];
-
-  constructor(
-    ...options: any[]
-  ) {
-    this.initialize(...options);
-    this.reset();
-    this.initialize_influence(...options);
-  }
 
   protected initialize(
     ...options: any[]
@@ -147,11 +136,8 @@ export class Skill {
     this.inner_gradual_influences = [];
     this.outer_static_influences = [];
     this.outer_gradual_influences = [];
+    this.reset();
   }
-
-  protected initialize_influence(
-    ...options: any[]
-  ) {}
 
   reset(
     ...options: any[]
@@ -254,21 +240,6 @@ export class Skill {
     outerImpact: any
   ) {}
 
-  protected tick_influences(
-    dt: number,
-    innerImpact: any,
-    outerImpact: any
-  ) {
-    this.inner_gradual_influences
-    .forEach(influence => influence.tick(dt, innerImpact));
-    this.outer_gradual_influences
-    .forEach(influence => influence.tick(dt, outerImpact));
-  }
-
-  onOuterImpact(
-    impact: any
-  ): any {}
-
   use(): any {
     return {
     //   cost: {},
@@ -284,41 +255,6 @@ export class Skill {
     // TODO: reset?
   }
 
-  protected add_inner_static_influence(
-    attribute: attributes,
-    value: number
-  ) {
-    const influence = new Influence();
-    influence.set(attribute, value);
-    this.inner_static_influences.push(influence);
-  }
-
-  protected add_inner_gradual_influence(
-    attribute: attributes,
-    value: number
-  ) {
-    const influence = new GradualInfluence();
-    influence.set(attribute, value);
-    this.inner_gradual_influences.push(influence);
-  }
-
-  protected add_outer_static_influence(
-    attribute: attributes,
-    value: number
-  ) {
-    const influence = new Influence();
-    influence.set(attribute, value);
-    this.outer_static_influences.push(influence);
-  }
-
-  protected add_outer_gradual_influence(
-    attribute: attributes,
-    value: number
-  ) {
-    const influence = new GradualInfluence();
-    influence.set(attribute, value);
-    this.outer_gradual_influences.push(influence);
-  }
 }
 
 const config = {
@@ -343,7 +279,7 @@ class Recreation extends Skill {
     this.usageTime = Infinity;
   }
 
-  protected initialize_influence() {
+  protected initialize_influences() {
     const health = config.Recreation.health;
     this.add_inner_gradual_influence(attributes.health, health);
     const weariness = config.Recreation.weariness;
@@ -367,7 +303,7 @@ class Attack extends Skill {
     this.cost[attributes.stamina] = -config.Attack.staminaCost;
   }
 
-  protected initialize_influence() {
+  protected initialize_influences() {
     const health = config.Attack.health;
     this.add_outer_static_influence(attributes.health, health);
   }

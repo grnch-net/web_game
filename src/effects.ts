@@ -1,4 +1,5 @@
 import * as utils from './utils';
+import ImpactObject from './impact_object';
 import { Influence, GradualInfluence, attributes } from './influences';
 
 export class Controller extends utils.Collection {
@@ -57,35 +58,35 @@ export class Controller extends utils.Collection {
   }
 }
 
-export abstract class Effect {
+export abstract class Effect extends ImpactObject {
   active: boolean;
   ended: boolean;
   liveTimer: number;
-  protected static_influences: Influence[];
-  protected inner_gradual_influences: GradualInfluence[];
-  protected outer_gradual_influences: GradualInfluence[];
-
-  constructor(
-    ...options: any[]
-  ) {
-    this.initialize(...options);
-    this.initialize_influence(...options);
-  }
 
   protected initialize(
     ...options: any[]
   ) {
+    super.initialize();
     this.active = false;
     this.ended = false;
     this.liveTimer = Infinity;
-    this.static_influences = [];
-    this.inner_gradual_influences = [];
-    this.outer_gradual_influences = [];
   }
 
-  protected initialize_influence(
-    ...options: any[]
-  ) {}
+  added(
+    innerImpact: any
+  ) {
+    this.active = true;
+    this.inner_static_influences.forEach(influence => influence.apply(innerImpact));
+  }
+
+  removed(
+    innerImpact: any,
+    outerImpact: any
+  ) {
+    this.active = false;
+    this.inner_static_influences
+    .forEach(influence => influence.cancel(innerImpact));
+  }
 
   tick(
     dt: number,
@@ -99,63 +100,9 @@ export abstract class Effect {
       this.liveTimer = 0;
       this.ended = true;
     }
-    this.inner_gradual_influences
-    .forEach(influence => influence.tick(dt, innerImpact));
-    this.outer_gradual_influences
-    .forEach(influence => influence.tick(dt, outerImpact));
+    this.tick_influences(dt, innerImpact, outerImpact);
   }
 
-  added(
-    innerImpact: any
-  ) {
-    this.active = true;
-    this.static_influences.forEach(influence => influence.apply(innerImpact));
-  }
-
-  removed(
-    innerImpact: any,
-    outerImpact: any
-  ) {
-    this.active = false;
-    this.static_influences
-    .forEach(influence => influence.cancel(innerImpact));
-  }
-
-  protected add_static_influence(
-    attribute: attributes,
-    value: number
-  ) {
-    const influence = new Influence();
-    influence.set(attribute, value);
-    this.static_influences.push(influence);
-  }
-
-  protected add_inner_gradual_influence(
-    attribute: attributes,
-    value: number
-  ) {
-    const influence = new GradualInfluence();
-    influence.set(attribute, value);
-    this.inner_gradual_influences.push(influence);
-  }
-
-  protected add_outer_gradual_influence(
-    attribute: attributes,
-    value: number
-  ) {
-    const influence = new GradualInfluence();
-    influence.set(attribute, value);
-    this.outer_gradual_influences.push(influence);
-  }
-
-  onOuterImpact(
-    impact: any
-  ) {}
-
-  onUseSkill(
-    innerImpact: any,
-    outerImpact: any
-  ) {}
 }
 
 class HealthRegeneration extends Effect {
@@ -174,10 +121,10 @@ class HealthRegeneration extends Effect {
     if (time) this.liveTimer = time;
   }
 
-  protected initialize_influence(
+  protected initialize_influences(
     value: number
   ) {
-    super.initialize_influence();
+    super.initialize_influences();
     this.add_inner_gradual_influence(attributes.health, value);
   }
 }
@@ -198,10 +145,10 @@ class StaminaRegeneration extends Effect {
     if (time) this.liveTimer = time;
   }
 
-  protected initialize_influence(
+  protected initialize_influences(
     value: number
   ) {
-    super.initialize_influence();
+    super.initialize_influences();
     this.add_inner_gradual_influence(attributes.stamina, value);
   }
 }
@@ -222,10 +169,10 @@ class WearinessRegeneration extends Effect {
     if (time) this.liveTimer = time;
   }
 
-  protected initialize_influence(
+  protected initialize_influences(
     value: number
   ) {
-    super.initialize_influence();
+    super.initialize_influences();
     this.add_inner_gradual_influence(attributes.weariness, value);
   }
 }
