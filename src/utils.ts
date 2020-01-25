@@ -53,6 +53,30 @@ export function toArray(
   return Array.isArray(value) ? value : [value];
 }
 
+export class Range {
+  protected _value: number;
+
+  constructor(
+    public max: number = 100,
+    value?: number,
+    public min: number = 0
+  ) {
+    if (value || value === 0) {
+      this._value = value;
+    } else {
+      this._value = this.max;
+    }
+  }
+
+  get value() { return this._value }
+  set value(value: number) {
+    if (value < this.min) this._value = this.min;
+    else if (value > this.max) this._value = this.max;
+    else this._value = value;
+  }
+}
+
+
 export class Collection {
   list: any[];
 

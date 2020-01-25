@@ -3,34 +3,11 @@ import * as effects from './effects';
 import * as skills from './skills';
 import { attributes } from "./influences";
 
-class Range {
-  _value: number;
-
-  constructor(
-    public max: number = 100,
-    value?: number,
-    public min: number = 0
-  ) {
-    if (value || value === 0) {
-      this._value = value;
-    } else {
-      this._value = this.max;
-    }
-  }
-
-  get value() { return this._value }
-  set value(value: number) {
-    if (value < this.min) this._value = this.min;
-    else if (value > this.max) this._value = this.max;
-    else this._value = value;
-  }
-}
-
 const config: any = {
   attributes: {
-    health: 100,
-    stamina: 1.5,
-    weariness: [1, 0]
+    health: { max: 100 },
+    stamina: { max: 1.5 },
+    weariness: { max: 1, value: 0 }
   },
   counters: {
     armor: 0,
@@ -48,7 +25,7 @@ const config: any = {
 
 export default class Character {
   name: string;
-  attributes: ({ [name: string]: Range });
+  attributes: ({ [name: string]: utils.Range });
   counters: ({ [name: string]: number });
   effects: effects.Controller;
   skills: skills.Controller;
@@ -68,9 +45,8 @@ export default class Character {
   protected initialize_attributes() {
     this.attributes = {};
     for (let name in config.attributes) {
-      const value = config.attributes[name];
-      const args: any[] = utils.toArray(value);
-      this.attributes[name] = new Range(...args);
+      const { max, value, min }: any = config.attributes[name];
+      this.attributes[name] = new utils.Range(max, value, min);
     }
   }
 
@@ -197,7 +173,7 @@ export default class Character {
     this.applyImpact(innerImpact);
     this.applyInteract(rules, outerImpact, outerEffects);
     return true;
-    // TODO: apply items attributes
+    // TODO: apply equipments attributes
   }
 
   protected apply_cost(
@@ -246,6 +222,6 @@ export default class Character {
     this.world.interact(this, { impact, effects, rules });
   }
 
-  // TODO: add items
+  // TODO: add equipments
 
 }
