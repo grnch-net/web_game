@@ -3,14 +3,16 @@ export enum attributes {
   healthMax = 'attributes.health.max',
   stamina = 'attributes.stamina.value',
   staminaMax = 'attributes.stamina.max',
-  weariness = 'attributes.weariness.value'
+  weariness = 'attributes.weariness.value',
+  armor = 'counters.armor'
 }
 
 // export enum influenceTypes {
 //   positive,
 //   negative,
 //   native,
-//   unimportant
+//   unimportant,
+//   amplify
 // }
 
 export class Influence {
@@ -39,7 +41,7 @@ export class Influence {
   }
 }
 
-export  class GradualInfluence extends Influence {
+export class GradualInfluence extends Influence {
   deltaValue: number;
 
   set(

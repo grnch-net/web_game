@@ -130,12 +130,9 @@ export class Skill extends ImpactObject {
   protected initialize(
     ...options: any[]
   ) {
+    super.initialize();
     this.cost = null;
     this.gradualCost = null;
-    this.inner_static_influences = [];
-    this.inner_gradual_influences = [];
-    this.outer_static_influences = [];
-    this.outer_gradual_influences = [];
     this.reset();
   }
 
@@ -270,10 +267,6 @@ const config = {
 };
 
 class Recreation extends Skill {
-  constructor() {
-    super();
-  }
-
   reset() {
     super.reset();
     this.usageTime = Infinity;
@@ -289,18 +282,14 @@ class Recreation extends Skill {
 }
 
 class Attack extends Skill {
-  constructor() {
-    super();
+  protected initialize() {
+    this.cost = {};
+    this.cost[attributes.stamina] = -config.Attack.staminaCost;
   }
 
   reset() {
     super.reset();
     this.castTime = config.Attack.castTime;
-  }
-
-  protected initialize() {
-    this.cost = {};
-    this.cost[attributes.stamina] = -config.Attack.staminaCost;
   }
 
   protected initialize_influences() {
