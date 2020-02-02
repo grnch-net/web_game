@@ -1,6 +1,14 @@
 import { Influence, GradualInfluence, attributes } from './influences';
 
-export default abstract class ImpactObject {
+export interface iParameters {
+  innerStaticInfluences?: any[];
+  innerGradualInfluences?: any[];
+  outerStaticInfluences?: any[];
+  outerGradualInfluences?: any[];
+}
+
+
+export abstract class ImpactObject {
 
   protected inner_static_influences: Influence[];
   protected inner_gradual_influences: GradualInfluence[];
@@ -8,13 +16,15 @@ export default abstract class ImpactObject {
   protected outer_gradual_influences: GradualInfluence[];
 
   constructor(
+    parameters: iParameters,
     ...options: any[]
   ) {
-    this.initialize(...options);
-    this.initialize_influences(...options);
+    this.initialize(parameters, ...options);
+    this.initialize_influences(parameters, ...options);
   }
 
   protected initialize(
+    // parameters: iParameters,
     ...options: any[]
   ) {
     this.inner_static_influences = [];
@@ -24,8 +34,28 @@ export default abstract class ImpactObject {
   }
 
   protected initialize_influences(
+    parameters: iParameters,
     ...options: any[]
-  ) {}
+  ) {
+    const {
+      innerStaticInfluences,
+      innerGradualInfluences,
+      outerStaticInfluences,
+      outerGradualInfluences
+    } = parameters;
+    for (const { attribute, value } of innerStaticInfluences) {
+      this.add_inner_static_influence(attribute, value);
+    }
+    for (const { attribute, value } of innerGradualInfluences) {
+      this.add_inner_gradual_influence(attribute, value);
+    }
+    for (const { attribute, value } of outerStaticInfluences) {
+      this.add_outer_static_influence(attribute, value);
+    }
+    for (const { attribute, value } of outerGradualInfluences) {
+      this.add_outer_gradual_influence(attribute, value);
+    }
+  }
 
   protected add_inner_static_influence(
     attribute: attributes,
@@ -76,10 +106,12 @@ export default abstract class ImpactObject {
     innerImpact: any,
     outerImpact: any
   ) {
-    this.inner_gradual_influences
-    .forEach(influence => influence.tick(dt, innerImpact));
-    this.outer_gradual_influences
-    .forEach(influence => influence.tick(dt, outerImpact));
+    for (const influence of this.inner_gradual_influences) {
+      influence.tick(dt, innerImpact);
+    }
+    for (const influence of this.outer_gradual_influences) {
+      influence.tick(dt, outerImpact);
+    }
   }
 
   onOuterImpact(

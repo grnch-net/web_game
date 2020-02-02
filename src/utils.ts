@@ -53,6 +53,12 @@ export function toArray(
   return Array.isArray(value) ? value : [value];
 }
 
+export interface iRangeArguments {
+  max?: number,
+  value?: number,
+  min?: number
+};
+
 export class Range {
   protected _value: number;
 

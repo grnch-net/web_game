@@ -1,9 +1,9 @@
 import World from './world';
-import Character from './character';
+import * as characters from './character';
 
 const world = new World();
 
-const parameters: any = {
+const heroParameters: characters.iParameters = {
   attributes: {
     health: { value: 100 },
     stamina: { value: 1.5 },
@@ -12,13 +12,16 @@ const parameters: any = {
   counters: {
     experience: 100
   },
-  effects: {},
-  skills: {},
-  equipments: [
-    { id: 0, durability: 98 },
-    { id: 1, durability: 50 }
-  ]
+  effects: [],
+  skills: [],
+  equips: [{
+    id: 0,
+    durability: { value: 98 }
+  }, {
+    id: 1,
+    durability: { value: 50 }
+  }]
 };
-const hero = new Character(parameters);
+const hero = new characters.Character(heroParameters);
 
 world.location.addCharacter(hero);

@@ -1,7 +1,7 @@
 import * as utils from './utils';
 import * as effects from './effects/index';
-import * as skills from './skills';
-import * as equipments from './equipments';
+import * as skills from './skills/index';
+import * as equips from './equips/index';
 import { attributes } from "./influences";
 
 const DEFAULT_CONFIG: any = {
@@ -15,27 +15,36 @@ const DEFAULT_CONFIG: any = {
     experience: 0
   },
   effects: [{
-    unique: 'inherentStaminaRegeneration',
-    gradualInfluences: [{
+    name: 'Inherent stamina regeneration',
+    innerGradualInfluences: [{
       attribute: attributes.stamina,
       value: 0.1
     }]
   }],
   skills: [
-    'Recreation',
-    'Attack'
+    { id: 0 },
+    { id: 1 }
   ],
-  equipments: [],
+  equips: [],
   armorProtect: 0.9
 };
 
-export default class Character {
+export interface iParameters {
+  attributes: ({ [key: string]: utils.iRangeArguments });
+  counters: ({ [key: string]: number });
+  effects: effects.iParameters[];
+  skills: skills.iParameters[];
+  equips: equips.iParameters[];
+  armorProtect?: number;
+}
+
+export class Character {
   name: string;
   attributes: ({ [name: string]: utils.Range });
   counters: ({ [name: string]: number });
   effects: effects.Controller;
   skills: skills.Controller;
-  equipments: equipments.Controller;
+  equips: equips.Controller;
   world: any;
 
   constructor(
@@ -56,7 +65,7 @@ export default class Character {
     this.initialize_counters(parameters.counters, config.counters);
     this.initialize_effects(parameters.effects, config.effects);
     this.initialize_skills(parameters.skills, config.skills);
-    this.initialize_equipments(parameters.equipments, config.equipments);
+    this.initialize_equipments(parameters.equips, config.equips);
   }
 
   protected initialize_attributes(
@@ -85,8 +94,8 @@ export default class Character {
     this.effects = new effects.Controller();
     const impact = {};
     const list = [...config, ...parameters];
-    for (const parameters of list) {
-      const effect = new effects.Effect(parameters);
+    for (const argument of list) {
+      const effect = effects.utils.create(argument);
       this.effects.add(effect, impact);
     }
     this.applyImpact(impact);
@@ -97,8 +106,9 @@ export default class Character {
     config: any
   ) {
     this.skills = new skills.Controller();
-    for (const name of config) {
-      const skill = new skills.list[name]();
+    const list = [...config, ...parameters];
+    for (const argument of list) {
+      const skill = skills.utils.create(argument);
       this.skills.add(skill);
     }
   }
@@ -108,12 +118,11 @@ export default class Character {
     config: any
   ) {
     const impact = {};
-    this.equipments = new equipments.Controller();
-    for (const parameters of config.equipments) {
-      const config = equipments.findConfig(parameters.id);
-      if (!config) continue;
-      const equip = new equipments.Equip(config, parameters);
-      this.equipments.add(equip, impact);
+    this.equips = new equips.Controller();
+    const list = [...config, ...parameters];
+    for (const argument of list) {
+      const equip = equips.utils.create(argument);
+      this.equips.add(equip, impact);
     }
     this.applyImpact(impact);
   }
@@ -197,25 +206,26 @@ export default class Character {
   }
 
   useSkill(
-    name: string
+    id: string | number
   ): boolean {
-    const skill = this.skills.getToUse(name);
+    const skill = this.skills.getToUse(id);
     if (!skill) return false;
+    const stocked = this.checkImpact(skill.stock);
+    if (!stocked) return false;
     const paid = this.apply_cost(skill.cost);
     if (!paid) return false;
     const {
-      innerImpact, outerImpact, innerEffects, outerEffects, rules
+      // innerImpact, outerImpact, innerEffects, outerEffects, rules
     } = skill.use();
-    this.apply_skill({ innerImpact, outerImpact, innerEffects, rules });
     this.skills.using = skill;
-    this.applyImpact(innerImpact);
-    this.applyInteract(rules, outerImpact, outerEffects);
+    // this.apply_skill({ innerImpact, outerImpact, innerEffects, rules });
+    // this.applyImpact(innerImpact);
+    // this.applyInteract(rules, outerImpact, outerEffects);
     return true;
-    // TODO: apply equipments attributes
   }
 
   protected apply_cost(
-    impact: any
+    impact?: any
   ) {
     if (!impact) return true;
     const checked = this.checkImpact(impact);
@@ -238,11 +248,13 @@ export default class Character {
       this.effects.add(effect, innerImpact);
     });
     return true;
+    // TODO: apply equips attributes
   }
 
   checkImpact(
-    impact: any
+    impact?: any
   ): boolean {
+    if (!impact) return true;
     for (let name in impact) {
       const impactValue: number = impact[name];
       const attributeValue = utils.getAttribute(this, name);
@@ -259,7 +271,4 @@ export default class Character {
   ) {
     this.world.interact(this, { impact, effects, rules });
   }
-
-  // TODO: add equipments
-
 }

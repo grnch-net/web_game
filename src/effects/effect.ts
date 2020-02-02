@@ -1,13 +1,12 @@
-import ImpactObject from '../impact_object';
+import * as impact from '../impact_object';
 
-interface iParameters {
+export interface iParameters extends impact.iParameters{
+  specialClass?: string | number;
   unique?: string;
   time?: number;
-  staticInfluences?: any[];
-  gradualInfluences?: any[];
 }
 
-export default class Effect extends ImpactObject {
+export class Effect extends impact.ImpactObject {
   unique: string;
   active: boolean;
   ended: boolean;
@@ -26,28 +25,19 @@ export default class Effect extends ImpactObject {
     }
   }
 
-  protected initialize_influences(
-    parameters: iParameters
-  ) {
-    super.initialize_influences();
-    const {
-      staticInfluences,
-      gradualInfluences
-    } = parameters;
-    for (const { attribute, value } of staticInfluences) {
-      this.add_inner_static_influence(attribute, value);
-    }
-    for (const { attribute, value } of gradualInfluences) {
-      this.add_inner_gradual_influence(attribute, value);
-    }
-  }
+  // protected initialize_influences(
+  //   parameters: iParameters
+  // ) {
+  //   super.initialize_influences();
+  // }
 
   added(
     innerImpact: any
   ) {
     if (!this.active) {
-      this.inner_static_influences
-      .forEach(influence => influence.apply(innerImpact));
+      for (const influence of this.inner_static_influences) {
+        influence.apply(innerImpact);
+      }
     }
     this.active = true;
   }
@@ -55,9 +45,12 @@ export default class Effect extends ImpactObject {
   removed(
     innerImpact: any
   ) {
+    if (this.active) {
+      for (const influence of this.inner_static_influences) {
+        influence.cancel(innerImpact);
+      }
+    }
     this.active = false;
-    this.inner_static_influences
-    .forEach(influence => influence.cancel(innerImpact));
   }
 
   tick(

@@ -15,12 +15,17 @@ export enum attributes {
 //   amplify
 // }
 
+export interface iInfluenceArguments {
+  attribute: string | string[],
+  value: number
+}
+
 export class Influence {
   attribute: string;
   value: number;
 
   set(
-    attribute: string|string[],
+    attribute: string | string[],
     value: number
   ) {
     if (Array.isArray(attribute)) {

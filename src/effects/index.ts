@@ -1,7 +1,10 @@
 import Controller from './effects_controller';
-import Effect from './effect';
+import { Effect, iParameters } from './effect';
+import utils from './effects_utils';
 
 export {
   Controller,
-  Effect
+  Effect,
+  iParameters,
+  utils
 }

@@ -1,6 +1,5 @@
 import * as utils from '../utils';
-import Effect from './effect';
-import { Influence, GradualInfluence, attributes } from '../influences';
+import { Effect } from './effect';
 
 export default class Controller extends utils.Collection {
   list: Effect[];
