@@ -51,6 +51,11 @@ export class Controller {
       this.remove(equipSlot.bag, innerImpact);
       this.bag = equip;
     } else {
+      console.error(
+        'No handler for equipment type.',
+        equip.type,
+        equipType[equip.type]
+      );
       return false;
     }
     return true;
@@ -80,10 +85,40 @@ export class Controller {
     if (slot == equipSlot.bag) {
       equip = this.bag;
       this.bag = null;
+    } else {
+      console.error(
+        'No handler for equipment slot.',
+        slot,
+        equipSlot[slot]
+      );
     }
     if (!equip) return false;
     equip.removed(innerImpact);
     return true;
+  }
+
+  getSlot(slot: equipSlot): Equip {
+    if (slot == equipSlot.mainHand) {
+      return this.mainHand;
+    } else
+    if (slot == equipSlot.secondHand) {
+      return this.secondHand;
+    } else
+    if (slot == equipSlot.head) {
+      return this.head;
+    } else
+    if (slot == equipSlot.body) {
+      return this.body;
+    } else
+    if (slot == equipSlot.bag) {
+      return this.bag;
+    } else {
+      console.error(
+        'No handler for equipment slot.',
+        slot,
+        equipSlot[slot]
+      );
+    }
   }
 
 }

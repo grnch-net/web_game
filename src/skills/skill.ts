@@ -1,7 +1,9 @@
 import * as impact from '../impact_object';
 import {
-  Influence, GradualInfluence, iInfluenceArguments, attributes
- } from '../influences';
+  Influence, GradualInfluence, iInfluenceArguments
+} from '../influences';
+import { Equip, equipSlot } from '../equips/index';
+
 
 export interface iConfig extends impact.iParameters {
   name: string;
@@ -13,6 +15,7 @@ export interface iConfig extends impact.iParameters {
   cost?: iInfluenceArguments[],
   gradualCost?: iInfluenceArguments[],
   rules?: any;
+  needs?: { equip: equipSlot; };
 }
 
 export interface iParameters {
@@ -26,6 +29,7 @@ export class Skill extends impact.ImpactObject {
   usageTime: number;
   recoveryTime: number;
   rules: any;
+  needs: any;
   stock: Influence[];
   cost: Influence[];
   gradualCost: GradualInfluence[];
@@ -51,12 +55,14 @@ export class Skill extends impact.ImpactObject {
       stock,
       cost,
       gradualCost,
-      rules
+      rules,
+      needs
     } = config;
     this.rules = rules;
+    this.needs = needs;
     this.initialize_stock(stock);
     this.initialize_cost(cost);
-    this.initialize_gradual_cost(cost);
+    this.initialize_gradual_cost(gradualCost);
     this.reset();
   }
 
@@ -195,6 +201,12 @@ export class Skill extends impact.ImpactObject {
     innerImpact: any,
     outerImpact: any
   ) {}
+
+  checkNeeds(
+    result: ({ equip: Equip })
+  ): boolean {
+    return true;
+  }
 
   use(): any {
     return {

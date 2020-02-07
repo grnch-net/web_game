@@ -1,5 +1,7 @@
 import { attributes } from '../influences';
 import { Skill, iConfig, iParameters } from './skill';
+import { equipSlot } from '../equips/index';
+import Block from './specials/block';
 
 export default class utils {
   protected constructor() {}
@@ -36,11 +38,16 @@ export default class utils {
       stock: [{
         attribute: attributes.stamina,
         value: -25
-      }]
+      }],
+      needs: {
+        equip: equipSlot.secondHand
+      }
     }
   }
 
-  static specialClassList: any = {};
+  static specialClassList: ({ [id: string]: typeof Skill }) = {
+    0: Block
+  };
 
   static findConfig(
     id: string | number
@@ -51,7 +58,7 @@ export default class utils {
 
   static findSpecialClass(
     specialId: string | number
-  ): any {
+  ): typeof Skill {
     const SpecialClass = utils.specialClassList[specialId];
     return SpecialClass;
   }
@@ -65,7 +72,7 @@ export default class utils {
       return null;
     }
     const { specialClass } = config;
-    let SkillClass: any;
+    let SkillClass: typeof Skill;
     if (specialClass) {
       SkillClass = utils.findSpecialClass(specialClass);;
       if (!SkillClass) {

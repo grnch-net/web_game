@@ -3,11 +3,11 @@ import { Effect, iParameters } from './effect';
 export default class utils {
   protected constructor() {}
 
-  static specialClassList: any = {};
+  static specialClassList: ({ [id: string]: typeof Effect }) = {};
 
   static findSpecialClass(
     specialId: string | number
-  ): any {
+  ): typeof Effect {
     const SpecialClass = utils.specialClassList[specialId];
     return SpecialClass;
   }
@@ -16,7 +16,7 @@ export default class utils {
     parameters: iParameters
   ): Effect {
     const { specialClass } = parameters;
-    let SkillClass: any;
+    let SkillClass: typeof Effect;
     if (specialClass) {
       SkillClass = utils.findSpecialClass(specialClass);;
       if (!SkillClass) {

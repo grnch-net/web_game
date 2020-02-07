@@ -210,6 +210,11 @@ export class Character {
   ): boolean {
     const skill = this.skills.getToUse(id);
     if (!skill) return false;
+    if (skill.needs) {
+      const result = this.get_needs(skill.needs);
+      const checked = skill.checkNeeds(result);
+      if (!checked) return false;
+    }
     const stocked = this.checkImpact(skill.stock);
     if (!stocked) return false;
     const paid = this.apply_cost(skill.cost);
@@ -222,6 +227,13 @@ export class Character {
     // this.applyImpact(innerImpact);
     // this.applyInteract(rules, outerImpact, outerEffects);
     return true;
+  }
+
+  protected get_needs(
+    needs: any
+  ): any {
+    const equip = needs.equip && this.equips.getSlot(needs.equip);
+    return { equip };
   }
 
   protected apply_cost(

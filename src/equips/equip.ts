@@ -3,6 +3,7 @@ import * as impact from '../impact_object';
 
 export enum equipType {
   oneHand,
+  secondHand,
   twoHand,
   head,
   body,
@@ -11,6 +12,7 @@ export enum equipType {
 
 interface iStats {
   damage?: number;
+  block?: number;
   armor?: number;
   slots?: number;
 }

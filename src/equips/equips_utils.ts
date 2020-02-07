@@ -14,8 +14,11 @@ export default class utils {
     },
     1: {
       name: 'Small shield',
-      type: equipType.oneHand,
-      durability: { max: 30 }
+      type: equipType.secondHand,
+      durability: { max: 30 },
+      stats: {
+        block: 0.3
+      }
     },
     2: {
       name: 'Wooden staf',
@@ -51,7 +54,7 @@ export default class utils {
     }
   };
 
-  static specialClassList: any = {};
+  static specialClassList: ({ [id: string]: typeof Equip }) = {};
 
   static findConfig(
     id: string | number
@@ -62,7 +65,7 @@ export default class utils {
 
   static findSpecialClass(
     specialId: string | number
-  ): any {
+  ): typeof Equip {
     const SpecialClass = utils.specialClassList[specialId];
     return SpecialClass;
   }
@@ -76,7 +79,7 @@ export default class utils {
       return null;
     }
     const { specialClass } = config;
-    let EquipClass: any;
+    let EquipClass: typeof Equip;
     if (specialClass) {
       EquipClass = utils.findSpecialClass(specialClass);
       if (!EquipClass) {
