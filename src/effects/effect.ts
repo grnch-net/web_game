@@ -1,22 +1,24 @@
-import * as impact from '../impact_object';
+import {
+  InteractionObject, InteractionParameters
+} from '../interactions/index';
 
-export interface iParameters extends impact.iParameters{
+export interface EffectParameters extends InteractionParameters{
+  name?: string;
   specialClass?: string | number;
   unique?: string;
   time?: number;
 }
 
-export class Effect extends impact.ImpactObject {
+export class Effect extends InteractionObject {
   unique: string;
   active: boolean;
   ended: boolean;
   liveTimer: number;
 
-  protected initialize(
-    parameters: iParameters,
-    ...options: any[]
+  initialize(
+    parameters: EffectParameters
   ) {
-    super.initialize();
+    super.initialize(parameters);
     this.active = false;
     this.ended = false;
     this.liveTimer = parameters.time || Infinity;
@@ -24,12 +26,6 @@ export class Effect extends impact.ImpactObject {
       this.unique = parameters.unique;
     }
   }
-
-  // protected initialize_influences(
-  //   parameters: iParameters
-  // ) {
-  //   super.initialize_influences();
-  // }
 
   added(
     innerImpact: any

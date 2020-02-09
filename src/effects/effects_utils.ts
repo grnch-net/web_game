@@ -1,4 +1,4 @@
-import { Effect, iParameters } from './effect';
+import { Effect, EffectParameters } from './effect';
 
 export default class utils {
   protected constructor() {}
@@ -13,7 +13,7 @@ export default class utils {
   }
 
   static create(
-    parameters: iParameters
+    parameters: EffectParameters
   ): Effect {
     const { specialClass } = parameters;
     let SkillClass: typeof Effect;
@@ -26,7 +26,8 @@ export default class utils {
     } else {
       SkillClass = Effect;
     }
-    const equip = new SkillClass(parameters);
+    const equip = new SkillClass();
+    equip.initialize(parameters);
     return equip;
   }
 }

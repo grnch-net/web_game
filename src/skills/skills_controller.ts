@@ -34,33 +34,37 @@ export default class Controller extends utils.Collection {
     dt: number,
     innerImpact: any,
     outerImpact: any
-  ): any {
+  ) {
     this.tick_recoveries(dt);
-    return this.tick_using(dt, innerImpact, outerImpact);
+    this.tick_using(dt, innerImpact, outerImpact);
   }
 
   protected tick_recoveries(
     dt: number
   ) {
-    this.recoveries.filter(skill => {
+    const next_list: Skill[] = [];
+    for (const skill of this.recoveries) {
       skill.tickRecovery(dt);
-      !skill.recoveryTime && skill.reset();
-      return skill.recoveryTime;
-    });
+      if (skill.recoveryTime > 0) {
+        next_list.push(skill);
+      } else {
+        skill.reset();
+      }
+    }
+    this.recoveries = next_list;
   }
 
   protected tick_using(
     dt: number,
     innerImpact: any,
     outerImpact: any
-  ): any {
-    if (!this.using) return null;
-    const result = this.using.tick(dt, innerImpact, outerImpact);
+  ) {
+    if (!this.using) return;
+    this.using.tick(dt, innerImpact, outerImpact);
     if (this.using.ended) {
       this.add_to_recovery(this.using);
       this.using = null;
     }
-    return result;
   }
 
   onOuterImpact(
@@ -99,7 +103,9 @@ export default class Controller extends utils.Collection {
 
   cancelUse() {
     if (!this.using) return;
-    if (!this.using.castTime) {
+    if (this.using.castTime > 0) {
+      this.using.reset();
+    } else {
       this.using.onCancel();
       this.add_to_recovery(this.using);
     }
@@ -111,6 +117,8 @@ export default class Controller extends utils.Collection {
   ) {
     if (skill.recoveryTime) {
       this.recoveries.push(skill);
+    } else {
+      skill.reset();
     }
   }
 }

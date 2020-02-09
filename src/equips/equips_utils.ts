@@ -1,28 +1,30 @@
-import { Equip, iConfig, iParameters, equipType } from './equip';
+import { Equip, EquipConfig, EquipParameters, EquipType } from './equip';
 
 export default class utils {
   protected constructor() {}
 
-  static configs: ({[id: string]: iConfig}) = {
+  static configs: ({[id: string]: EquipConfig}) = {
     0: {
       name: 'Short sword',
-      type: equipType.oneHand,
+      type: EquipType.OneHand,
       durability: { max: 100 },
       stats: {
+        penetration: 5,
         damage: 1
       }
     },
     1: {
       name: 'Small shield',
-      type: equipType.secondHand,
+      type: EquipType.SecondHand,
       durability: { max: 30 },
       stats: {
-        block: 0.3
+        block: 5,
+        armor: 25
       }
     },
     2: {
       name: 'Wooden staf',
-      type: equipType.twoHand,
+      type: EquipType.TwoHand,
       durability: { max: 70 },
       stats: {
         damage: 1
@@ -30,7 +32,7 @@ export default class utils {
     },
     3: {
       name: 'Iron helmet',
-      type: equipType.head,
+      type: EquipType.Head,
       durability: { max: 10 },
       stats: {
         armor: 1
@@ -38,7 +40,7 @@ export default class utils {
     },
     4: {
       name: 'Leather armor',
-      type: equipType.body,
+      type: EquipType.Body,
       durability: { max: 20 },
       stats: {
         armor: 1
@@ -46,7 +48,7 @@ export default class utils {
     },
     5: {
       name: 'Small bag',
-      type: equipType.bag,
+      type: EquipType.Bag,
       durability: { max: 100 },
       stats: {
         slots: 1
@@ -58,7 +60,7 @@ export default class utils {
 
   static findConfig(
     id: string | number
-  ): iConfig {
+  ): EquipConfig {
     const config = utils.configs[id];
     return config;
   }
@@ -71,7 +73,7 @@ export default class utils {
   }
 
   static create(
-    parameters: iParameters
+    parameters: EquipParameters
   ): Equip {
     const config = utils.findConfig(parameters.id);
     if (!config) {
@@ -89,7 +91,8 @@ export default class utils {
     } else {
       EquipClass = Equip;
     }
-    const equip = new EquipClass(config, parameters);
+    const equip = new EquipClass();
+    equip.initialize(config, parameters);
     return equip;
   }
 }

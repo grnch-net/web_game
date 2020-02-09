@@ -1,57 +1,71 @@
-import { attributes } from '../influences';
-import { Skill, iConfig, iParameters } from './skill';
-import { equipSlot } from '../equips/index';
-import Block from './specials/block';
+import { Attributes } from '../interactions/index';
+import { Skill, SkillConfig, SkillParameters } from './skill';
+import { EquipSlot } from '../equips/index';
+import { Block } from './specials/block';
 
-export default class utils {
+export class utils {
   protected constructor() {}
 
-  static configs: ({ [id: string]: iConfig }) = {
+  static configs: ({ [id: string]: SkillConfig }) = {
     0: {
       name: 'Recreation',
       usageTime: Infinity,
-      innerGradualInfluences: [{
-        attribute: attributes.health,
-        value: 0.003
-      }, {
-        attribute: attributes.weariness,
-        value: -0.003
-      }]
+      innerGradualInfluences: [
+        {
+          attribute: Attributes.Health,
+          value: 0.003
+        },
+        {
+          attribute: Attributes.Weariness,
+          value: -0.003
+        }
+      ]
     },
     1: {
       name: 'Attack',
+      specialClass: 'attack',
       castTime: 1,
-      cost: [{
-        attribute: attributes.stamina,
-        value: -25
-      }],
-      outerStaticInfluences: [{
-        attribute: attributes.health,
-        value: -10
-      }]
+      cost: [
+        {
+          attribute: Attributes.Stamina,
+          value: 25
+        }
+      ],
+      outerStaticInfluences: [
+        {
+          attribute: Attributes.Health,
+          value: 10,
+          negative: true
+        }
+      ],
+      needs: {
+        equips: [EquipSlot.MainHand, EquipSlot.SecondHand]
+      }
     },
     2: {
       name: 'Block',
       specialClass: 'block',
       castTime: 0.5,
       usageTime: Infinity,
-      stock: [{
-        attribute: attributes.stamina,
-        value: -25
-      }],
+      stock: [
+        {
+          attribute: Attributes.Stamina,
+          value: 25
+        }
+      ],
       needs: {
-        equip: equipSlot.secondHand
+        equips: [EquipSlot.SecondHand]
       }
     }
-  }
+  };
 
   static specialClassList: ({ [id: string]: typeof Skill }) = {
-    0: Block
+    block: Block
   };
 
   static findConfig(
     id: string | number
-  ): iConfig {
+  ): SkillConfig {
     const config = utils.configs[id];
     return config;
   }
@@ -64,7 +78,7 @@ export default class utils {
   }
 
   static create(
-    parameters: iParameters
+    parameters: SkillParameters
   ): Skill {
     const config = utils.findConfig(parameters.id);
     if (!config) {
@@ -82,7 +96,8 @@ export default class utils {
     } else {
       SkillClass = Skill;
     }
-    const skill = new SkillClass(config, parameters);
+    const skill = new SkillClass();
+    skill.initialize(config, parameters);
     return skill;
   }
 }

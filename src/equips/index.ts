@@ -1,13 +1,13 @@
-import { Controller, equipSlot } from './equips_controller';
-import { Equip, iConfig, iParameters, equipType } from './equip';
+import { Controller, EquipSlot } from './equips_controller';
+import { Equip, EquipConfig, EquipParameters, EquipType } from './equip';
 import utils from './equips_utils';
 
 export {
   Controller,
   Equip,
-  iConfig,
-  iParameters,
+  EquipConfig,
+  EquipParameters,
   utils,
-  equipType,
-  equipSlot
+  EquipType,
+  EquipSlot
 }

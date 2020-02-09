@@ -1,82 +1,69 @@
 import * as utils from '../utils';
-import * as impact from '../impact_object';
+import {
+  InteractionObject, InteractionParameters
+} from '../interactions/index';
 
-export enum equipType {
-  oneHand,
-  secondHand,
-  twoHand,
-  head,
-  body,
-  bag
+export enum EquipType {
+  OneHand,
+  SecondHand,
+  TwoHand,
+  Head,
+  Body,
+  Bag
 }
 
-interface iStats {
+interface EquipStats {
+  penetration?: number;
   damage?: number;
   block?: number;
+  speed?: number;
   armor?: number;
   slots?: number;
 }
 
-export interface iConfig extends impact.iParameters {
+export interface EquipConfig extends InteractionParameters {
   specialClass?: string;
-  type: equipType;
+  type: EquipType;
   name: string;
-  durability: utils.iRangeArguments;
-  stats?: iStats;
+  durability: utils.RangeArguments;
+  stats?: EquipStats;
 }
 
-export interface iParameters extends impact.iParameters {
+export interface EquipParameters {
   id: string | number;
-  durability: utils.iRangeArguments;
-  stats?: iStats;
+  durability: utils.RangeArguments;
+  stats?: EquipStats;
 }
 
-export class Equip extends impact.ImpactObject {
-  type: equipType;
+export class Equip extends InteractionObject {
+  type: EquipType;
   durability: utils.Range;
-  stats: iStats;
+  stats: EquipStats;
 
-  constructor(
-    config: iConfig,
-    parameters: iParameters,
-    ...options: any[]
+  initialize(
+    config: EquipConfig,
+    parameters: EquipParameters
   ) {
-    super(config, parameters, ...options);
-  }
-
-  protected initialize(
-    config: iConfig,
-    parameters: iParameters,
-    ...options: any[]
-  ) {
-    super.initialize();
+    super.initialize(config);
     this.type = config.type;
     this.initialize_durability(config.durability, parameters.durability);
     this.initialize_stats(config.stats, parameters.stats);
   }
 
   protected initialize_durability(
-    config: utils.iRangeArguments,
-    parameters: utils.iRangeArguments
+    config: utils.RangeArguments,
+    parameters: utils.RangeArguments
   ) {
     const range = { ...config, ...parameters };
     const { max, value, min } = range;
     this.durability = new utils.Range(max, value, min);
   }
 
-  initialize_stats(
+  protected initialize_stats(
     config: any = {},
     parameters: any = {}
   ) {
     this.stats = { ...config, ...parameters };
-  }
-
-  protected initialize_influences(
-    config: iConfig,
-    parameters: iParameters,
-  ) {
-    super.initialize_influences(config);
-    super.initialize_influences(parameters);
   }
 
   added(
