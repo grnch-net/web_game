@@ -23,13 +23,17 @@ const DEFAULT_CONFIG: CharacterParameters = {
     armor: 0,
     experience: 0
   },
-  effects: [{
-    name: 'Inherent stamina regeneration',
-    innerGradualInfluences: [{
-      attribute: Attributes.Stamina,
-      value: 0.1
-    }]
-  }],
+  effects: [
+    {
+      name: 'Inherent stamina regeneration',
+      innerGradualInfluences: [
+        {
+          attribute: Attributes.Stamina,
+          value: 0.1
+        }
+      ]
+    }
+  ],
   skills: [
     { id: 0, experience: 0 },
     { id: 1, experience: 0 }
@@ -45,12 +49,14 @@ export class Character {
   effects: effects.Controller;
   skills: skills.Controller;
   equips: equips.Controller;
+  armorProtect: number;
   world: any;
 
   initialize(
     parameters: CharacterParameters,
     config: CharacterParameters = DEFAULT_CONFIG
   ) {
+    this.armorProtect = parameters.armorProtect | config.armorProtect;
     this.initialize_attributes(parameters.attributes, config.attributes);
     this.initialize_counters(parameters.counters, config.counters);
     this.initialize_effects(parameters.effects, config.effects);
@@ -191,9 +197,9 @@ export class Character {
     let health = impact.negative[Attributes.Health];
     if (!health || health < 0) return false;
     if (-health <= this.counters.armor) {
-      health *= DEFAULT_CONFIG.armorProtect;
+      health *= this.armorProtect;
     } else {
-      health += this.counters.armor * DEFAULT_CONFIG.armorProtect;
+      health += this.counters.armor * this.armorProtect;
     }
     impact.negative[Attributes.Health] = health;
     return true;
@@ -221,8 +227,7 @@ export class Character {
     }
     const innerImpact = new Impact();
     const outerImpact = new Impact();
-    skill.use(innerImpact, outerImpact);
-    this.skills.using = skill;
+    this.skills.use(skill, innerImpact, outerImpact);
     this.apply_skill(innerImpact, outerImpact);
     this.applyImpact(innerImpact);
     this.applyInteract(outerImpact);
@@ -276,6 +281,11 @@ export class Character {
   protected applyInteract(
     impact: Impact,
   ) {
-    this.world.interact(this, impact);
+    const result = this.world.interact(this, impact);
+    this.interactResult(result);
   }
+
+  protected interactResult(
+    result: any
+  ) {}
 }

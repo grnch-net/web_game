@@ -15,6 +15,7 @@ export enum EquipType {
 interface EquipStats {
   penetration?: number;
   damage?: number;
+  range?: number;
   block?: number;
   speed?: number;
   armor?: number;
@@ -79,5 +80,4 @@ export class Equip extends InteractionObject {
     this.inner_static_influences
     .forEach(influence => influence.cancel(innerImpact));
   }
-
 }

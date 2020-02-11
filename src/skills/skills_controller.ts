@@ -1,5 +1,6 @@
 import * as utils from '../utils';
 import { Skill } from './skill';
+import { Impact } from '../interactions/index';
 
 export default class Controller extends utils.Collection {
   list: Skill[];
@@ -32,8 +33,8 @@ export default class Controller extends utils.Collection {
 
   tick(
     dt: number,
-    innerImpact: any,
-    outerImpact: any
+    innerImpact: Impact,
+    outerImpact: Impact
   ) {
     this.tick_recoveries(dt);
     this.tick_using(dt, innerImpact, outerImpact);
@@ -56,8 +57,8 @@ export default class Controller extends utils.Collection {
 
   protected tick_using(
     dt: number,
-    innerImpact: any,
-    outerImpact: any
+    innerImpact: Impact,
+    outerImpact: Impact
   ) {
     if (!this.using) return;
     this.using.tick(dt, innerImpact, outerImpact);
@@ -68,19 +69,26 @@ export default class Controller extends utils.Collection {
   }
 
   onOuterImpact(
-    impact: any
+    impact: Impact
   ) {
-    this.using && this.using.onOuterImpact(impact);
+    if (!this.using) return;
+    if (this.using.castTime && impact.rules.stun) {
+      this.cancelUse();
+    } else
+    if (this.using.usageTime) {
+      this.using.onOuterImpact(impact);
+      impact.rules.stun && this.cancelUse();
+    }
   }
 
   getToUse(
     id: string | number
   ): Skill {
-    if (this.using) {
-      console.info(`Another skill using: ${this.using.id}.`);
+    const skill = this.find_by_id(id);
+    if (this.using == skill && !skill.reusable) {
+      console.error(`Skill "${id}" used.`);
       return null;
     }
-    const skill = this.find_by_id(id);
     if (!skill) {
       console.error(`Skill "${id}" is undefined.`);
       return null;
@@ -99,6 +107,21 @@ export default class Controller extends utils.Collection {
     const index = this.id_list.indexOf(id);
     const skill = this.list[index];
     return skill;
+  }
+
+  use(
+    skill: Skill,
+    innerImpact: Impact,
+    outerImpact: Impact
+  ) {
+    if (this.using) {
+      if (!this.using.reusable || this.using != skill) {
+        this.cancelUse();
+      }
+    }
+
+    skill.use(innerImpact, outerImpact);
+    this.using = skill;
   }
 
   cancelUse() {
@@ -121,4 +144,6 @@ export default class Controller extends utils.Collection {
       skill.reset();
     }
   }
+
+  interactResult() {}
 }

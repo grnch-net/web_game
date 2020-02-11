@@ -1,6 +1,7 @@
 import { Attributes } from '../interactions/index';
 import { Skill, SkillConfig, SkillParameters } from './skill';
 import { EquipSlot } from '../equips/index';
+import { Attack } from './specials/attack';
 import { Block } from './specials/block';
 
 export class utils {
@@ -25,6 +26,7 @@ export class utils {
       name: 'Attack',
       specialClass: 'attack',
       castTime: 1,
+      usageTime: 1,
       cost: [
         {
           attribute: Attributes.Stamina,
@@ -60,6 +62,7 @@ export class utils {
   };
 
   static specialClassList: ({ [id: string]: typeof Skill }) = {
+    attack: Attack,
     block: Block
   };
 

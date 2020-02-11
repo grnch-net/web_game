@@ -15,6 +15,7 @@ export interface SkillConfig extends InteractionParameters {
   gradualCost?: InfluenceArguments[],
   // rules?: any;
   needs?: SkillNeeds;
+  reusable?: boolean;
 }
 
 export interface SkillParameters {
@@ -35,6 +36,7 @@ export class Skill extends InteractionObject {
   static multiplyEfficiency = 0.001;
   config: SkillConfig;
   parameters: SkillParameters;
+  reusable?: boolean;
   castTime: number;
   usageTime: number;
   recoveryTime: number;
@@ -71,6 +73,7 @@ export class Skill extends InteractionObject {
     super.initialize(config);
     this.config = config;
     this.parameters = parameters;
+    this.reusable = config.reusable || false;
     this.initialize_stock(config.stock);
     this.initialize_cost(config.cost);
     this.initialize_gradual_cost(config.gradualCost);
@@ -238,4 +241,5 @@ export class Skill extends InteractionObject {
 
   onCancel() {}
 
+  interactResult() {}
 }

@@ -7,8 +7,18 @@ export enum Attributes {
   Weariness
 };
 
+export enum ImpactSide {
+  Front,
+  Right,
+  Back,
+  Left
+}
+
 interface Rules {
+  side?: ImpactSide;
   penetration?: number;
+  stun?: number;
+  range?: number;
 }
 
 type Influenced = {

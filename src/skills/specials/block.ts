@@ -1,6 +1,5 @@
-import { Skill, SkillNeedsResult } from '../skill';
-import { Impact, Attributes } from '../../interactions/index';
-import { Equip } from '../../equips/index';
+import { Skill } from '../skill';
+import { Impact, ImpactSide, Attributes } from '../../interactions/index';
 
 export class Block extends Skill {
   onOuterImpact(
@@ -9,27 +8,29 @@ export class Block extends Skill {
     super.onOuterImpact(impact);
     if (!this.usageTime) return;
     const impact_health = impact.negative[Attributes.Health];
-    if (!impact_health || impact_health < 0) return;
+    const impact_stun = impact.rules.stun;
+    const impact_side = impact.rules.side;
+    if (!impact_health && !impact_stun) return;
+    if (impact_side !== ImpactSide.Front) return;
     const penetration = impact.rules.penetration;
     const equip = this.equips[0];
     let block = this.experience * Skill.multiplyEfficiency;
     let armor = 0;
     if (equip) {
-      block += this.equips[0].stats.block;
-      armor += this.equips[0].stats.armor;
+      block += equip.stats.block;
+      armor += equip.stats.armor;
     }
     const success = this.block_calculation(block, penetration);
     if (success) {
-      if (impact_health < armor) {
-        impact.negative[Attributes.Health] = 0;
-      } else {
-        impact.negative[Attributes.Health] -= armor;
-      }
+      this.block_apply(impact, armor);
+    } else {
+      this.parameters.experience += 1;
     }
     for (const influence of this.stock) {
       influence.apply(impact);
     }
     this.usageTime = 0;
+
   }
 
   protected block_calculation(
@@ -39,6 +40,22 @@ export class Block extends Skill {
     if (!penetration) return true;
     const random = Math.random() * (block + penetration);
     return random > penetration;
+  }
+
+  protected block_apply(
+    impact: Impact,
+    armor: number
+  ) {
+    if (impact.negative[Attributes.Health]) {
+      if (impact.negative[Attributes.Health] < armor) {
+        impact.negative[Attributes.Health] = 0;
+      } else {
+        impact.negative[Attributes.Health] -= armor;
+      }
+    }
+    if (impact.rules.stun) {
+      delete impact.rules.stun;
+    }
   }
 
   use(
