@@ -1,13 +1,16 @@
 import { Impact, Attributes } from './impact';
 import { Influence, GradualInfluence, InfluenceArguments } from './influences';
 
+export interface InteractResult {
+  avoid?: boolean
+}
+
 export interface InteractionParameters {
   innerStaticInfluences?: InfluenceArguments[];
   innerGradualInfluences?: InfluenceArguments[];
   outerStaticInfluences?: InfluenceArguments[];
   outerGradualInfluences?: InfluenceArguments[];
 }
-
 
 export abstract class InteractionObject {
 
@@ -113,12 +116,8 @@ export abstract class InteractionObject {
   }
 
   onOuterImpact(
-    impact: Impact
-  ): any {}
-
-  onUseSkill(
-    innerImpact: Impact,
-    outerImpact: Impact
-  ) {}
-
+    innerImpact: Impact
+  ): InteractResult {
+    return;
+  }
 }

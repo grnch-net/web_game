@@ -1,5 +1,5 @@
 import {
-  InteractionObject, InteractionParameters
+  InteractionObject, InteractionParameters, Impact
 } from '../interactions/index';
 
 export interface EffectParameters extends InteractionParameters{
@@ -64,4 +64,8 @@ export class Effect extends InteractionObject {
     super.tick(dt, innerImpact, outerImpact);
   }
 
+  onUseSkill(
+    innerImpact: Impact,
+    outerImpact: Impact
+  ) {}
 }

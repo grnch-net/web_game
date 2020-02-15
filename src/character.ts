@@ -1,8 +1,9 @@
+import { WorldObject } from './world_object';
+import { Impact, Attributes, InteractResult } from './interactions/index';
 import * as utils from './utils';
 import * as effects from './effects/index';
 import * as skills from './skills/index';
 import * as equips from './equips/index';
-import { Impact, Attributes} from './interactions/index';
 
 export interface CharacterParameters {
   attributes: ({ [key: string]: utils.RangeArguments });
@@ -42,7 +43,7 @@ const DEFAULT_CONFIG: CharacterParameters = {
   armorProtect: 0.9
 };
 
-export class Character {
+export class Character extends WorldObject {
   name: string;
   attributes: ({ [name: string]: utils.Range });
   counters: ({ [name: string]: number });
@@ -50,12 +51,12 @@ export class Character {
   skills: skills.Controller;
   equips: equips.Controller;
   armorProtect: number;
-  world: any;
 
   initialize(
     parameters: CharacterParameters,
     config: CharacterParameters = DEFAULT_CONFIG
   ) {
+    super.initialize();
     this.armorProtect = parameters.armorProtect | config.armorProtect;
     this.initialize_attributes(parameters.attributes, config.attributes);
     this.initialize_counters(parameters.counters, config.counters);
@@ -94,7 +95,7 @@ export class Character {
       const effect = effects.utils.create(argument);
       this.effects.add(effect, impact);
     }
-    this.applyImpact(impact);
+    this.apply_impact(impact);
   }
 
   protected initialize_skills(
@@ -120,7 +121,7 @@ export class Character {
       const equip = equips.utils.create(argument);
       this.equips.add(equip, impact);
     }
-    this.applyImpact(impact);
+    this.apply_impact(impact);
   }
 
   tick(
@@ -130,8 +131,8 @@ export class Character {
     const outerImpact = new Impact;
     this.tick_skills(dt, innerImpact, outerImpact);
     this.effects.tick(dt, innerImpact, outerImpact);
-    this.applyImpact(innerImpact);
-    this.applyInteract(outerImpact);
+    this.apply_impact(innerImpact);
+    this.apply_interaction(outerImpact);
   }
 
   protected tick_skills(
@@ -150,45 +151,46 @@ export class Character {
   }
 
   protected apply_weariness(
-    impact: Impact
+    innerImpact: Impact
   ) {
-    if (!impact.negative[Attributes.Stamina]) return;
+    if (!innerImpact.negative[Attributes.Stamina]) return;
     let multiply = 1;
     const stamina = this.attributes.stamina.value;
     if (stamina < 1) {
       multiply *= stamina * 0.5 + 0.5;
     }
     multiply *= this.attributes.weariness.value;
-    impact.negative[Attributes.Stamina] *= multiply;
+    innerImpact.negative[Attributes.Stamina] *= multiply;
   }
 
-  applyImpact(
-    impact: Impact
+  protected apply_impact(
+    innerImpact: Impact
   ) {
-    for (const effect of impact.effects) {
-      this.effects.add(effect, impact);
+    for (const effect of innerImpact.effects) {
+      this.effects.add(effect, innerImpact);
     }
-    for (let key in impact.positive) {
+    for (let key in innerImpact.positive) {
       const index: Attributes = +key;
-      const value = impact.positive[index];
+      const value = innerImpact.positive[index];
       const attribute = Attributes[+index];
       this.attributes[attribute].value += value;
     }
-    for (let key in impact.negative) {
+    for (let key in innerImpact.negative) {
       const index: Attributes = +key;
-      const value = impact.negative[index];
+      const value = innerImpact.negative[index];
       const attribute = Attributes[+index];
       this.attributes[attribute].value -= value;
     }
   }
 
-  applyOuterImpact(
-    impact: Impact
-  ) {
-    this.effects.onOuterImpact(impact);
-    this.skills.onOuterImpact(impact);
-    this.armor_protection(impact);
-    this.applyImpact(impact);
+  interact(
+    innerImpact: Impact
+  ): InteractResult {
+    this.effects.onOuterImpact(innerImpact);
+    this.skills.onOuterImpact(innerImpact);
+    this.armor_protection(innerImpact);
+    this.apply_impact(innerImpact);
+    return {};
   }
 
   protected armor_protection(
@@ -217,7 +219,7 @@ export class Character {
     }
     const stockImpact = skill.getStockImpact();
     if (stockImpact) {
-      const stocked = this.checkImpact(stockImpact);
+      const stocked = this.check_impact(stockImpact);
       if (!stocked) return false;
     }
     const costImpact = skill.getCostImpact();
@@ -229,8 +231,8 @@ export class Character {
     const outerImpact = new Impact();
     this.skills.use(skill, innerImpact, outerImpact);
     this.apply_skill(innerImpact, outerImpact);
-    this.applyImpact(innerImpact);
-    this.applyInteract(outerImpact);
+    this.apply_impact(innerImpact);
+    this.apply_interaction(outerImpact);
     return true;
   }
 
@@ -251,9 +253,9 @@ export class Character {
   protected apply_cost(
     impact: Impact
   ) {
-    const checked = this.checkImpact(impact);
+    const checked = this.check_impact(impact);
     if (!checked) return false;
-    this.applyImpact(impact);
+    this.apply_impact(impact);
     return true;
   }
 
@@ -264,7 +266,7 @@ export class Character {
     this.effects.onUseSkill(innerImpact, outerImpact);
   }
 
-  checkImpact(
+  protected check_impact(
     impact: Impact
   ): boolean {
     for (let key in impact.negative) {
@@ -278,14 +280,10 @@ export class Character {
     return true;
   }
 
-  protected applyInteract(
+  protected apply_interaction(
     impact: Impact,
   ) {
     const result = this.world.interact(this, impact);
-    this.interactResult(result);
+    this.skills.interactResult(result);
   }
-
-  protected interactResult(
-    result: any
-  ) {}
 }

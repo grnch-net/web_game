@@ -2,6 +2,7 @@ import World from './world';
 import { Character, CharacterParameters } from './character';
 
 const world = new World();
+world.initialize();
 
 const heroParameters: CharacterParameters = {
   attributes: {
@@ -25,4 +26,4 @@ const heroParameters: CharacterParameters = {
 const hero = new Character();
 hero.initialize(heroParameters)
 
-world.location.addCharacter(hero);
+world.addCharacter(hero);

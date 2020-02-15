@@ -1,5 +1,5 @@
 import { Skill, SkillNeedsResult } from '../skill';
-import { Impact, Attributes } from '../../interactions/index';
+import { Impact, Attributes, InteractResult } from '../../interactions/index';
 
 export class Attack extends Skill {
   protected combinations: number;
@@ -27,7 +27,6 @@ export class Attack extends Skill {
       outerImpact.rules.range = main_equip.stats.range;
     }
     outerImpact.rules.penetration += this.experience * Skill.multiplyEfficiency;
-    // this.parameters.experience += 1;
     this.combinations++;
   }
 
@@ -58,5 +57,11 @@ export class Attack extends Skill {
     super.use(innerImpact, outerImpact);
   }
 
-  interactResult() {}
+  interactResult(
+    result: InteractResult
+  ) {
+    if (result.avoid) {
+      this.parameters.experience += 1;
+    }
+  }
 }

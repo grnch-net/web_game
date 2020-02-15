@@ -1,6 +1,6 @@
 import * as utils from '../utils';
 import { Skill } from './skill';
-import { Impact } from '../interactions/index';
+import { Impact, InteractResult } from '../interactions/index';
 
 export default class Controller extends utils.Collection {
   list: Skill[];
@@ -70,15 +70,17 @@ export default class Controller extends utils.Collection {
 
   onOuterImpact(
     impact: Impact
-  ) {
+  ): InteractResult {
     if (!this.using) return;
+    let result: InteractResult;
     if (this.using.castTime && impact.rules.stun) {
       this.cancelUse();
     } else
     if (this.using.usageTime) {
-      this.using.onOuterImpact(impact);
+      result = this.using.onOuterImpact(impact);
       impact.rules.stun && this.cancelUse();
     }
+    return result;
   }
 
   getToUse(
@@ -119,7 +121,6 @@ export default class Controller extends utils.Collection {
         this.cancelUse();
       }
     }
-
     skill.use(innerImpact, outerImpact);
     this.using = skill;
   }
@@ -145,5 +146,9 @@ export default class Controller extends utils.Collection {
     }
   }
 
-  interactResult() {}
+  interactResult(
+    result: InteractResult
+  ) {
+    this.using && this.using.interactResult(result);
+  }
 }

@@ -1,6 +1,6 @@
 import * as utils from '../utils';
 import {
-  InteractionObject, InteractionParameters
+  InteractionObject, InteractionParameters, Impact
 } from '../interactions/index';
 
 export enum EquipType {
@@ -80,4 +80,9 @@ export class Equip extends InteractionObject {
     this.inner_static_influences
     .forEach(influence => influence.cancel(innerImpact));
   }
+
+  onUseSkill(
+    innerImpact: Impact,
+    outerImpact: Impact
+  ) {}
 }

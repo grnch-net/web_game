@@ -1,6 +1,6 @@
 import {
   InteractionObject, InteractionParameters, Influence, GradualInfluence,
-  InfluenceArguments, Impact
+  InfluenceArguments, Impact, InteractResult
 } from '../interactions/index';
 import { Equip, EquipSlot } from '../equips/index';
 
@@ -241,5 +241,7 @@ export class Skill extends InteractionObject {
 
   onCancel() {}
 
-  interactResult() {}
+  interactResult(
+    result: InteractResult
+  ) {}
 }

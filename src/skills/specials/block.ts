@@ -1,10 +1,13 @@
 import { Skill } from '../skill';
-import { Impact, ImpactSide, Attributes } from '../../interactions/index';
+import {
+  Impact, ImpactSide, Attributes, InteractResult
+} from '../../interactions/index';
 
 export class Block extends Skill {
   onOuterImpact(
     impact: Impact
-  ) {
+  ): InteractResult {
+    const result: InteractResult = {};
     super.onOuterImpact(impact);
     if (!this.usageTime) return;
     const impact_health = impact.negative[Attributes.Health];
@@ -20,8 +23,8 @@ export class Block extends Skill {
       block += equip.stats.block;
       armor += equip.stats.armor;
     }
-    const success = this.block_calculation(block, penetration);
-    if (success) {
+    result.avoid = this.block_calculation(block, penetration);
+    if (result.avoid) {
       this.block_apply(impact, armor);
     } else {
       this.parameters.experience += 1;
@@ -30,7 +33,7 @@ export class Block extends Skill {
       influence.apply(impact);
     }
     this.usageTime = 0;
-
+    return result;
   }
 
   protected block_calculation(
