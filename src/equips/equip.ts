@@ -38,6 +38,8 @@ export interface EquipParameters {
 
 export class Equip extends InteractionObject {
   type: EquipType;
+  name: string;
+  parameters: EquipParameters;
   durability: utils.Range;
   stats: EquipStats;
 
@@ -47,6 +49,8 @@ export class Equip extends InteractionObject {
   ) {
     super.initialize(config);
     this.type = config.type;
+    this.name = config.name;
+
     this.initialize_durability(config.durability, parameters.durability);
     this.initialize_stats(config.stats, parameters.stats);
   }

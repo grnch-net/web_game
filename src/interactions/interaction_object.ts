@@ -35,10 +35,10 @@ export abstract class InteractionObject {
     ...options: any[]
   ) {
     const {
-      innerStaticInfluences,
-      innerGradualInfluences,
-      outerStaticInfluences,
-      outerGradualInfluences
+      innerStaticInfluences = [],
+      innerGradualInfluences = [],
+      outerStaticInfluences = [],
+      outerGradualInfluences = []
     } = parameters;
     for (const { attribute, value, negative } of innerStaticInfluences) {
       this.add_inner_static_influence(attribute, value, negative);
@@ -118,6 +118,6 @@ export abstract class InteractionObject {
   onOuterImpact(
     innerImpact: Impact
   ): InteractResult {
-    return;
+    return {};
   }
 }

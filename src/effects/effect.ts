@@ -10,6 +10,7 @@ export interface EffectParameters extends InteractionParameters{
 }
 
 export class Effect extends InteractionObject {
+  name: string;
   unique: string;
   active: boolean;
   ended: boolean;
@@ -19,6 +20,7 @@ export class Effect extends InteractionObject {
     parameters: EffectParameters
   ) {
     super.initialize(parameters);
+    this.name = parameters.name;
     this.active = false;
     this.ended = false;
     this.liveTimer = parameters.time || Infinity;

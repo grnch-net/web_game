@@ -16,18 +16,18 @@ export default class utils {
     parameters: EffectParameters
   ): Effect {
     const { specialClass } = parameters;
-    let SkillClass: typeof Effect;
+    let EffectClass: typeof Effect;
     if (specialClass) {
-      SkillClass = utils.findSpecialClass(specialClass);;
-      if (!SkillClass) {
+      EffectClass = utils.findSpecialClass(specialClass);;
+      if (!EffectClass) {
         console.error('Can not find skill special class with id:', specialClass);
         return null;
       }
     } else {
-      SkillClass = Effect;
+      EffectClass = Effect;
     }
-    const equip = new SkillClass();
-    equip.initialize(parameters);
-    return equip;
+    const effect = new EffectClass();
+    effect.initialize(parameters);
+    return effect;
   }
 }

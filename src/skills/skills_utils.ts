@@ -14,17 +14,18 @@ export class utils {
       innerGradualInfluences: [
         {
           attribute: Attributes.Health,
-          value: 0.003
+          value: 0.83
         },
         {
           attribute: Attributes.Weariness,
-          value: -0.003
+          value: -0.83
         }
       ]
     },
     1: {
       name: 'Attack',
       specialClass: 'attack',
+      reusable: true,
       castTime: 1,
       usageTime: 1,
       cost: [

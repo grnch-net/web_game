@@ -20,7 +20,7 @@ export interface SkillConfig extends InteractionParameters {
 
 export interface SkillParameters {
   id: string | number;
-  experience: number;
+  experience?: number;
 }
 
 export interface SkillNeeds {

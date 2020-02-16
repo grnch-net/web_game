@@ -7,8 +7,7 @@ export class Block extends Skill {
   onOuterImpact(
     impact: Impact
   ): InteractResult {
-    const result: InteractResult = {};
-    super.onOuterImpact(impact);
+    const result = super.onOuterImpact(impact);
     if (!this.usageTime) return;
     const impact_health = impact.negative[Attributes.Health];
     const impact_stun = impact.rules.stun;

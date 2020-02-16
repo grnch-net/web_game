@@ -15,7 +15,7 @@ export class Controller {
   body: Equip;
   bag: Equip;
 
-  constructor() {}
+  initialize() {}
 
   add(
     equip: Equip,
@@ -33,6 +33,10 @@ export class Controller {
         this.remove(EquipSlot.MainHand, innerImpact);
         this.mainHand = equip;
       }
+    } else
+    if (equip.type == EquipType.SecondHand) {
+      this.remove(EquipSlot.SecondHand, innerImpact);
+      this.secondHand = equip;
     } else
     if (equip.type == EquipType.TwoHand) {
       this.remove(EquipSlot.MainHand, innerImpact);

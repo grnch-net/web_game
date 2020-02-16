@@ -86,13 +86,7 @@ export class Range {
 export class Collection {
   list: any[];
 
-  constructor(
-    ...options: any
-  ) {
-    this.initialize(...options);
-  }
-
-  protected initialize(
+  initialize(
     ...options: any
   ) {
     this.list = [];

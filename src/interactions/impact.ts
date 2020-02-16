@@ -19,6 +19,7 @@ interface Rules {
   penetration?: number;
   stun?: number;
   range?: number;
+  sector?: number;
 }
 
 type Influenced = {

@@ -1,34 +1,39 @@
-import * as utils from '../utils';
 import { Skill } from './skill';
 import { Impact, InteractResult } from '../interactions/index';
 
-export default class Controller extends utils.Collection {
-  list: Skill[];
+export default class Controller {
+  list: ({ [id: string]: Skill });
   using: Skill;
   recoveries: Skill[];
-  protected id_list: any[];
+
+  initialize(
+    ...options: any
+  ) {
+    this.list = {};
+    this.recoveries = [];
+  }
+
 
   add(
     skill: Skill
   ): boolean {
-    if (this.id_list.includes(skill.id)) {
+    if (this.list[skill.id]) {
       console.error('Skill already exists', skill.id);
       return false;
     }
-    const result = super.add(skill);
-    result && this.id_list.push(skill.id);
-    return result;
+    this.list[skill.id] = skill;
+    return true;
   }
 
   remove(
     skill: Skill
   ): boolean {
-    const result = super.remove(skill);
-    if (result) {
-      const index = this.id_list.indexOf(skill.id);
-      this.list.splice(index, 1);
+    if (!this.list[skill.id]) {
+      console.error('Skill already exists', skill.id);
+      return false;
     }
-    return result;
+    delete this.list[skill.id]
+    return true;
   }
 
   tick(
@@ -86,28 +91,20 @@ export default class Controller extends utils.Collection {
   getToUse(
     id: string | number
   ): Skill {
-    const skill = this.find_by_id(id);
-    if (this.using == skill && !skill.reusable) {
-      console.error(`Skill "${id}" used.`);
-      return null;
-    }
+    const skill = this.list[id];
     if (!skill) {
       console.error(`Skill "${id}" is undefined.`);
       return null;
     }
-    const is_ready = this.recoveries.includes(skill);
-    if (!is_ready) {
+    if (this.using == skill && !skill.reusable) {
+      console.error(`Skill "${id}" used.`);
+      return null;
+    }
+    const is_recovering = this.recoveries.includes(skill);
+    if (is_recovering) {
       console.info(`Skill recovery: ${skill.recoveryTime}.`);
       return null;
     }
-    return skill;
-  }
-
-  protected find_by_id(
-    id: string | number
-  ) {
-    const index = this.id_list.indexOf(id);
-    const skill = this.list[index];
     return skill;
   }
 

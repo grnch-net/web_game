@@ -25,6 +25,8 @@ export class Attack extends Skill {
       outerImpact.negative[Attributes.Health] = main_equip.stats.damage;
       outerImpact.rules.penetration = main_equip.stats.penetration;
       outerImpact.rules.range = main_equip.stats.range;
+    } else {
+      outerImpact.rules.range = 1;
     }
     outerImpact.rules.penetration += this.experience * Skill.multiplyEfficiency;
     this.combinations++;

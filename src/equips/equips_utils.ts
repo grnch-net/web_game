@@ -9,8 +9,9 @@ export default class utils {
       type: EquipType.OneHand,
       durability: { max: 100 },
       stats: {
+        speed: 1,
         penetration: 10,
-        damage: 1,
+        damage: 30,
         range: 1
       }
     },
@@ -19,6 +20,7 @@ export default class utils {
       type: EquipType.SecondHand,
       durability: { max: 30 },
       stats: {
+        speed: 0.5,
         block: 10,
         armor: 25
       }
@@ -28,8 +30,9 @@ export default class utils {
       type: EquipType.TwoHand,
       durability: { max: 70 },
       stats: {
+        speed: 1.5,
         penetration: 5,
-        damage: 1,
+        damage: 50,
         range: 2
       }
     },

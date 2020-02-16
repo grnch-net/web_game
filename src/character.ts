@@ -16,9 +16,9 @@ export interface CharacterParameters {
 
 const DEFAULT_CONFIG: CharacterParameters = {
   attributes: {
-    health: { max: 100 },
-    stamina: { max: 1.5 },
-    weariness: { max: 1, value: 0 }
+    Health: { max: 100 },
+    Stamina: { max: 150 },
+    Weariness: { max: 1, value: 0 }
   },
   counters: {
     armor: 0,
@@ -30,14 +30,13 @@ const DEFAULT_CONFIG: CharacterParameters = {
       innerGradualInfluences: [
         {
           attribute: Attributes.Stamina,
-          value: 0.1
+          value: 5
         }
       ]
     }
   ],
   skills: [
-    { id: 0, experience: 0 },
-    { id: 1, experience: 0 }
+    { id: 0 }
   ],
   equips: [],
   armorProtect: 0.9
@@ -63,6 +62,7 @@ export class Character extends WorldObject {
     this.initialize_effects(parameters.effects, config.effects);
     this.initialize_skills(parameters.skills, config.skills);
     this.initialize_equipments(parameters.equips, config.equips);
+    this.armorProtect = config.armorProtect;
   }
 
   protected initialize_attributes(
@@ -89,10 +89,11 @@ export class Character extends WorldObject {
     config: effects.EffectParameters[]
   ) {
     this.effects = new effects.Controller();
+    this.effects.initialize();
     const impact = new Impact;
     const list = [...config, ...parameters];
-    for (const argument of list) {
-      const effect = effects.utils.create(argument);
+    for (const effect_parameters of list) {
+      const effect = effects.utils.create(effect_parameters);
       this.effects.add(effect, impact);
     }
     this.apply_impact(impact);
@@ -103,9 +104,10 @@ export class Character extends WorldObject {
     config: skills.SkillParameters[]
   ) {
     this.skills = new skills.Controller();
+    this.skills.initialize();
     const list = [...config, ...parameters];
-    for (const argument of list) {
-      const skill = skills.utils.create(argument);
+    for (const skill_parameters of list) {
+      const skill = skills.utils.create(skill_parameters);
       this.skills.add(skill);
     }
   }
@@ -115,10 +117,11 @@ export class Character extends WorldObject {
     config: equips.EquipParameters[]
   ) {
     this.equips = new equips.Controller();
+    this.equips.initialize();
     const impact = new Impact;
     const list = [...config, ...parameters];
-    for (const argument of list) {
-      const equip = equips.utils.create(argument);
+    for (const equip_parameters of list) {
+      const equip = equips.utils.create(equip_parameters);
       this.equips.add(equip, impact);
     }
     this.apply_impact(impact);
@@ -187,23 +190,23 @@ export class Character extends WorldObject {
     innerImpact: Impact
   ): InteractResult {
     this.effects.onOuterImpact(innerImpact);
-    this.skills.onOuterImpact(innerImpact);
+    const result = this.skills.onOuterImpact(innerImpact);
     this.armor_protection(innerImpact);
     this.apply_impact(innerImpact);
-    return {};
+    return result;
   }
 
   protected armor_protection(
     impact: Impact
   ): boolean {
-    let health = impact.negative[Attributes.Health];
-    if (!health || health < 0) return false;
-    if (-health <= this.counters.armor) {
-      health *= this.armorProtect;
+    let damage = impact.negative[Attributes.Health];
+    if (!damage || damage < 0) return false;
+    if (damage > this.counters.armor) {
+      damage -= this.counters.armor * this.armorProtect;
     } else {
-      health += this.counters.armor * this.armorProtect;
+      damage *= 1 - this.armorProtect;
     }
-    impact.negative[Attributes.Health] = health;
+    impact.negative[Attributes.Health] = damage;
     return true;
   }
 
@@ -283,7 +286,8 @@ export class Character extends WorldObject {
   protected apply_interaction(
     impact: Impact,
   ) {
+    if (!impact.rules.range) return;
     const result = this.world.interact(this, impact);
-    this.skills.interactResult(result);
+    if (result) this.skills.interactResult(result);
   }
 }
