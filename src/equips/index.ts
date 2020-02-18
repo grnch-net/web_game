@@ -1,6 +1,6 @@
 import { Controller, EquipSlot } from './equips_controller';
 import { Equip, EquipConfig, EquipParameters, EquipType } from './equip';
-import utils from './equips_utils';
+import { utils } from './equips_utils';
 
 export {
   Controller,

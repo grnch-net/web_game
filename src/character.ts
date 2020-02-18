@@ -1,12 +1,12 @@
 import { WorldObject } from './world_object';
 import { Impact, Attributes, InteractResult } from './interactions/index';
-import * as utils from './utils';
+import { Range, RangeArguments } from './utils';
 import * as effects from './effects/index';
 import * as skills from './skills/index';
 import * as equips from './equips/index';
 
 export interface CharacterParameters {
-  attributes: ({ [key: string]: utils.RangeArguments });
+  attributes: ({ [key: string]: RangeArguments });
   counters: ({ [key: string]: number });
   effects: effects.EffectParameters[];
   skills: skills.SkillParameters[];
@@ -44,7 +44,7 @@ const DEFAULT_CONFIG: CharacterParameters = {
 
 export class Character extends WorldObject {
   name: string;
-  attributes: ({ [name: string]: utils.Range });
+  attributes: ({ [name: string]: Range });
   counters: ({ [name: string]: number });
   effects: effects.Controller;
   skills: skills.Controller;
@@ -66,14 +66,14 @@ export class Character extends WorldObject {
   }
 
   protected initialize_attributes(
-    parameters: ({ [key: string]: utils.RangeArguments }),
-    config: ({ [key: string]: utils.RangeArguments })
+    parameters: ({ [key: string]: RangeArguments }),
+    config: ({ [key: string]: RangeArguments })
   ) {
     this.attributes = {};
     for (const key in config) {
       const range = { ...config[key], ...parameters[key] };
       const { max, value, min } = range;
-      this.attributes[key] = new utils.Range(max, value, min);
+      this.attributes[key] = new Range(max, value, min);
     }
   }
 

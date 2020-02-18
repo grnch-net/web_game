@@ -1,7 +1,7 @@
 import { Skill } from './skill';
 import { Impact, InteractResult } from '../interactions/index';
 
-export default class Controller {
+export class Controller {
   list: ({ [id: string]: Skill });
   using: Skill;
   recoveries: Skill[];

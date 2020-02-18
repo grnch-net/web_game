@@ -1,7 +1,7 @@
-import * as utils from '../utils';
+import { Collection } from '../utils';
 import { Effect } from './effect';
 
-export default class Controller extends utils.Collection {
+export class Controller extends Collection {
   list: Effect[];
   protected unique_list: ({ [id: string]: Effect });
 

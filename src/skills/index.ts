@@ -1,4 +1,4 @@
-import Controller from './skills_controller';
+import { Controller } from './skills_controller';
 import {
   Skill, SkillConfig, SkillParameters, SkillNeeds, SkillNeedsResult
 } from './skill';

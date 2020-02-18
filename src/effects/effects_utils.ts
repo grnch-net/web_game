@@ -1,6 +1,6 @@
 import { Effect, EffectParameters } from './effect';
 
-export default class utils {
+export class utils {
   protected constructor() {}
 
   static specialClassList: ({ [id: string]: typeof Effect }) = {};

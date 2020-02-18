@@ -1,4 +1,4 @@
-import * as utils from '../utils';
+import { Range, RangeArguments } from '../utils';
 import {
   InteractionObject, InteractionParameters, Impact
 } from '../interactions/index';
@@ -26,13 +26,13 @@ export interface EquipConfig extends InteractionParameters {
   specialClass?: string;
   type: EquipType;
   name: string;
-  durability: utils.RangeArguments;
+  durability: RangeArguments;
   stats?: EquipStats;
 }
 
 export interface EquipParameters {
   id: string | number;
-  durability: utils.RangeArguments;
+  durability: RangeArguments;
   stats?: EquipStats;
 }
 
@@ -40,7 +40,7 @@ export class Equip extends InteractionObject {
   type: EquipType;
   name: string;
   parameters: EquipParameters;
-  durability: utils.Range;
+  durability: Range;
   stats: EquipStats;
 
   initialize(
@@ -56,12 +56,12 @@ export class Equip extends InteractionObject {
   }
 
   protected initialize_durability(
-    config: utils.RangeArguments,
-    parameters: utils.RangeArguments
+    config: RangeArguments,
+    parameters: RangeArguments
   ) {
     const range = { ...config, ...parameters };
     const { max, value, min } = range;
-    this.durability = new utils.Range(max, value, min);
+    this.durability = new Range(max, value, min);
   }
 
   protected initialize_stats(

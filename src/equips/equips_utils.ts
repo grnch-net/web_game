@@ -1,6 +1,6 @@
 import { Equip, EquipConfig, EquipParameters, EquipType } from './equip';
 
-export default class utils {
+export class utils {
   protected constructor() {}
 
   static configs: ({[id: string]: EquipConfig}) = {

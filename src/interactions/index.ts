@@ -5,6 +5,7 @@ import {
 import {
   InteractionObject, InteractionParameters, InteractResult
 } from './interaction_object';
+
 export {
   Impact,
   ImpactSide,
