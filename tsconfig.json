@@ -4,8 +4,8 @@
   ],
 	"compilerOptions": {
 		"allowJs": true,
-		"target": "ES5",
-		"moduleResolution": "Classic",
+		"target": "es5",
+		"moduleResolution": "node",
 		"noImplicitAny": true,
 		"declaration": true,
 		"lib": [

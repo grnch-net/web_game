@@ -10,6 +10,7 @@ var sourcemaps = require('gulp-sourcemaps');
 var uglify = require('gulp-uglify');
 
 var browserSync = require('browser-sync').create();
+var babelify = require('babelify');
 
 function clear(path: any) {
 	return gulp.src('build/' + path, {read: false})
@@ -48,6 +49,16 @@ watchedBrowserify.on('log', fancy_log);
 
 function destJS(bundler: any) {
   return bundler
+	.transform(babelify, {
+		only: [
+      "./node_modules/three/build/three.module.js",
+      "./node_modules/three/examples/jsm/loaders/GLTFLoader.js"
+    ],
+    global: true,
+    sourceType: "unambiguous",
+    presets: ["@babel/preset-env"],
+    plugins: ['@babel/plugin-transform-modules-commonjs']
+	})
   .bundle()
   .on('error', fancy_log)
   .pipe(source('bundle.js'))
