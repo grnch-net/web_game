@@ -10,7 +10,11 @@ var sourcemaps = require('gulp-sourcemaps');
 var uglify = require('gulp-uglify');
 
 var browserSync = require('browser-sync').create();
+var browserify = require('browserify');
 var babelify = require('babelify');
+var tsify = require('tsify');
+var watchify = require('watchify');
+
 
 function clear(path: any) {
 	return gulp.src('build/' + path, {read: false})
@@ -30,36 +34,17 @@ function buildHTML() {
 	.pipe(gulp.dest('build/'));
 }
 
-var browserify = require('browserify');
-var tsify = require('tsify');
-var watchify = require('watchify');
-
-const options = {
-  basedir: '.',
-  debug: true,
-  entries: ['src/main.ts'],
-  cache: {},
-  packageCache: {}
-};
-
-const bundleBrowserify = browserify(options).plugin(tsify);
-const watchedBrowserify = watchify(browserify(options).plugin(tsify));
-
-watchedBrowserify.on('log', fancy_log);
+function createBundler() {
+	return browserify({
+		entries: 'src/main.ts',
+		debug: true
+	})
+	.plugin(tsify);
+}
 
 function destJS(bundler: any) {
   return bundler
-	.transform(babelify, {
-		only: [
-      "./node_modules/three/build/three.module.js",
-      "./node_modules/three/examples/jsm/loaders/GLTFLoader.js"
-    ],
-    global: true,
-    sourceType: "unambiguous",
-    presets: ["@babel/preset-env"],
-    plugins: ['@babel/plugin-transform-modules-commonjs']
-	})
-  .bundle()
+	.bundle()
   .on('error', fancy_log)
   .pipe(source('bundle.js'))
   .pipe(buffer())
@@ -68,32 +53,41 @@ function destJS(bundler: any) {
   .pipe(gulp.dest('build/'));
 }
 
+function buildLibs() {
+	return browserify({
+		entries: 'src/libs/main.js',
+		debug: true
+	})
+	.transform(babelify, {
+		only: ["./src/libs/*"],
+		plugins: ['@babel/plugin-transform-modules-commonjs']
+	})
+	.bundle()
+	.on('error', fancy_log)
+	.pipe(source('libs.js'))
+  .pipe(buffer())
+  .pipe(sourcemaps.init({loadMaps: true}))
+  .pipe(sourcemaps.write('./'))
+  .pipe(gulp.dest('build/'));
+}
+
 function buildJS() {
-	return destJS(bundleBrowserify);
+	return destJS(createBundler());
 };
 
-function watchJS() {
-  return destJS(watchedBrowserify);
-}
-
-async function initWatch() {
-	watchedBrowserify.on('update', watchJS);
-}
-
-var isChange: boolean = false
-
-function request(req: any, res: any, next: any) {
-	if (!isChange) {
-		return next();
-	}
-
-	isChange = false;
-	const response = async () => next();
-	gulp.series(watchJS, response)();
-}
-
 function runServer(done: any) {
-	watchedBrowserify.on('update', () => isChange = true);
+	const watchedBrowserify = watchify(createBundler());
+	const build = () => destJS(watchedBrowserify);
+	let isChange: boolean = false;
+	const request = (req: any, res: any, next: any) => {
+		if (!isChange) {
+			return next();
+		}
+
+		isChange = false;
+		const response = async () => next();
+		gulp.series(build, response)();
+	}
 
 	browserSync.init({
     server: {
@@ -105,11 +99,23 @@ function runServer(done: any) {
 		logFileChanges: true
   });
 
-	done();
+	watchedBrowserify
+	.on('log', fancy_log)
+	.on('update', (files:any) => {
+		isChange = true;
+		fancy_log(files[0]);
+	});
+
+	return build();
+}
+
+function init() {
+	return gulp.parallel(buildHTML, buildLibs);
 }
 
 exports.clearjs = clearJS;
 exports.clearall = clearAll;
-exports.watch = gulp.series(clearJS, initWatch, watchJS);
-exports.run = gulp.series(clearJS, watchJS, runServer);
-exports.default = gulp.series(clearAll, buildHTML, buildJS);
+exports.buildlibs = buildLibs;
+exports.init = init;
+exports.run = gulp.series(init, clearJS, runServer);
+exports.default = gulp.series(clearJS, buildJS);

@@ -14,10 +14,8 @@
   },
   "homepage": "https://github.com/grnch-net/web_game#readme",
   "devDependencies": {
-    "@babel/cli": "^7.8.4",
     "@babel/core": "^7.8.4",
     "@babel/plugin-transform-modules-commonjs": "^7.8.3",
-    "@babel/preset-env": "^7.8.4",
     "@types/node": "^13.7.4",
     "babelify": "^10.0.0",
     "browser-sync": "^2.26.7",
@@ -29,6 +27,7 @@
     "gulp-sourcemaps": "^2.6.5",
     "gulp-uglify": "^3.0.2",
     "gulp-util": "^3.0.8",
+    "three": "^0.113.2",
     "ts-node": "^8.6.2",
     "tsify": "^4.0.1",
     "typescript": "^3.7.5",
@@ -36,7 +35,5 @@
     "vinyl-source-stream": "^2.0.0",
     "watchify": "^3.11.1"
   },
-  "dependencies": {
-    "three": "^0.113.2"
-  }
+  "dependencies": {}
 }

@@ -1,13 +1,12 @@
 {
 	"files": [
-    "src/main.ts"
-  ],
+		"src/main.ts"
+	],
 	"compilerOptions": {
 		"allowJs": true,
 		"target": "es5",
 		"moduleResolution": "node",
 		"noImplicitAny": true,
-		"declaration": true,
 		"lib": [
 		  "dom",
 		  "es7"
