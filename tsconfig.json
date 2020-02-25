@@ -1,5 +1,6 @@
 {
 	"files": [
+		"src/global.d.ts",
 		"src/main.ts"
 	],
 	"compilerOptions": {
