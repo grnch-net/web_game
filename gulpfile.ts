@@ -109,9 +109,7 @@ function runServer(done: any) {
 	return build();
 }
 
-function init() {
-	return gulp.parallel(buildHTML, buildLibs);
-}
+const init = gulp.parallel(buildHTML, buildLibs);
 
 exports.clearjs = clearJS;
 exports.clearall = clearAll;
