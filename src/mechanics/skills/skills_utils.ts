@@ -15,10 +15,6 @@ export class utils {
         {
           attribute: Attributes.Health,
           value: 0.83
-        },
-        {
-          attribute: Attributes.Weariness,
-          value: -0.83
         }
       ]
     },
