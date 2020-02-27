@@ -1,9 +1,34 @@
 import { World } from './world';
 import { GameObject } from './game_object';
+import { Player } from './player';
 
 const clock = new THREE.Clock();
 const world = new World;
 world.initialize();
+
+const fox = new GameObject;
+fox.load('res/fox/')
+.then(() => {
+  fox.model.position.set(20, 0, 50);
+  fox.model.scale.set(0.1, 0.1, 0.1);
+  fox.model.rotateY(Math.PI * 0.7);
+  world.addChild(fox);
+  // const idle = fox.mixer.clipAction(fox.animations[0]);
+  // idle.play();
+});
+
+const player = new Player;
+const hero = new GameObject;
+hero.load('res/fox/')
+.then(() => {
+  player.initialize(world.camera, hero);
+  hero.model.position.set(0, 0, 0);
+  hero.model.scale.set(0.1, 0.1, 0.1);
+  const idle = hero.mixer.clipAction(hero.animations[0]);
+  idle.play();
+  world.addChild(player);
+});
+
 
 function animator() {
   const dt = clock.getDelta();
@@ -13,14 +38,3 @@ function animator() {
   }, 1000 / 30);
 }
 animator();
-
-
-const fox = new GameObject;
-fox.load('res/fox/')
-.then(() => {
-  fox.model.position.set(0, 0, 0);
-  fox.model.scale.set(0.1, 0.1, 0.1);
-  world.addChild(fox);
-  const idle = fox.mixer.clipAction(fox.animations[0]);
-  idle.play();
-});

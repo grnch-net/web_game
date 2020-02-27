@@ -1,10 +1,11 @@
+import type { DisplayObject } from './display_object';
 import type { GameObject } from './game_object';
 
 export class World {
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
-  children: GameObject[];
+  children: DisplayObject[];
 
   initialize() {
     const screen_width = window.innerWidth;
@@ -26,8 +27,6 @@ export class World {
     this.camera.far = 200;
     this.camera.aspect = screen_width / screen_height;
     this.camera.updateProjectionMatrix();
-    this.camera.lookAt(1, 0, -1);
-    this.camera.position.set(-30, 10, 30);
 
     let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.61);
     hemiLight.position.set(0, 50, 0);
@@ -36,31 +35,30 @@ export class World {
     let d = 8.25;
     let dirLight = new THREE.DirectionalLight(0xffffff, 0.54);
     dirLight.position.set(-8, 12, 8);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize = new THREE.Vector2(1024, 1024);
-    dirLight.shadow.camera.near = 0.1;
-    dirLight.shadow.camera.far = 1500;
-    dirLight.shadow.camera.left = d * -1;
-    dirLight.shadow.camera.right = d;
-    dirLight.shadow.camera.top = d;
-    dirLight.shadow.camera.bottom = d * -1;
+    // dirLight.castShadow = true;
+    // dirLight.shadow.mapSize = new THREE.Vector2(1024, 1024);
+    // dirLight.shadow.camera.near = 0.1;
+    // dirLight.shadow.camera.far = 1500;
+    // dirLight.shadow.camera.left = d * -1;
+    // dirLight.shadow.camera.right = d;
+    // dirLight.shadow.camera.top = d;
+    // dirLight.shadow.camera.bottom = d * -1;
     this.scene.add(dirLight);
 
-    let floorGeometry = new THREE.PlaneGeometry(5000, 5000, 1, 1);
-    let floorMaterial = new THREE.MeshPhongMaterial({
-      color: 0xeeeeee,
-      shininess: 0,
-    });
-
-    let floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = -0.5 * Math.PI;
-    floor.receiveShadow = true;
-    this.scene.add(floor);
+    // let floorGeometry = new THREE.PlaneGeometry(5000, 5000, 1, 1);
+    // let floorMaterial = new THREE.MeshPhongMaterial({
+    //   color: 0xeeeeee,
+    //   shininess: 0,
+    // });
+    // let floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    // floor.rotation.x = -0.5 * Math.PI;
+    // floor.receiveShadow = true;
+    // this.scene.add(floor);
 
     this.children = [];
   }
 
-  addChild(child: GameObject) {
+  addChild(child: DisplayObject) {
     this.scene.add(child.model);
     this.children.push(child);
   }

@@ -58,8 +58,8 @@ export class GameObject {
     if (!this.material || !this.model) return;
     this.model.traverse((item: THREE.Object3D) => {
       if (!(item instanceof THREE.Mesh)) return
-      item.castShadow = true;
-      item.receiveShadow = true;
+      item.castShadow = false;
+      item.receiveShadow = false;
       item.material = this.material;
     });
     this.load_resolve();
