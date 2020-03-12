@@ -1,4 +1,5 @@
 import { DisplayObject } from './display_object';
+import  { Text } from './text';
 
 type Action = (dt: number) => void;
 
@@ -23,15 +24,19 @@ export class Player extends DisplayObject {
     this.camera.rotation.set(Math.PI * 0.05, Math.PI, 0);
     this.camera_pivot = new THREE.Object3D;
     this.camera_pivot.add(this.camera);
-    this.model = new THREE.Group;
-    this.model.add(this.camera_pivot, this.character.model);
-  }
 
-  tick(dt: number) {
-    for (const action of this.actions) {
-      action(dt);
-    }
-    this.character.tick(dt);
+    const name = new Text;
+    const style = {
+      fontSize: 80,
+      color: 'white',
+      stroke: 10
+    };
+    name.initialize('Player', style);
+    name.model.position.y = 10;
+
+
+    this.model = new THREE.Group;
+    this.model.add(this.camera_pivot, this.character.model, name.model);
   }
 
   protected initialize_actions() {
@@ -40,7 +45,7 @@ export class Player extends DisplayObject {
     this.initialize_move();
   }
 
-  initialize_wath() {
+  protected initialize_wath() {
     let start_pos: number;
     let angle: number;
     const action = (dt: number) => {
@@ -88,22 +93,54 @@ export class Player extends DisplayObject {
     // });
   }
 
-  initialize_move() {
+  protected initialize_move() {
+    const direction = new THREE.Vector3;
+    let count = 0;
     const action = (dt: number) => {
-      this.model.translateZ(dt * this.move_speed);
+      this.model.translateOnAxis(direction, this.move_speed * dt);
     };
-    const touchstart = () => {
+    const movestart = () => {
+      count++;
+      if (count > 1) return;
       this.fixed_camera = true;
       this.model.quaternion.multiply(this.camera_pivot.quaternion);
       this.camera_pivot.quaternion.set(0, 0, 0, 1);
       this.actions.push(action);
     };
-    const touchend = () => {
+    const moveend = () => {
+      count--;
+      if (count > 0) return;
       this.fixed_camera = false;
       const index = this.actions.indexOf(action);
       this.actions.splice(index, 1);
     };
-    document.addEventListener('touchstart', touchstart);
-    document.addEventListener('touchend', touchend);
+    document.addEventListener('touchstart', () => {
+      direction.set(0, 0, 1);
+      movestart();
+    });
+    document.addEventListener('touchend', moveend);
+    document.addEventListener('keydown', event => {
+      if (event.code == 'KeyW') direction.z = 1;
+      else if (event.code == 'KeyS') direction.z = -1;
+      else if (event.code == 'KeyA') direction.x = 1;
+      else if (event.code == 'KeyD') direction.x = -1;
+      else return;
+      movestart();
+    });
+    document.addEventListener('keyup', event => {
+      if (event.code == 'KeyW') direction.z = 0;
+      else if (event.code == 'KeyS') direction.z = 0;
+      else if (event.code == 'KeyA') direction.x = 0;
+      else if (event.code == 'KeyD') direction.x = 0;
+      else return;
+      moveend();
+    });
+  }
+
+  tick(dt: number) {
+    for (const action of this.actions) {
+      action(dt);
+    }
+    this.character.tick(dt);
   }
 }

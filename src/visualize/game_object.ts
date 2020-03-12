@@ -1,7 +1,9 @@
+import { DisplayObject } from './display_object';
+
 const texture_loader = new THREE.TextureLoader();
 const gltf_loader = new GLTFLoader();
 
-export class GameObject {
+export class GameObject extends DisplayObject {
   model: THREE.Scene;
   material: THREE.Material;
   animations: THREE.AnimationClip[];
@@ -58,7 +60,7 @@ export class GameObject {
     if (!this.material || !this.model) return;
     this.model.traverse((item: THREE.Object3D) => {
       if (!(item instanceof THREE.Mesh)) return
-      item.castShadow = false;
+      item.castShadow = true;
       item.receiveShadow = false;
       item.material = this.material;
     });
