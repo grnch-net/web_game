@@ -1,4 +1,4 @@
-import { Impact, Attributes } from './impact';
+import { Impact, Attribute } from './impact';
 import { Influence, GradualInfluence, InfluenceArguments } from './influences';
 
 export interface InteractResult {
@@ -55,7 +55,7 @@ export abstract class InteractionObject {
   }
 
   protected add_inner_static_influence(
-    attribute: Attributes,
+    attribute: Attribute,
     value: number,
     negative?: boolean
   ) {
@@ -65,7 +65,7 @@ export abstract class InteractionObject {
   }
 
   protected add_inner_gradual_influence(
-    attribute: Attributes,
+    attribute: Attribute,
     value: number,
     negative: boolean
   ) {
@@ -75,7 +75,7 @@ export abstract class InteractionObject {
   }
 
   protected add_outer_static_influence(
-    attribute: Attributes,
+    attribute: Attribute,
     value: number,
     negative: boolean
   ) {
@@ -85,7 +85,7 @@ export abstract class InteractionObject {
   }
 
   protected add_outer_gradual_influence(
-    attribute: Attributes,
+    attribute: Attribute,
     value: number,
     negative: boolean
   ) {

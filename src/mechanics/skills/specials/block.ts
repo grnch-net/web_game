@@ -9,12 +9,10 @@ export class Block extends Skill {
   ): InteractResult {
     const result = super.onOuterImpact(impact);
     if (!this.usageTime) return;
-    const impact_health = impact.negative.health;
-    const impact_stun = impact.rules.stun;
-    const impact_side = impact.rules.side;
-    if (!impact_health && !impact_stun) return;
-    if (impact_side !== ImpactSide.Front) return;
-    const penetration = impact.rules.penetration;
+    const damage = impact.negative.health;
+    const { stun, side, penetration } = impact.rules;
+    if (!damage && !stun) return;
+    if (side !== ImpactSide.Front) return;
     const equip = this.equips[0];
     let block = this.experience * Skill.multiplyEfficiency;
     let armor = 0;

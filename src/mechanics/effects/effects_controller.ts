@@ -1,14 +1,17 @@
 import { Collection } from '../utils';
 import { Effect } from './effect';
+import { Impact } from '../interactions/index';
+
+type ClassList = { [id: string]: Effect };
 
 export class Controller extends Collection {
   list: Effect[];
-  protected unique_list: ({ [id: string]: Effect });
+  protected unique_list: ClassList;
 
   add(
     effect: Effect,
-    innerImpact: any,
-    outerImpact?: any
+    innerImpact: Impact,
+    outerImpact?: Impact
   ): boolean {
     if (effect.unique) {
       this.add_unique(effect, innerImpact, outerImpact);
@@ -20,8 +23,8 @@ export class Controller extends Collection {
 
   protected add_unique(
     effect: Effect,
-    innerImpact: any,
-    outerImpact?: any
+    innerImpact: Impact,
+    outerImpact?: Impact
   ) {
     const id = effect.unique;
     const last_effect = this.unique_list[id];
@@ -33,8 +36,8 @@ export class Controller extends Collection {
 
   remove(
     effect: Effect,
-    innerImpact: any,
-    outerImpact?: any
+    innerImpact: Impact,
+    outerImpact?: Impact
   ): boolean {
     if (effect.unique) {
       delete this.unique_list[effect.unique];
@@ -46,8 +49,8 @@ export class Controller extends Collection {
 
   tick(
     dt: number,
-    innerImpact: any,
-    outerImpact: any
+    innerImpact: Impact,
+    outerImpact: Impact
   ) {
     this.list.forEach(effect => {
       if (!effect.active) return;
@@ -59,7 +62,7 @@ export class Controller extends Collection {
   }
 
   onOuterImpact(
-    impact: any
+    impact: Impact
   ) {
     this.list.forEach(effect => {
       if (!effect.active) return;
@@ -68,8 +71,8 @@ export class Controller extends Collection {
   }
 
   onUseSkill(
-    innerImpact: any,
-    outerImpact: any
+    innerImpact: Impact,
+    outerImpact: Impact
   ) {
     this.list.forEach(effect => {
       if (!effect.active) return;

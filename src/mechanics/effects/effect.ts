@@ -4,7 +4,7 @@ import {
 
 export interface EffectParameters extends InteractionParameters{
   name?: string;
-  specialClass?: string | number;
+  specialClass?: string;
   unique?: string;
   time?: number;
 }
@@ -32,23 +32,21 @@ export class Effect extends InteractionObject {
   added(
     innerImpact: any
   ) {
-    if (!this.active) {
-      for (const influence of this.inner_static_influences) {
-        influence.apply(innerImpact);
-      }
-    }
+    if (this.active) return;
     this.active = true;
+    for (const influence of this.inner_static_influences) {
+      influence.apply(innerImpact);
+    }
   }
 
   removed(
     innerImpact: any
   ) {
-    if (this.active) {
-      for (const influence of this.inner_static_influences) {
-        influence.cancel(innerImpact);
-      }
-    }
+    if (!this.active) return;
     this.active = false;
+    for (const influence of this.inner_static_influences) {
+      influence.cancel(innerImpact);
+    }
   }
 
   tick(

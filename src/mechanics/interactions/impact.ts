@@ -1,7 +1,6 @@
 import { Effect } from '../effects/index';
 
-
-export type Attributes = 'health' | 'stamina';
+export type Attribute = 'health' | 'stamina';
 
 export enum ImpactSide {
   Front,
@@ -18,7 +17,7 @@ interface Rules {
   sector?: number;
 }
 
-type Influenced = { [key in Attributes]?: number };
+type Influenced = { [key in Attribute]?: number };
 
 export class Impact {
   positive: Influenced = {};

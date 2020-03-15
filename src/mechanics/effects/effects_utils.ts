@@ -1,30 +1,31 @@
 import { Effect, EffectParameters } from './effect';
 
+type ClassList = { [id: string]: typeof Effect };
+
 export class utils {
   protected constructor() {}
 
-  static specialClassList: ({ [id: string]: typeof Effect }) = {};
+  static specialClassList: ClassList = {};
 
   static findSpecialClass(
     specialId: string | number
   ): typeof Effect {
-    const SpecialClass = utils.specialClassList[specialId];
-    return SpecialClass;
+    return utils.specialClassList[specialId];
   }
 
   static create(
     parameters: EffectParameters
   ): Effect {
-    const { specialClass } = parameters;
-    let EffectClass: typeof Effect;
-    if (specialClass) {
-      EffectClass = utils.findSpecialClass(specialClass);;
+    let EffectClass = Effect;
+    if (parameters.specialClass) {
+      EffectClass = utils.findSpecialClass(parameters.specialClass);;
       if (!EffectClass) {
-        console.error('Can not find skill special class with id:', specialClass);
+        console.error(
+          'Can not find skill special class with id:',
+          parameters.specialClass
+        );
         return null;
       }
-    } else {
-      EffectClass = Effect;
     }
     const effect = new EffectClass();
     effect.initialize(parameters);

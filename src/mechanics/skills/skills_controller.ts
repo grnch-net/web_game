@@ -2,9 +2,9 @@ import { Skill } from './skill';
 import { Impact, InteractResult } from '../interactions/index';
 
 export class Controller {
-  list: ({ [id: string]: Skill });
+  list: { [id: string]: Skill };
   using: Skill;
-  recoveries: Skill[];
+  protected recoveries: Skill[];
 
   initialize(
     ...options: any
@@ -12,7 +12,6 @@ export class Controller {
     this.list = {};
     this.recoveries = [];
   }
-
 
   add(
     skill: Skill
@@ -29,7 +28,7 @@ export class Controller {
     skill: Skill
   ): boolean {
     if (!this.list[skill.id]) {
-      console.error('Skill already exists', skill.id);
+      console.error('Skill is undefined', skill.id);
       return false;
     }
     delete this.list[skill.id]
@@ -48,16 +47,16 @@ export class Controller {
   protected tick_recoveries(
     dt: number
   ) {
-    const next_list: Skill[] = [];
+    const new_list: Skill[] = [];
     for (const skill of this.recoveries) {
       skill.tickRecovery(dt);
       if (skill.recoveryTime > 0) {
-        next_list.push(skill);
+        new_list.push(skill);
       } else {
         skill.reset();
       }
     }
-    this.recoveries = next_list;
+    this.recoveries = new_list;
   }
 
   protected tick_using(

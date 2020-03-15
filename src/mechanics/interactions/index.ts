@@ -1,4 +1,4 @@
-import { Impact, ImpactSide, Attributes } from './impact';
+import { Impact, ImpactSide, Attribute } from './impact';
 import {
   Influence, GradualInfluence, InfluenceArguments
 } from './influences';
@@ -9,7 +9,7 @@ import {
 export {
   Impact,
   ImpactSide,
-  Attributes,
+  Attribute,
   Influence,
   GradualInfluence,
   InfluenceArguments,

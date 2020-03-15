@@ -1,4 +1,4 @@
-import { Impact, Attributes } from './impact';
+import { Impact, Attribute } from './impact';
 
 // export enum influenceTypes {
 //   positive,
@@ -9,18 +9,18 @@ import { Impact, Attributes } from './impact';
 // }
 
 export interface InfluenceArguments {
-  attribute: Attributes;
+  attribute: Attribute;
   value: number;
   negative?: boolean;
 }
 
 export class Influence {
-  attribute: Attributes;
+  attribute: Attribute;
   value: number;
   negative: boolean;
 
   set(
-    attribute: Attributes,
+    attribute: Attribute,
     value: number,
     negative: boolean = false
   ) {
@@ -50,7 +50,7 @@ export class GradualInfluence extends Influence {
   deltaValue: number;
 
   set(
-    attribute: Attributes,
+    attribute: Attribute,
     valuePerSecond: number,
     negative: boolean = false
   ) {

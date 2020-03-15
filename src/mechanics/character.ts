@@ -1,12 +1,12 @@
 import { WorldObject } from './world_object';
-import { Impact, Attributes, InteractResult } from './interactions/index';
+import { Impact, Attribute, InteractResult } from './interactions/index';
 import { Range, RangeArguments } from './utils';
 import { characterConfig } from './configs/character';
 import * as effects from './effects/index';
 import * as skills from './skills/index';
 import * as equips from './equips/index';
 
-type AttributesData = { [key in Attributes]?: RangeArguments };
+type AttributesData = { [key in Attribute]?: RangeArguments };
 type CountersData = { [key: string]: number };
 
 export interface CharacterConfig {
@@ -20,8 +20,8 @@ export interface CharacterConfig {
 
 export class Character extends WorldObject {
   name: string;
-  attributes: ({ [key in Attributes]?: Range });
-  counters: ({ [key: string]: number });
+  attributes: { [key in Attribute]?: Range };
+  counters: { [key: string]: number };
   effects: effects.Controller;
   skills: skills.Controller;
   equips: equips.Controller;
@@ -32,7 +32,7 @@ export class Character extends WorldObject {
     config: CharacterConfig = characterConfig
   ) {
     super.initialize();
-    this.armorProtect = parameters.armorProtect | config.armorProtect;
+    this.armorProtect = parameters.armorProtect || config.armorProtect;
     this.initialize_attributes(parameters.attributes, config.attributes);
     this.initialize_counters(parameters.counters, config.counters);
     this.initialize_effects(parameters.effects, config.effects);
@@ -46,13 +46,11 @@ export class Character extends WorldObject {
     config: AttributesData
   ) {
     this.attributes = {};
-    for (const key in config) {
-      const range = {
-        ...config[key as Attributes],
-        ...parameters[key as Attributes]
-      };
+    let key: Attribute;
+    for (key in config) {
+      const range = { ...config[key], ...parameters[key] };
       const { max, value, min } = range;
-      this.attributes[key as Attributes] = new Range(max, value, min);
+      this.attributes[key] = new Range(max, value, min);
     }
   }
 
@@ -138,13 +136,14 @@ export class Character extends WorldObject {
     for (const effect of innerImpact.effects) {
       this.effects.add(effect, innerImpact);
     }
-    for (const key in innerImpact.positive) {
-      const value = innerImpact.positive[key as Attributes];
-      this.attributes[key as Attributes].value += value;
+    let key: Attribute;
+    for (key in innerImpact.positive) {
+      const value = innerImpact.positive[key];
+      this.attributes[key].value += value;
     }
-    for (const key in innerImpact.negative) {
-      const value = innerImpact.negative[key as Attributes];
-      this.attributes[key as Attributes].value -= value;
+    for (key in innerImpact.negative) {
+      const value = innerImpact.negative[key];
+      this.attributes[key].value -= value;
     }
   }
 
@@ -173,7 +172,7 @@ export class Character extends WorldObject {
   }
 
   useSkill(
-    id: string | number
+    id: string
   ): boolean {
     const skill = this.skills.getToUse(id);
     if (!skill) return false;
@@ -234,9 +233,10 @@ export class Character extends WorldObject {
   protected check_impact(
     impact: Impact
   ): boolean {
-    for (const key in impact.negative) {
-      const impact_value = impact.negative[key as Attributes];
-      const current_value = this.attributes[key as Attributes].value;
+    let key: Attribute;
+    for (key in impact.negative) {
+      const impact_value = impact.negative[key];
+      const current_value = this.attributes[key].value;
       const result = current_value - impact_value;
       if (result < 0) return false;
     }

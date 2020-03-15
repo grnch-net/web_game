@@ -64,4 +64,4 @@ export const equipsConfig: EquipsConfig = {
       slots: 1
     }
   }
-}
+};

@@ -2,14 +2,13 @@ import { Equip, EquipSlot, EquipType, WeaponType } from './equip';
 import { Impact } from '../interactions/index';
 
 export class Controller {
-  slots: ({ [key in EquipSlot]?: Equip });
-  mainHand: Equip;
-  secondHand: Equip;
-  head: Equip;
-  body: Equip;
-  bag: Equip;
+  slots: { [key in EquipSlot]?: Equip };
 
-  initialize() {}
+  initialize(
+    ...options: any
+  ) {
+    this.slots = {};
+  }
 
   add(
     equip: Equip,
@@ -26,7 +25,7 @@ export class Controller {
     return this.replace_slot(equip.slot[0], equip, innerImpact);
   }
 
-  replace_slot(
+  protected replace_slot(
     slot: EquipSlot,
     equip: Equip,
     innerImpact: Impact

@@ -49,7 +49,7 @@ export interface EquipConfig extends InteractionParameters {
 }
 
 export interface EquipParameters {
-  id: string | number;
+  id: string;
   durability: RangeArguments;
   stats?: EquipStats;
 }
@@ -93,21 +93,21 @@ export class Equip extends InteractionObject {
   }
 
   protected initialize_stats(
-    config: any = {},
-    parameters: any = {}
+    config: EquipStats = {},
+    parameters: EquipStats = {}
   ) {
     this.stats = { ...config, ...parameters };
   }
 
   added(
-    innerImpact: any
+    innerImpact: Impact
   ) {
     this.inner_static_influences
     .forEach(influence => influence.apply(innerImpact));
   }
 
   removed(
-    innerImpact: any
+    innerImpact: Impact
   ) {
     this.inner_static_influences
     .forEach(influence => influence.cancel(innerImpact));

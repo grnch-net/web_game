@@ -8,12 +8,16 @@ export class World {
     this.characters = [];
   }
 
-  addCharacter(character: Character) {
+  addCharacter(
+    character: Character
+  ) {
     this.characters.push(character);
     character.world = this;
   }
 
-  tick(dt: number) {
+  tick(
+    dt: number
+  ) {
     for (const character of this.characters) {
       const impact = new Impact;
       character.tick(dt, impact);
