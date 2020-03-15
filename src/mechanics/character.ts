@@ -1,6 +1,7 @@
 import { WorldObject } from './world_object';
 import { Impact, Attributes, InteractResult } from './interactions/index';
 import { Range, RangeArguments } from './utils';
+import { characterConfig } from './configs/character';
 import * as effects from './effects/index';
 import * as skills from './skills/index';
 import * as equips from './equips/index';
@@ -8,7 +9,7 @@ import * as equips from './equips/index';
 type AttributesData = { [key in Attributes]?: RangeArguments };
 type CountersData = { [key: string]: number };
 
-export interface CharacterData {
+export interface CharacterConfig {
   attributes: AttributesData;
   counters: CountersData;
   effects: effects.EffectParameters[];
@@ -16,33 +17,6 @@ export interface CharacterData {
   equips: equips.EquipParameters[];
   armorProtect?: number;
 }
-
-const DEFAULT_CONFIG: CharacterData = {
-  attributes: {
-    [Attributes.Health]: { max: 100 },
-    [Attributes.Stamina]: { max: 150 }
-  },
-  counters: {
-    armor: 0,
-    experience: 0
-  },
-  effects: [
-    {
-      name: 'Inherent stamina regeneration',
-      innerGradualInfluences: [
-        {
-          attribute: Attributes.Stamina,
-          value: 5
-        }
-      ]
-    }
-  ],
-  skills: [
-    { id: 0 }
-  ],
-  equips: [],
-  armorProtect: 0.9
-};
 
 export class Character extends WorldObject {
   name: string;
@@ -54,8 +28,8 @@ export class Character extends WorldObject {
   armorProtect: number;
 
   initialize(
-    parameters: CharacterData,
-    config: CharacterData = DEFAULT_CONFIG
+    parameters: CharacterConfig,
+    config: CharacterConfig = characterConfig
   ) {
     super.initialize();
     this.armorProtect = parameters.armorProtect | config.armorProtect;
@@ -72,7 +46,7 @@ export class Character extends WorldObject {
     config: AttributesData
   ) {
     this.attributes = {};
-    for (const key in Attributes) {
+    for (const key in config) {
       const range = {
         ...config[key as Attributes],
         ...parameters[key as Attributes]
@@ -187,14 +161,14 @@ export class Character extends WorldObject {
   protected armor_protection(
     impact: Impact
   ): boolean {
-    let damage = impact.negative[Attributes.Health];
+    let damage = impact.negative.health;
     if (!damage || damage < 0) return false;
     if (damage > this.counters.armor) {
       damage -= this.counters.armor * this.armorProtect;
     } else {
       damage *= 1 - this.armorProtect;
     }
-    impact.negative[Attributes.Health] = damage;
+    impact.negative.health = damage;
     return true;
   }
 

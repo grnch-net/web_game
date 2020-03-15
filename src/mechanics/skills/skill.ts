@@ -13,7 +13,6 @@ export interface SkillConfig extends InteractionParameters {
   stock?: InfluenceArguments[],
   cost?: InfluenceArguments[],
   gradualCost?: InfluenceArguments[],
-  // rules?: any;
   needs?: SkillNeeds;
   reusable?: boolean;
 }

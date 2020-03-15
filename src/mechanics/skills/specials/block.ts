@@ -1,6 +1,6 @@
 import { Skill } from '../skill';
 import {
-  Impact, ImpactSide, Attributes, InteractResult
+  Impact, ImpactSide, InteractResult
 } from '../../interactions/index';
 
 export class Block extends Skill {
@@ -9,7 +9,7 @@ export class Block extends Skill {
   ): InteractResult {
     const result = super.onOuterImpact(impact);
     if (!this.usageTime) return;
-    const impact_health = impact.negative[Attributes.Health];
+    const impact_health = impact.negative.health;
     const impact_stun = impact.rules.stun;
     const impact_side = impact.rules.side;
     if (!impact_health && !impact_stun) return;
@@ -48,11 +48,11 @@ export class Block extends Skill {
     impact: Impact,
     armor: number
   ) {
-    if (impact.negative[Attributes.Health]) {
-      if (impact.negative[Attributes.Health] < armor) {
-        impact.negative[Attributes.Health] = 0;
+    if (impact.negative.health) {
+      if (impact.negative.health < armor) {
+        impact.negative.health = 0;
       } else {
-        impact.negative[Attributes.Health] -= armor;
+        impact.negative.health -= armor;
       }
     }
     if (impact.rules.stun) {

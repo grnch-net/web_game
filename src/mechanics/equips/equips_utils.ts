@@ -1,73 +1,15 @@
-import { Equip, EquipConfig, EquipParameters, EquipType } from './equip';
+import { Equip, EquipConfig, EquipParameters } from './equip';
+import { equipsConfig } from '../configs/equips';
 
 export class utils {
   protected constructor() {}
-
-  static configs: ({[id: string]: EquipConfig}) = {
-    0: {
-      name: 'Short sword',
-      type: EquipType.OneHand,
-      durability: { max: 100 },
-      stats: {
-        speed: 1,
-        penetration: 10,
-        damage: 30,
-        range: 1
-      }
-    },
-    1: {
-      name: 'Small shield',
-      type: EquipType.SecondHand,
-      durability: { max: 30 },
-      stats: {
-        speed: 0.5,
-        block: 10,
-        armor: 25
-      }
-    },
-    2: {
-      name: 'Wooden staf',
-      type: EquipType.TwoHand,
-      durability: { max: 70 },
-      stats: {
-        speed: 1.5,
-        penetration: 5,
-        damage: 50,
-        range: 2
-      }
-    },
-    3: {
-      name: 'Iron helmet',
-      type: EquipType.Head,
-      durability: { max: 10 },
-      stats: {
-        armor: 1
-      }
-    },
-    4: {
-      name: 'Leather armor',
-      type: EquipType.Body,
-      durability: { max: 20 },
-      stats: {
-        armor: 1
-      }
-    },
-    5: {
-      name: 'Small bag',
-      type: EquipType.Bag,
-      durability: { max: 100 },
-      stats: {
-        slots: 1
-      }
-    }
-  };
 
   static specialClassList: ({ [id: string]: typeof Equip }) = {};
 
   static findConfig(
     id: string | number
   ): EquipConfig {
-    const config = utils.configs[id];
+    const config = equipsConfig[id];
     return config;
   }
 

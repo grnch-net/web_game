@@ -1,14 +1,8 @@
-import { Equip, EquipType } from './equip';
-
-export enum EquipSlot {
-  MainHand,
-  SecondHand,
-  Head,
-  Body,
-  Bag
-}
+import { Equip, EquipSlot, EquipType, WeaponType } from './equip';
+import { Impact } from '../interactions/index';
 
 export class Controller {
+  slots: ({ [key in EquipSlot]?: Equip });
   mainHand: Equip;
   secondHand: Equip;
   head: Equip;
@@ -19,49 +13,38 @@ export class Controller {
 
   add(
     equip: Equip,
-    innerImpact: any
+    innerImpact: Impact
   ): boolean {
-    if (equip.type == EquipType.OneHand) {
-      if (!this.mainHand) {
-        this.mainHand = equip;
-      } else
-      if (!this.secondHand
-        && !(this.mainHand.type == EquipType.TwoHand)
-      ) {
-        this.secondHand = equip;
-      } else {
-        this.remove(EquipSlot.MainHand, innerImpact);
-        this.mainHand = equip;
-      }
-    } else
-    if (equip.type == EquipType.SecondHand) {
-      this.remove(EquipSlot.SecondHand, innerImpact);
-      this.secondHand = equip;
-    } else
-    if (equip.type == EquipType.TwoHand) {
-      this.remove(EquipSlot.MainHand, innerImpact);
-      this.remove(EquipSlot.SecondHand, innerImpact);
-      this.mainHand = equip;
-    } else
-    if (equip.type == EquipType.Head) {
-      this.remove(EquipSlot.Head, innerImpact);
-      this.head = equip;
-    } else
-    if (equip.type == EquipType.Body) {
-      this.remove(EquipSlot.Body, innerImpact);
-      this.body = equip;
-    } else
-    if (equip.type == EquipType.Bag) {
-      this.remove(EquipSlot.Bag, innerImpact);
-      this.bag = equip;
-    } else {
-      console.error(
-        'No handler for equipment type.',
-        equip.type,
-        EquipType[equip.type]
-      );
-      return false;
+    if (!Array.isArray(equip.slot)) {
+      return this.replace_slot(equip.slot, equip, innerImpact);
     }
+    for (const slot of equip.slot) {
+      if (!this.slots[slot]) {
+        return this.replace_slot(slot, equip, innerImpact);
+      }
+    }
+    return this.replace_slot(equip.slot[0], equip, innerImpact);
+  }
+
+  replace_slot(
+    slot: EquipSlot,
+    equip: Equip,
+    innerImpact: Impact
+  ): boolean {
+    if (equip.type == EquipType.Weapon) {
+      const mainHand = this.slots[EquipSlot.MainHand];
+      let isTwoHand = mainHand && mainHand.subType == WeaponType.TwoHand;
+      if (isTwoHand || equip.subType == WeaponType.TwoHand) {
+        this.remove(EquipSlot.MainHand, innerImpact);
+        this.remove(EquipSlot.SecondHand, innerImpact);
+      } else {
+        this.remove(slot, innerImpact);
+      }
+    } else {
+      this.remove(slot, innerImpact);
+    }
+    this.slots[slot] = equip;
+    equip.added(innerImpact);
     return true;
   }
 
@@ -69,60 +52,15 @@ export class Controller {
     slot: EquipSlot,
     innerImpact: any
   ): boolean {
-    let equip: Equip;
-    if (slot == EquipSlot.MainHand) {
-      equip = this.mainHand;
-      this.mainHand = null;
-    } else
-    if (slot == EquipSlot.SecondHand) {
-      equip = this.secondHand;
-      this.secondHand = null;
-    } else
-    if (slot == EquipSlot.Head) {
-      equip = this.head;
-      this.head = null;
-    } else
-    if (slot == EquipSlot.Body) {
-      equip = this.body;
-      this.body = null;
-    } else
-    if (slot == EquipSlot.Bag) {
-      equip = this.bag;
-      this.bag = null;
-    } else {
-      console.error(
-        'No handler for equipment slot.',
-        slot,
-        EquipSlot[slot]
-      );
-    }
+    const equip: Equip = this.slots[slot];
     if (!equip) return false;
+    this.slots[slot] = null;
     equip.removed(innerImpact);
     return true;
   }
 
   getSlot(slot: EquipSlot): Equip {
-    if (slot == EquipSlot.MainHand) {
-      return this.mainHand;
-    } else
-    if (slot == EquipSlot.SecondHand) {
-      return this.secondHand;
-    } else
-    if (slot == EquipSlot.Head) {
-      return this.head;
-    } else
-    if (slot == EquipSlot.Body) {
-      return this.body;
-    } else
-    if (slot == EquipSlot.Bag) {
-      return this.bag;
-    } else {
-      console.error(
-        'No handler for equipment slot.',
-        slot,
-        EquipSlot[slot]
-      );
-    }
+    return this.slots[slot];
   }
 
 }

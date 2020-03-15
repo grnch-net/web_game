@@ -1,15 +1,14 @@
 import { World } from './world';
-import { Character, CharacterData } from './character';
-import { Attributes } from './interactions/index';
+import { Character, CharacterConfig } from './character';
 
 export function test_mechanics() {
   const world = (window as any).world = new World();
   world.initialize();
 
-  const heroParameters: CharacterData = {
+  const heroParameters: CharacterConfig = {
     attributes: {
-      [Attributes.Health]: { value: 100 },
-      [Attributes.Stamina]: { value: 150 }
+      health: { value: 100 },
+      stamina: { value: 150 }
     },
     counters: {
       experience: 100
@@ -34,10 +33,10 @@ export function test_mechanics() {
   hero.initialize(heroParameters)
   world.addCharacter(hero);
 
-  const hero2Parameters: CharacterData = {
+  const hero2Parameters: CharacterConfig = {
     attributes: {
-      [Attributes.Health]: { value: 100 },
-      [Attributes.Stamina]: { value: 150 }
+      health: { value: 100 },
+      stamina: { value: 150 }
     },
     counters: {
       experience: 100

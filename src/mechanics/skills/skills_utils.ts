@@ -1,4 +1,3 @@
-import { Attributes } from '../interactions/index';
 import { Skill, SkillConfig, SkillParameters } from './skill';
 import { EquipSlot } from '../equips/index';
 import { Attack } from './specials/attack';
@@ -13,7 +12,7 @@ export class utils {
       usageTime: Infinity,
       innerGradualInfluences: [
         {
-          attribute: Attributes.Health,
+          attribute: 'health',
           value: 0.83
         }
       ]
@@ -26,13 +25,13 @@ export class utils {
       usageTime: 1,
       cost: [
         {
-          attribute: Attributes.Stamina,
+          attribute: 'stamina',
           value: 25
         }
       ],
       outerStaticInfluences: [
         {
-          attribute: Attributes.Health,
+          attribute: 'health',
           value: 10,
           negative: true
         }
@@ -48,7 +47,7 @@ export class utils {
       usageTime: Infinity,
       stock: [
         {
-          attribute: Attributes.Stamina,
+          attribute: 'stamina',
           value: 25
         }
       ],

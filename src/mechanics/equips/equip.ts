@@ -3,13 +3,29 @@ import {
   InteractionObject, InteractionParameters, Impact
 } from '../interactions/index';
 
+export enum EquipSlot {
+  MainHand = 'MainHand',
+  SecondHand = 'SecondHand',
+  Head = 'Head',
+  Body = 'Body',
+  Bag = 'Bag'
+}
+
 export enum EquipType {
-  OneHand,
-  SecondHand,
-  TwoHand,
-  Head,
-  Body,
-  Bag
+  Weapon = 'Weapon',
+  Armor = 'Armor'
+}
+
+export enum WeaponType {
+  OneHand = 'OneHand',
+  SecondHand = 'SecondHand',
+  TwoHand = 'TwoHand'
+}
+
+export enum ArmorType {
+  Light = 'Light',
+  Medium = 'Medium',
+  Heavy = 'Heavy'
 }
 
 interface EquipStats {
@@ -24,7 +40,9 @@ interface EquipStats {
 
 export interface EquipConfig extends InteractionParameters {
   specialClass?: string;
-  type: EquipType;
+  slot: EquipSlot | EquipSlot[];
+  type?: EquipType;
+  subType?: WeaponType | ArmorType;
   name: string;
   durability: RangeArguments;
   stats?: EquipStats;
@@ -37,20 +55,30 @@ export interface EquipParameters {
 }
 
 export class Equip extends InteractionObject {
-  type: EquipType;
-  name: string;
+  config: EquipConfig;
   parameters: EquipParameters;
   durability: Range;
   stats: EquipStats;
+
+  get slot(): EquipSlot | EquipSlot[] {
+    return this.config.slot;
+  }
+  get type(): EquipType {
+    return this.config.type;
+  }
+  get subType(): WeaponType | ArmorType {
+    return this.config.subType;
+  }
+  get name(): string {
+    return this.config.name;
+  }
 
   initialize(
     config: EquipConfig,
     parameters: EquipParameters
   ) {
     super.initialize(config);
-    this.type = config.type;
-    this.name = config.name;
-
+    this.config = config;
     this.initialize_durability(config.durability, parameters.durability);
     this.initialize_stats(config.stats, parameters.stats);
   }

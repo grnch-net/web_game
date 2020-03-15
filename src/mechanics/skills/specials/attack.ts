@@ -1,5 +1,5 @@
 import { Skill, SkillNeedsResult } from '../skill';
-import { Impact, Attributes, InteractResult } from '../../interactions/index';
+import { Impact, InteractResult } from '../../interactions/index';
 
 export class Attack extends Skill {
   protected combinations: number;
@@ -17,12 +17,12 @@ export class Attack extends Skill {
     const [main_equip, second_equip] = this.equips;
     const turn_second = (this.combinations % 2) == 1;
     if (second_equip && turn_second) {
-      outerImpact.negative[Attributes.Health] = second_equip.stats.damage;
+      outerImpact.negative.health = second_equip.stats.damage;
       outerImpact.rules.penetration = second_equip.stats.penetration;
       outerImpact.rules.range = second_equip.stats.range;
     } else
     if (main_equip) {
-      outerImpact.negative[Attributes.Health] = main_equip.stats.damage;
+      outerImpact.negative.health = main_equip.stats.damage;
       outerImpact.rules.penetration = main_equip.stats.penetration;
       outerImpact.rules.range = main_equip.stats.range;
     } else {

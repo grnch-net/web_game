@@ -1,10 +1,7 @@
 import { Effect } from '../effects/index';
 
 
-export enum Attributes {
-  Health = 'health',
-  Stamina = 'stamina'
-};
+export type Attributes = 'health' | 'stamina';
 
 export enum ImpactSide {
   Front,
