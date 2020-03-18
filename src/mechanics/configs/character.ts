@@ -10,15 +10,7 @@ export const characterConfig: CharacterConfig = {
     experience: 0
   },
   effects: [
-    {
-      name: 'Inherent stamina regeneration',
-      innerGradualInfluences: [
-        {
-          attribute: 'stamina',
-          value: 5
-        }
-      ]
-    }
+    { id: 0 }
   ],
   skills: [
     { id: 0 }

@@ -14,13 +14,13 @@ export class utils {
   };
 
   static findConfig(
-    id: string | number
+    id: string
   ): SkillConfig {
     return skillsConfig[id];
   }
 
   static findSpecialClass(
-    specialId: string | number
+    specialId: string
   ): typeof Skill {
     return utils.specialClassList[specialId];
   }
@@ -28,7 +28,7 @@ export class utils {
   static create(
     parameters: SkillParameters
   ): Skill {
-    const config = utils.findConfig(parameters.id);
+    const config = utils.findConfig(parameters.id as string);
     if (!config) {
       console.error('Can not find skill config with id:', parameters.id);
       return null;

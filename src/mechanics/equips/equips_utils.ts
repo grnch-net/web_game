@@ -9,13 +9,13 @@ export class utils {
   static specialClassList: ClassList = {};
 
   static findConfig(
-    id: string | number
+    id: string
   ): EquipConfig {
     return equipsConfig[id];
   }
 
   static findSpecialClass(
-    specialId: string | number
+    specialId: string
   ): typeof Equip {
     return utils.specialClassList[specialId];
   }
@@ -23,7 +23,7 @@ export class utils {
   static create(
     parameters: EquipParameters
   ): Equip {
-    const config = utils.findConfig(parameters.id);
+    const config = utils.findConfig(parameters.id as string);
     if (!config) {
       console.error('Can not find equip config with id:', parameters.id);
       return null;

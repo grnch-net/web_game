@@ -49,7 +49,7 @@ export interface EquipConfig extends InteractionParameters {
 }
 
 export interface EquipParameters {
-  id: string;
+  id: string | number;
   durability: RangeArguments;
   stats?: EquipStats;
 }

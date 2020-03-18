@@ -2,30 +2,46 @@ import {
   InteractionObject, InteractionParameters, Impact
 } from '../interactions/index';
 
-export interface EffectParameters extends InteractionParameters{
+export interface EffectConfig extends InteractionParameters{
   name?: string;
   specialClass?: string;
   unique?: string;
-  time?: number;
+  liveTime?: number;
+}
+
+export interface EffectParameters {
+  id: string | number;
+  liveTime?: number;
 }
 
 export class Effect extends InteractionObject {
-  name: string;
-  unique: string;
   active: boolean;
   ended: boolean;
-  liveTimer: number;
+  protected config: EffectConfig;
+  protected parameters: EffectParameters;
+
+  get name(): string {
+    return this.config.name;
+  }
+  get unique(): string {
+    return this.config.unique;
+  }
+  get liveTime(): number {
+    return this.parameters.liveTime;
+  }
+
 
   initialize(
+    config: EffectConfig,
     parameters: EffectParameters
   ) {
-    super.initialize(parameters);
-    this.name = parameters.name;
+    super.initialize(config);
+    this.config = config;
+    this.parameters = parameters;
     this.active = false;
     this.ended = false;
-    this.liveTimer = parameters.time || Infinity;
-    if (parameters.unique) {
-      this.unique = parameters.unique;
+    if (this.liveTime === undefined) {
+      parameters.liveTime = config.liveTime || Infinity;
     }
   }
 
@@ -54,11 +70,11 @@ export class Effect extends InteractionObject {
     innerImpact: any,
     outerImpact: any
   ) {
-    if (dt < this.liveTimer) {
-      this.liveTimer -= dt;
+    if (dt < this.liveTime) {
+      this.parameters.liveTime -= dt;
     } else {
-      dt = this.liveTimer;
-      this.liveTimer = 0;
+      dt = this.liveTime;
+      this.parameters.liveTime = 0;
       this.ended = true;
     }
     super.tick(dt, innerImpact, outerImpact);
