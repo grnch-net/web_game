@@ -1,17 +1,17 @@
 import { WorldObject } from './world_object';
 import { Impact, Attribute, InteractResult } from './interactions/index';
-import { Range, RangeArguments } from './utils';
+import { Range, RangeParameters } from './utils';
 import { characterConfig } from './configs/character';
 import * as effects from './effects/index';
-import * as skills from './skills/index';
 import * as equips from './equips/index';
+import * as skills from './skills/index';
 
-type AttributesData = { [key in Attribute]?: RangeArguments };
-type CountersData = { [key: string]: number };
+type Attributes = { [key in Attribute]?: RangeParameters };
+type Counters = { [key: string]: number };
 
 export interface CharacterConfig {
-  attributes: AttributesData;
-  counters: CountersData;
+  attributes: Attributes;
+  counters: Counters;
   effects: effects.EffectParameters[];
   skills: skills.SkillParameters[];
   equips: equips.EquipParameters[];
@@ -42,21 +42,19 @@ export class Character extends WorldObject {
   }
 
   protected initialize_attributes(
-    parameters: AttributesData,
-    config: AttributesData
+    parameters: Attributes,
+    config: Attributes
   ) {
     this.attributes = {};
     let key: Attribute;
     for (key in config) {
-      const range = { ...config[key], ...parameters[key] };
-      const { max, value, min } = range;
-      this.attributes[key] = new Range(max, value, min);
+      this.attributes[key] = new Range(config[key], parameters[key]);
     }
   }
 
   protected initialize_counters(
-    parameters: CountersData,
-    config: CountersData
+    parameters: Counters,
+    config: Counters
   ) {
     this.counters = { ...config, ...parameters };
   }
@@ -66,13 +64,9 @@ export class Character extends WorldObject {
     config: effects.EffectParameters[]
   ) {
     this.effects = new effects.Controller();
-    this.effects.initialize();
     const impact = new Impact;
     const list = [...config, ...parameters];
-    for (const effect_parameters of list) {
-      const effect = effects.utils.create(effect_parameters);
-      this.effects.add(effect, impact);
-    }
+    this.effects.initialize(list, impact);
     this.apply_impact(impact);
   }
 
@@ -81,12 +75,8 @@ export class Character extends WorldObject {
     config: skills.SkillParameters[]
   ) {
     this.skills = new skills.Controller();
-    this.skills.initialize();
     const list = [...config, ...parameters];
-    for (const skill_parameters of list) {
-      const skill = skills.utils.create(skill_parameters);
-      this.skills.add(skill);
-    }
+    this.skills.initialize(list);
   }
 
   protected initialize_equipments(
@@ -94,13 +84,9 @@ export class Character extends WorldObject {
     config: equips.EquipParameters[]
   ) {
     this.equips = new equips.Controller();
-    this.equips.initialize();
     const impact = new Impact;
     const list = [...config, ...parameters];
-    for (const equip_parameters of list) {
-      const equip = equips.utils.create(equip_parameters);
-      this.equips.add(equip, impact);
-    }
+    this.equips.initialize(list, impact);
     this.apply_impact(impact);
   }
 
@@ -172,9 +158,9 @@ export class Character extends WorldObject {
   }
 
   useSkill(
-    id: string
+    id: string | number
   ): boolean {
-    const skill = this.skills.getToUse(id);
+    const skill = this.skills.getToUse(id as string);
     if (!skill) return false;
     if (skill.needs) {
       const result = this.get_needs(skill.needs);

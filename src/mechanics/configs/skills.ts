@@ -1,7 +1,7 @@
 import { SkillConfig } from '../skills/index';
 import { EquipSlot } from '../equips/index';
 
-type SkillsConfig = { [id: string]: SkillConfig };
+export type SkillsConfig = { [id: string]: SkillConfig };
 export const skillsConfig: SkillsConfig = {
   0: {
     name: 'Recreation',

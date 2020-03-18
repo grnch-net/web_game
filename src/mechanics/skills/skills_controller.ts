@@ -1,4 +1,5 @@
-import { Skill } from './skill';
+import { Skill, SkillParameters } from './skill';
+import { utils } from './skills_utils';
 import { Impact, InteractResult } from '../interactions/index';
 
 export class Controller {
@@ -7,10 +8,14 @@ export class Controller {
   protected recoveries: Skill[];
 
   initialize(
-    ...options: any
+    list: SkillParameters[],
   ) {
     this.list = {};
     this.recoveries = [];
+    for (const parameters of list) {
+      const skill = utils.create(parameters);
+      this.add(skill);
+    }
   }
 
   add(
@@ -21,6 +26,7 @@ export class Controller {
       return false;
     }
     this.list[skill.id] = skill;
+    this.add_to_recovery(skill);
     return true;
   }
 
@@ -47,16 +53,12 @@ export class Controller {
   protected tick_recoveries(
     dt: number
   ) {
-    const new_list: Skill[] = [];
-    for (const skill of this.recoveries) {
+    const list = this.recoveries;
+    this.recoveries = [];
+    for (const skill of list) {
       skill.tickRecovery(dt);
-      if (skill.recoveryTime > 0) {
-        new_list.push(skill);
-      } else {
-        skill.reset();
-      }
+      this.add_to_recovery(skill);
     }
-    this.recoveries = new_list;
   }
 
   protected tick_using(
@@ -88,7 +90,7 @@ export class Controller {
   }
 
   getToUse(
-    id: string | number
+    id: string
   ): Skill {
     const skill = this.list[id];
     if (!skill) {

@@ -1,12 +1,23 @@
-import { Collection } from '../utils';
-import { Effect } from './effect';
+import { Effect, EffectParameters } from './effect';
+import { utils } from './effects_utils';
 import { Impact } from '../interactions/index';
 
 type ClassList = { [id: string]: Effect };
 
-export class Controller extends Collection {
-  list: Effect[];
+export class Controller {
+  protected list: Effect[];
   protected unique_list: ClassList;
+
+  initialize(
+    list: EffectParameters[],
+    innerImpact: Impact
+  ) {
+    this.list = [];
+    for (const parameters of list) {
+      const effect = utils.create(parameters);
+      this.add(effect, innerImpact);
+    }
+  }
 
   add(
     effect: Effect,
@@ -16,9 +27,12 @@ export class Controller extends Collection {
     if (effect.unique) {
       this.add_unique(effect, innerImpact, outerImpact);
     }
-    const result = super.add(effect);
     effect.added(innerImpact);
-    return result;
+    if (this.list.includes(effect)) {
+      return false;
+    }
+    this.list.push(effect);
+    return true;
   }
 
   protected add_unique(
@@ -39,12 +53,16 @@ export class Controller extends Collection {
     innerImpact: Impact,
     outerImpact?: Impact
   ): boolean {
+    if (!this.list.includes(effect)) {
+      return false;
+    }
     if (effect.unique) {
       delete this.unique_list[effect.unique];
     }
-    const result = super.remove(effect);
-    result && effect.removed(innerImpact);
-    return result;
+    effect.removed(innerImpact);
+    const index = this.list.indexOf(effect);
+    this.list.splice(index, 1);
+    return true;
   }
 
   tick(

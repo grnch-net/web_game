@@ -53,65 +53,64 @@ export function toArray(
   return Array.isArray(value) ? value : [value];
 }
 
-export interface RangeArguments {
+export function isNumber(
+  value: number
+) {
+  return value || value === 0;
+}
+
+export interface RangeParameters {
   max?: number,
   value?: number,
   min?: number
-};
-
-export class Range {
-  protected _value: number;
-
-  constructor(
-    public max: number = 100,
-    value?: number,
-    public min: number = 0
-  ) {
-    if (value || value === 0) {
-      this._value = value;
-    } else {
-      this._value = this.max;
-    }
-  }
-
-  get value() { return this._value }
-  set value(value: number) {
-    if (value < this.min) this._value = this.min;
-    else if (value > this.max) this._value = this.max;
-    else this._value = value;
-  }
 }
 
+export class Range {
+  get max(): number {
+    if (isNumber(this.parameters.max)) return this.parameters.max;
+    if (isNumber(this.config.max)) return this.config.max;
+    return 100;
+  }
 
-export class Collection {
-  list: any[];
-
-  initialize(
-    ...options: any
+  set max(
+    value: number
   ) {
-    this.list = [];
+    this.parameters.max = value;
+    this.parameters.value = Math.min(this.value, value);
   }
 
-  add(
-    item: any,
-    ...options: any
-  ): boolean {
-    if (this.list.includes(item)) {
-      return false;
-    }
-    this.list.push(item);
-    return true;
+  get min(): number {
+    if (isNumber(this.parameters.min)) return this.parameters.min;
+    if (isNumber(this.config.min)) return this.config.min;
+    return 0;
   }
 
-  remove(
-    item: any,
-    ...options: any
-  ): boolean {
-    if (!this.list.includes(item)) {
-      return false;
+  set min(
+    value: number
+  ) {
+    this.parameters.min = value;
+    this.parameters.value = Math.max(this.value, value);
+  }
+
+  get value() {
+    return this.parameters.value;
+  }
+
+  set value(
+    value: number
+  ) {
+    if (value < this.min) this.parameters.value = this.min;
+    else if (value > this.max) this.parameters.value = this.max;
+    else this.parameters.value = value;
+  }
+
+  constructor(
+    protected config: RangeParameters,
+    protected parameters: RangeParameters
+  ) {
+    if (!isNumber(parameters.value)) {
+      if (isNumber(config.value)) parameters.value = config.value;
+      else parameters.value = this.max;
     }
-    const index = this.list.indexOf(item);
-    this.list.splice(index, 1);
-    return true;
   }
 }

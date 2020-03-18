@@ -3,8 +3,9 @@ import {
   Influence, GradualInfluence, InfluenceArguments
 } from './influences';
 import {
-  InteractionObject, InteractionParameters, InteractResult
+  InteractionObject, InteractionConfig, InteractionParameters, InteractResult
 } from './interaction_object';
+import { InteractionUtils } from './interaction_utils';
 
 export {
   Impact,
@@ -14,6 +15,8 @@ export {
   GradualInfluence,
   InfluenceArguments,
   InteractionObject,
+  InteractionConfig,
   InteractionParameters,
-  InteractResult
+  InteractResult,
+  InteractionUtils
 }

@@ -1,51 +1,31 @@
+import { InteractionUtils } from '../interactions/index';
 import { Skill, SkillConfig, SkillParameters } from './skill';
-import { Attack } from './specials/attack';
-import { Block } from './specials/block';
-import { skillsConfig } from '../configs/skills';
+import { skillsConfig, SkillsConfig } from '../configs/skills';
+import { specialClassList } from './specials/index';
 
 type ClassList = { [id: string]: typeof Skill };
 
-export class utils {
-  protected constructor() {}
-
-  static specialClassList: ClassList = {
-    attack: Attack,
-    block: Block
-  };
+export class utils extends InteractionUtils {
+  static BaseClass: typeof Skill = Skill;
+  static configs: SkillsConfig = skillsConfig;
+  static specialClassList: ClassList = specialClassList;
 
   static findConfig(
     id: string
   ): SkillConfig {
-    return skillsConfig[id];
+    return super.findConfig(id) as SkillConfig;
   }
 
   static findSpecialClass(
     specialId: string
   ): typeof Skill {
-    return utils.specialClassList[specialId];
+    return super.findSpecialClass(specialId) as typeof Skill;
   }
 
   static create(
-    parameters: SkillParameters
+    parameters: SkillParameters,
+    config?: SkillConfig
   ): Skill {
-    const config = utils.findConfig(parameters.id as string);
-    if (!config) {
-      console.error('Can not find skill config with id:', parameters.id);
-      return null;
-    }
-    let SkillClass = Skill;
-    if (config.specialClass) {
-      SkillClass = utils.findSpecialClass(config.specialClass);;
-      if (!SkillClass) {
-        console.error(
-          'Can not find skill special class with id:',
-          config.specialClass
-        );
-        return null;
-      }
-    }
-    const skill = new SkillClass();
-    skill.initialize(config, parameters);
-    return skill;
+    return super.create(parameters, config) as Skill;
   }
 }

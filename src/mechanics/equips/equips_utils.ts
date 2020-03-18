@@ -1,46 +1,31 @@
+import { InteractionUtils } from '../interactions/index';
 import { Equip, EquipConfig, EquipParameters } from './equip';
-import { equipsConfig } from '../configs/equips';
+import { equipsConfig, EquipsConfig } from '../configs/equips';
+import { specialClassList } from './specials/index';
 
 type ClassList = { [id: string]: typeof Equip };
 
-export class utils {
-  protected constructor() {}
-
-  static specialClassList: ClassList = {};
+export class utils extends InteractionUtils {
+  static BaseClass: typeof Equip = Equip;
+  static configs: EquipsConfig = equipsConfig;
+  static specialClassList: ClassList = specialClassList;
 
   static findConfig(
     id: string
   ): EquipConfig {
-    return equipsConfig[id];
+    return super.findConfig(id) as EquipConfig;
   }
 
   static findSpecialClass(
     specialId: string
   ): typeof Equip {
-    return utils.specialClassList[specialId];
+    return super.findSpecialClass(specialId) as typeof Equip;
   }
 
   static create(
-    parameters: EquipParameters
+    parameters: EquipParameters,
+    config?: EquipConfig
   ): Equip {
-    const config = utils.findConfig(parameters.id as string);
-    if (!config) {
-      console.error('Can not find equip config with id:', parameters.id);
-      return null;
-    }
-    let EquipClass = Equip;
-    if (config.specialClass) {
-      EquipClass = utils.findSpecialClass(config.specialClass);
-      if (!EquipClass) {
-        console.error(
-          'Can not find equip special class with id:',
-          config.specialClass
-        );
-        return null;
-      }
-    }
-    const equip = new EquipClass();
-    equip.initialize(config, parameters);
-    return equip;
+    return super.create(parameters, config) as Equip;
   }
 }

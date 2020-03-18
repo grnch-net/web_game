@@ -1,6 +1,6 @@
-import { Range, RangeArguments } from '../utils';
+import { Range, RangeParameters } from '../utils';
 import {
-  InteractionObject, InteractionParameters, Impact
+  InteractionObject, InteractionConfig, InteractionParameters, Impact
 } from '../interactions/index';
 
 export enum EquipSlot {
@@ -38,27 +38,25 @@ interface EquipStats {
   slots?: number;
 }
 
-export interface EquipConfig extends InteractionParameters {
-  specialClass?: string;
+export interface EquipConfig extends InteractionConfig {
   slot: EquipSlot | EquipSlot[];
   type?: EquipType;
   subType?: WeaponType | ArmorType;
   name: string;
-  durability: RangeArguments;
+  durability: RangeParameters;
   stats?: EquipStats;
 }
 
-export interface EquipParameters {
-  id: string | number;
-  durability: RangeArguments;
+export interface EquipParameters extends InteractionParameters {
+  durability: RangeParameters;
   stats?: EquipStats;
 }
 
 export class Equip extends InteractionObject {
-  config: EquipConfig;
-  parameters: EquipParameters;
   durability: Range;
   stats: EquipStats;
+  protected config: EquipConfig;
+  protected parameters: EquipParameters;
 
   get slot(): EquipSlot | EquipSlot[] {
     return this.config.slot;
@@ -77,19 +75,16 @@ export class Equip extends InteractionObject {
     config: EquipConfig,
     parameters: EquipParameters
   ) {
-    super.initialize(config);
-    this.config = config;
+    super.initialize(config, parameters);
     this.initialize_durability(config.durability, parameters.durability);
     this.initialize_stats(config.stats, parameters.stats);
   }
 
   protected initialize_durability(
-    config: RangeArguments,
-    parameters: RangeArguments
+    config: RangeParameters,
+    parameters: RangeParameters
   ) {
-    const range = { ...config, ...parameters };
-    const { max, value, min } = range;
-    this.durability = new Range(max, value, min);
+    this.durability = new Range(config, parameters);
   }
 
   protected initialize_stats(

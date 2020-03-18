@@ -1,16 +1,14 @@
 import {
-  InteractionObject, InteractionParameters, Impact
+  InteractionObject, InteractionConfig, InteractionParameters, Impact
 } from '../interactions/index';
 
-export interface EffectConfig extends InteractionParameters{
+export interface EffectConfig extends InteractionConfig{
   name?: string;
-  specialClass?: string;
   unique?: string;
   liveTime?: number;
 }
 
-export interface EffectParameters {
-  id: string | number;
+export interface EffectParameters extends InteractionParameters {
   liveTime?: number;
 }
 
@@ -35,9 +33,7 @@ export class Effect extends InteractionObject {
     config: EffectConfig,
     parameters: EffectParameters
   ) {
-    super.initialize(config);
-    this.config = config;
-    this.parameters = parameters;
+    super.initialize(config, parameters);
     this.active = false;
     this.ended = false;
     if (this.liveTime === undefined) {

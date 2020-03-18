@@ -1,6 +1,6 @@
 import { EffectConfig } from '../effects/index';
 
-type EffectsConfig = { [id: string]: EffectConfig };
+export type EffectsConfig = { [id: string]: EffectConfig };
 export const effectsConfig: EffectsConfig = {
   0: {
     name: 'Inherent stamina regeneration',

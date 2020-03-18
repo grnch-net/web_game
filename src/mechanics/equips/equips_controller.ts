@@ -1,13 +1,21 @@
-import { Equip, EquipSlot, EquipType, WeaponType } from './equip';
+import {
+  Equip, EquipParameters, EquipSlot, EquipType, WeaponType
+} from './equip';
+import { utils } from './equips_utils';
 import { Impact } from '../interactions/index';
 
 export class Controller {
-  slots: { [key in EquipSlot]?: Equip };
+  protected slots: { [key in EquipSlot]?: Equip };
 
   initialize(
-    ...options: any
+    list: EquipParameters[],
+    innerImpact: Impact
   ) {
     this.slots = {};
+    for (const parameters of list) {
+      const equip = utils.create(parameters);
+      this.add(equip, innerImpact);
+    }
   }
 
   add(

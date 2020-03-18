@@ -5,41 +5,50 @@ export interface InteractResult {
   avoid?: boolean
 }
 
-export interface InteractionParameters {
+export interface InteractionConfig {
+  specialClass?: string;
   innerStaticInfluences?: InfluenceArguments[];
   innerGradualInfluences?: InfluenceArguments[];
   outerStaticInfluences?: InfluenceArguments[];
   outerGradualInfluences?: InfluenceArguments[];
 }
 
-export abstract class InteractionObject {
+export interface InteractionParameters {
+  id: string | number;
+}
 
+export class InteractionObject {
+  protected config: InteractionConfig;
+  protected parameters: InteractionParameters;
   protected inner_static_influences: Influence[];
   protected inner_gradual_influences: GradualInfluence[];
   protected outer_static_influences: Influence[];
   protected outer_gradual_influences: GradualInfluence[];
 
   initialize(
+    config: InteractionConfig,
     parameters: InteractionParameters,
-    ...options: any[]
+    ...options: any
   ) {
+    this.config = config;
+    this.parameters = parameters;
     this.inner_static_influences = [];
     this.inner_gradual_influences = [];
     this.outer_static_influences = [];
     this.outer_gradual_influences = [];
-    this.initialize_influences(parameters, ...options);
+    this.initialize_influences(config, ...options);
   }
 
   protected initialize_influences(
-    parameters: InteractionParameters,
-    ...options: any[]
+    config: InteractionConfig,
+    ...options: any
   ) {
     const {
       innerStaticInfluences = [],
       innerGradualInfluences = [],
       outerStaticInfluences = [],
       outerGradualInfluences = []
-    } = parameters;
+    } = config;
     for (const { attribute, value, negative } of innerStaticInfluences) {
       this.add_inner_static_influence(attribute, value, negative);
     }

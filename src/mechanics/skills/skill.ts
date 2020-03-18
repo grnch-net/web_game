@@ -1,12 +1,11 @@
 import {
-  InteractionObject, InteractionParameters, Influence, GradualInfluence,
-  InfluenceArguments, Impact, InteractResult
+  InteractionObject, InteractionConfig, InteractionParameters,
+  Influence, GradualInfluence, InfluenceArguments, Impact, InteractResult
 } from '../interactions/index';
 import { Equip, EquipSlot } from '../equips/index';
 
-export interface SkillConfig extends InteractionParameters {
+export interface SkillConfig extends InteractionConfig {
   name: string;
-  specialClass?: string;
   castTime?: number;
   usageTime?: number;
   recoveryTime?: number;
@@ -17,9 +16,9 @@ export interface SkillConfig extends InteractionParameters {
   reusable?: boolean;
 }
 
-export interface SkillParameters {
-  id: string | number;
+export interface SkillParameters extends InteractionParameters {
   experience?: number;
+  recoveryTime?: number;
 }
 
 export interface SkillNeeds {
@@ -33,14 +32,13 @@ export interface SkillNeedsResult {
 
 export class Skill extends InteractionObject {
   static multiplyEfficiency = 0.001;
-  config: SkillConfig;
-  parameters: SkillParameters;
   castTime: number;
   usageTime: number;
-  recoveryTime: number;
   stock: Influence[];
   cost: Influence[];
   gradualCost: GradualInfluence[];
+  protected config: SkillConfig;
+  protected parameters: SkillParameters;
   protected _ended: boolean;
   protected equips: Equip[];
 
@@ -54,6 +52,10 @@ export class Skill extends InteractionObject {
 
   get experience(): number {
     return this.parameters.experience;
+  }
+
+  get recoveryTime(): number {
+    return this.parameters.recoveryTime;
   }
 
   get name(): string {
@@ -72,13 +74,10 @@ export class Skill extends InteractionObject {
     config: SkillConfig,
     parameters: SkillParameters
   ) {
-    super.initialize(config);
-    this.config = config;
-    this.parameters = parameters;
+    super.initialize(config, parameters);
     this.initialize_stock(config.stock);
     this.initialize_cost(config.cost);
     this.initialize_gradual_cost(config.gradualCost);
-    this.reset();
   }
 
   protected initialize_stock(
@@ -120,7 +119,7 @@ export class Skill extends InteractionObject {
   reset() {
     this.castTime = this.config.castTime || 0;
     this.usageTime = this.config.usageTime || 0;
-    this.recoveryTime = this.config.recoveryTime || 0;
+    this.parameters.recoveryTime = 0;
     this._ended = false;
   }
 
@@ -176,9 +175,9 @@ export class Skill extends InteractionObject {
     dt: number
   ) {
     if (dt < this.recoveryTime) {
-      this.recoveryTime -= dt;
+      this.parameters.recoveryTime -= dt;
     } else {
-      this.recoveryTime = 0;
+      this.parameters.recoveryTime = 0;
     }
   }
 
@@ -190,6 +189,7 @@ export class Skill extends InteractionObject {
     .forEach(influence => influence.apply(innerImpact));
     this.outer_static_influences
     .forEach(influence => influence.apply(outerImpact));
+    this.parameters.recoveryTime = this.config.recoveryTime || 0;
   }
 
   protected on_use_complete(

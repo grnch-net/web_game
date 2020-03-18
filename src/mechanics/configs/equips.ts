@@ -1,6 +1,6 @@
 import { EquipConfig, EquipSlot, EquipType, WeaponType } from '../equips/index';
 
-type EquipsConfig = { [id: string]: EquipConfig };
+export type EquipsConfig = { [id: string]: EquipConfig };
 export const equipsConfig: EquipsConfig = {
   0: {
     name: 'Short sword',
