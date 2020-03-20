@@ -1,11 +1,11 @@
 import { Effect, EffectConfig, EffectParameters } from './effect';
-import { Controller } from './effects_controller';
-import { utils } from './effects_utils';
+import { EffectsController } from './effects_controller';
+import { effectUtils } from './effects_utils';
 
 export {
-  Controller,
+  EffectsController,
   Effect,
   EffectConfig,
   EffectParameters,
-  utils
+  effectUtils
 }

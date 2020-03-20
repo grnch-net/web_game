@@ -1,11 +1,11 @@
 import { Effect, EffectParameters } from './effect';
-import { utils } from './effects_utils';
+import { effectUtils } from './effects_utils';
 import { Impact } from '../interactions/index';
 
 type ClassList = { [id: string]: Effect };
 
-export class Controller {
-  protected list: Effect[];
+export class EffectsController {
+  list: Effect[];
   protected unique_list: ClassList;
 
   initialize(
@@ -14,7 +14,7 @@ export class Controller {
   ) {
     this.list = [];
     for (const parameters of list) {
-      const effect = utils.create(parameters);
+      const effect = effectUtils.create(parameters);
       this.add(effect, innerImpact);
     }
   }

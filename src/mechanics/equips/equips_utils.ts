@@ -5,7 +5,7 @@ import { specialClassList } from './specials/index';
 
 type ClassList = { [id: string]: typeof Equip };
 
-export class utils extends InteractionUtils {
+export class equipUtils extends InteractionUtils {
   static BaseClass: typeof Equip = Equip;
   static configs: EquipsConfig = equipsConfig;
   static specialClassList: ClassList = specialClassList;

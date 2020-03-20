@@ -6,6 +6,8 @@ type Configs = { [id: string]: InteractionConfig };
 type ClassList = { [id: string]: typeof InteractionObject };
 
 export class InteractionUtils {
+  protected constructor() {}
+
   static BaseClass: typeof InteractionObject;
   static configs: Configs;
   static specialClassList: ClassList;

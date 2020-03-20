@@ -1,8 +1,8 @@
 import { Skill, SkillParameters } from './skill';
-import { utils } from './skills_utils';
+import { skillUtils } from './skills_utils';
 import { Impact, InteractResult } from '../interactions/index';
 
-export class Controller {
+export class SkillsController {
   list: { [id: string]: Skill };
   using: Skill;
   protected recoveries: Skill[];
@@ -13,7 +13,7 @@ export class Controller {
     this.list = {};
     this.recoveries = [];
     for (const parameters of list) {
-      const skill = utils.create(parameters);
+      const skill = skillUtils.create(parameters);
       this.add(skill);
     }
   }

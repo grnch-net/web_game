@@ -2,9 +2,9 @@ import { WorldObject } from './world_object';
 import { Impact, Attribute, InteractResult } from './interactions/index';
 import { Range, RangeParameters } from './utils';
 import { characterConfig } from './configs/character';
-import * as effects from './effects/index';
-import * as equips from './equips/index';
-import * as skills from './skills/index';
+import { EffectsController, EffectParameters } from './effects/index';
+import { EquipsController, EquipParameters } from './equips/index';
+import { SkillsController, SkillParameters } from './skills/index';
 
 type Attributes = { [key in Attribute]?: RangeParameters };
 type Counters = { [key: string]: number };
@@ -12,9 +12,9 @@ type Counters = { [key: string]: number };
 export interface CharacterConfig {
   attributes: Attributes;
   counters: Counters;
-  effects: effects.EffectParameters[];
-  skills: skills.SkillParameters[];
-  equips: equips.EquipParameters[];
+  effects: EffectParameters[];
+  skills: SkillParameters[];
+  equips: EquipParameters[];
   armorProtect?: number;
 }
 
@@ -22,9 +22,9 @@ export class Character extends WorldObject {
   name: string;
   attributes: { [key in Attribute]?: Range };
   counters: { [key: string]: number };
-  effects: effects.Controller;
-  skills: skills.Controller;
-  equips: equips.Controller;
+  effects: EffectsController;
+  skills: SkillsController;
+  equips: EquipsController;
   armorProtect: number;
 
   initialize(
@@ -60,10 +60,10 @@ export class Character extends WorldObject {
   }
 
   protected initialize_effects(
-    parameters: effects.EffectParameters[],
-    config: effects.EffectParameters[]
+    parameters: EffectParameters[],
+    config: EffectParameters[]
   ) {
-    this.effects = new effects.Controller();
+    this.effects = new EffectsController;
     const impact = new Impact;
     const list = [...config, ...parameters];
     this.effects.initialize(list, impact);
@@ -71,19 +71,19 @@ export class Character extends WorldObject {
   }
 
   protected initialize_skills(
-    parameters: skills.SkillParameters[],
-    config: skills.SkillParameters[]
+    parameters: SkillParameters[],
+    config: SkillParameters[]
   ) {
-    this.skills = new skills.Controller();
+    this.skills = new SkillsController;
     const list = [...config, ...parameters];
     this.skills.initialize(list);
   }
 
   protected initialize_equipments(
-    parameters: equips.EquipParameters[],
-    config: equips.EquipParameters[]
+    parameters: EquipParameters[],
+    config: EquipParameters[]
   ) {
-    this.equips = new equips.Controller();
+    this.equips = new EquipsController;
     const impact = new Impact;
     const list = [...config, ...parameters];
     this.equips.initialize(list, impact);
@@ -107,8 +107,9 @@ export class Character extends WorldObject {
     outerImpact: Impact
   ) {
     this.skills.tick(dt, innerImpact, outerImpact);
-    if (this.skills.using) {
-      const costImpact = this.skills.using.getGradualCostImpact();
+    const skill = this.skills.using;
+    if (skill && !skill.castTime) {
+      const costImpact = skill.getGradualCostImpact();
       if (costImpact) {
         const paid = this.apply_cost(costImpact);
         if (!paid) this.skills.cancelUse();
@@ -163,8 +164,9 @@ export class Character extends WorldObject {
     const skill = this.skills.getToUse(id as string);
     if (!skill) return false;
     if (skill.needs) {
-      const result = this.get_needs(skill.needs);
-      const checked = skill.checkNeeds(result);
+      const checked = skill.checkNeeds({
+        equips: this.equips.getSlots(skill.needs.equips)
+      });
       if (!checked) return false;
     }
     const stockImpact = skill.getStockImpact();
@@ -177,27 +179,13 @@ export class Character extends WorldObject {
       const paid = this.apply_cost(costImpact);
       if (!paid) return false;
     }
-    const innerImpact = new Impact();
-    const outerImpact = new Impact();
+    const innerImpact = new Impact;
+    const outerImpact = new Impact;
     this.skills.use(skill, innerImpact, outerImpact);
     this.apply_skill(innerImpact, outerImpact);
     this.apply_impact(innerImpact);
     this.apply_interaction(outerImpact);
     return true;
-  }
-
-  protected get_needs(
-    needs: skills.SkillNeeds
-  ): skills.SkillNeedsResult {
-    let equips: equips.Equip[];
-    if (needs.equips) {
-      equips = [];
-      for (const slot of needs.equips) {
-        const equip = this.equips.getSlot(slot);
-        equips.push(equip);
-      }
-    }
-    return { equips };
   }
 
   protected apply_cost(

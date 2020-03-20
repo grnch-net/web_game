@@ -1,15 +1,15 @@
 import {
   Skill, SkillConfig, SkillParameters, SkillNeeds, SkillNeedsResult
 } from './skill';
-import { Controller } from './skills_controller';
-import { utils } from './skills_utils';
+import { SkillsController } from './skills_controller';
+import { skillUtils } from './skills_utils';
 
 export {
-  Controller,
+  SkillsController,
   Skill,
   SkillConfig,
   SkillParameters,
   SkillNeeds,
   SkillNeedsResult,
-  utils
+  skillUtils
 }

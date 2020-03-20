@@ -5,7 +5,7 @@ import { specialClassList } from './specials/index';
 
 type ClassList = { [id: string]: typeof Skill };
 
-export class utils extends InteractionUtils {
+export class skillUtils extends InteractionUtils {
   static BaseClass: typeof Skill = Skill;
   static configs: SkillsConfig = skillsConfig;
   static specialClassList: ClassList = specialClassList;
