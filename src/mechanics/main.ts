@@ -1,11 +1,12 @@
 import { World } from './world';
-import { Character, CharacterConfig } from './character';
+import { Character, CharacterParameters } from './character';
 
 export function test_mechanics() {
   const world = (window as any).world = new World();
   world.initialize();
 
-  const heroParameters: CharacterConfig = {
+  const heroParameters: CharacterParameters = {
+    name: 'hero',
     attributes: {
       health: { value: 100 },
       stamina: { value: 150 }
@@ -33,7 +34,8 @@ export function test_mechanics() {
   hero.initialize(heroParameters)
   world.addCharacter(hero);
 
-  const hero2Parameters: CharacterConfig = {
+  const hero2Parameters: CharacterParameters = {
+    name: 'hero2',
     attributes: {
       health: { value: 100 },
       stamina: { value: 150 }

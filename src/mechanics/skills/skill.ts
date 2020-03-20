@@ -1,6 +1,6 @@
 import {
   InteractionObject, InteractionConfig, InteractionParameters,
-  Influence, GradualInfluence, InfluenceArguments, Impact, InteractResult
+  Influence, GradualInfluence, InfluenceParameters, Impact, InteractResult
 } from '../interactions/index';
 import { Equip, EquipSlot } from '../equips/index';
 
@@ -9,9 +9,9 @@ export interface SkillConfig extends InteractionConfig {
   castTime?: number;
   usageTime?: number;
   recoveryTime?: number;
-  stock?: InfluenceArguments[],
-  cost?: InfluenceArguments[],
-  gradualCost?: InfluenceArguments[],
+  stock?: InfluenceParameters[],
+  cost?: InfluenceParameters[],
+  gradualCost?: InfluenceParameters[],
   needs?: SkillNeeds;
   reusable?: boolean;
 }
@@ -81,37 +81,37 @@ export class Skill extends InteractionObject {
   }
 
   protected initialize_stock(
-    list: InfluenceArguments[]
+    list: InfluenceParameters[]
   ) {
     if (!list) return;
     this.stock = [];
-    for (const { attribute, value } of list) {
-      const influence = new Influence();
-      influence.set(attribute, value, true);
+    for (const parameters of list) {
+      parameters.negative = true;
+      const influence = new Influence(parameters);
       this.stock.push(influence);
     }
   }
 
   protected initialize_cost(
-    list: InfluenceArguments[]
+    list: InfluenceParameters[]
   ) {
     if (!list) return;
     this.cost = [];
-    for (const { attribute, value } of list) {
-      const influence = new Influence();
-      influence.set(attribute, value, true);
+    for (const parameters of list) {
+      parameters.negative = true;
+      const influence = new Influence(parameters);
       this.cost.push(influence);
     }
   }
 
   protected initialize_gradual_cost(
-    list: InfluenceArguments[]
+    list: InfluenceParameters[]
   ) {
     if (!list) return;
     this.gradualCost = [];
-    for (const { attribute, value } of list) {
-      const influence = new GradualInfluence();
-      influence.set(attribute, value, true);
+    for (const parameters of list) {
+      parameters.negative = true;
+      const influence = new GradualInfluence(parameters);
       this.gradualCost.push(influence);
     }
   }

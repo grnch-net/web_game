@@ -1,6 +1,5 @@
 import {
-  Equip, EquipConfig, EquipParameters, EquipSlot, EquipType,
-  WeaponType, ArmorType
+  Equip, EquipConfig, EquipParameters, EquipSlot, EquipType
 } from './equip';
 import { EquipsController } from './equips_controller';
 import { equipUtils } from './equips_utils';
@@ -12,7 +11,5 @@ export {
   EquipParameters,
   equipUtils,
   EquipSlot,
-  EquipType,
-  WeaponType,
-  ArmorType
+  EquipType
 }

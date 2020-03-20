@@ -1,5 +1,5 @@
-import { Impact, Attribute } from './impact';
-import { Influence, GradualInfluence, InfluenceArguments } from './influences';
+import { Impact } from './impact';
+import { Influence, GradualInfluence, InfluenceParameters } from './influences';
 
 export interface InteractResult {
   avoid?: boolean
@@ -7,10 +7,10 @@ export interface InteractResult {
 
 export interface InteractionConfig {
   specialClass?: string;
-  innerStaticInfluences?: InfluenceArguments[];
-  innerGradualInfluences?: InfluenceArguments[];
-  outerStaticInfluences?: InfluenceArguments[];
-  outerGradualInfluences?: InfluenceArguments[];
+  innerStaticInfluences?: InfluenceParameters[];
+  innerGradualInfluences?: InfluenceParameters[];
+  outerStaticInfluences?: InfluenceParameters[];
+  outerGradualInfluences?: InfluenceParameters[];
 }
 
 export interface InteractionParameters {
@@ -49,58 +49,22 @@ export class InteractionObject {
       outerStaticInfluences = [],
       outerGradualInfluences = []
     } = config;
-    for (const { attribute, value, negative } of innerStaticInfluences) {
-      this.add_inner_static_influence(attribute, value, negative);
+    for (const parameters of innerStaticInfluences) {
+      const influence = new Influence(parameters);
+      this.inner_static_influences.push(influence);
     }
-    for (const { attribute, value, negative } of innerGradualInfluences) {
-      this.add_inner_gradual_influence(attribute, value, negative);
+    for (const parameters of innerGradualInfluences) {
+      const influence = new GradualInfluence(parameters);
+      this.inner_gradual_influences.push(influence);
     }
-    for (const { attribute, value, negative } of outerStaticInfluences) {
-      this.add_outer_static_influence(attribute, value, negative);
+    for (const parameters of outerStaticInfluences) {
+      const influence = new Influence(parameters);
+      this.outer_static_influences.push(influence);
     }
-    for (const { attribute, value, negative } of outerGradualInfluences) {
-      this.add_outer_gradual_influence(attribute, value, negative);
+    for (const parameters of outerGradualInfluences) {
+      const influence = new GradualInfluence(parameters);
+      this.outer_gradual_influences.push(influence);
     }
-  }
-
-  protected add_inner_static_influence(
-    attribute: Attribute,
-    value: number,
-    negative?: boolean
-  ) {
-    const influence = new Influence();
-    influence.set(attribute, value, negative);
-    this.inner_static_influences.push(influence);
-  }
-
-  protected add_inner_gradual_influence(
-    attribute: Attribute,
-    value: number,
-    negative: boolean
-  ) {
-    const influence = new GradualInfluence();
-    influence.set(attribute, value, negative);
-    this.inner_gradual_influences.push(influence);
-  }
-
-  protected add_outer_static_influence(
-    attribute: Attribute,
-    value: number,
-    negative: boolean
-  ) {
-    const influence = new Influence();
-    influence.set(attribute, value, negative);
-    this.outer_static_influences.push(influence);
-  }
-
-  protected add_outer_gradual_influence(
-    attribute: Attribute,
-    value: number,
-    negative: boolean
-  ) {
-    const influence = new GradualInfluence();
-    influence.set(attribute, value, negative);
-    this.outer_gradual_influences.push(influence);
   }
 
   tick(

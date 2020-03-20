@@ -70,31 +70,31 @@ export class EffectsController {
     innerImpact: Impact,
     outerImpact: Impact
   ) {
-    this.list.forEach(effect => {
-      if (!effect.active) return;
+    for (const effect of this.list) {
+      if (!effect.active) continue;
       effect.tick(dt, innerImpact, outerImpact);
       if (effect.ended) {
         this.remove(effect, innerImpact, outerImpact);
       }
-    });
+    }
   }
 
   onOuterImpact(
     impact: Impact
   ) {
-    this.list.forEach(effect => {
-      if (!effect.active) return;
+    for (const effect of this.list) {
+      if (!effect.active) continue;
       effect.onOuterImpact(impact);
-    });
+    };
   }
 
   onUseSkill(
     innerImpact: Impact,
     outerImpact: Impact
   ) {
-    this.list.forEach(effect => {
-      if (!effect.active) return;
+    for (const effect of this.list) {
+      if (!effect.active) continue;
       effect.onUseSkill(innerImpact, outerImpact);
-    });
+    };
   }
 }

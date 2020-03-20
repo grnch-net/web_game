@@ -21,9 +21,11 @@ export class Effect extends InteractionObject {
   get name(): string {
     return this.config.name;
   }
+
   get unique(): string {
     return this.config.unique;
   }
+
   get liveTime(): number {
     return this.parameters.liveTime;
   }
@@ -42,7 +44,7 @@ export class Effect extends InteractionObject {
   }
 
   added(
-    innerImpact: any
+    innerImpact: Impact
   ) {
     if (this.active) return;
     this.active = true;
@@ -52,7 +54,7 @@ export class Effect extends InteractionObject {
   }
 
   removed(
-    innerImpact: any
+    innerImpact: Impact
   ) {
     if (!this.active) return;
     this.active = false;
@@ -63,8 +65,8 @@ export class Effect extends InteractionObject {
 
   tick(
     dt: number,
-    innerImpact: any,
-    outerImpact: any
+    innerImpact: Impact,
+    outerImpact: Impact
   ) {
     if (dt < this.liveTime) {
       this.parameters.liveTime -= dt;

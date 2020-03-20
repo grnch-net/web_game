@@ -1,7 +1,5 @@
 import { Impact, ImpactSide, Attribute } from './impact';
-import {
-  Influence, GradualInfluence, InfluenceArguments
-} from './influences';
+import { Influence, GradualInfluence, InfluenceParameters } from './influences';
 import {
   InteractionObject, InteractionConfig, InteractionParameters, InteractResult
 } from './interaction_object';
@@ -13,7 +11,7 @@ export {
   Attribute,
   Influence,
   GradualInfluence,
-  InfluenceArguments,
+  InfluenceParameters,
   InteractionObject,
   InteractionConfig,
   InteractionParameters,

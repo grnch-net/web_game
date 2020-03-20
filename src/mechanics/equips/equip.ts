@@ -12,20 +12,12 @@ export enum EquipSlot {
 }
 
 export enum EquipType {
-  Weapon = 'Weapon',
-  Armor = 'Armor'
-}
-
-export enum WeaponType {
   OneHand = 'OneHand',
   SecondHand = 'SecondHand',
-  TwoHand = 'TwoHand'
-}
-
-export enum ArmorType {
-  Light = 'Light',
-  Medium = 'Medium',
-  Heavy = 'Heavy'
+  TwoHand = 'TwoHand',
+  LightArmor = 'LightArmor',
+  MediumArmor = 'MediumArmor',
+  HeavyArmor = 'HeavyArmor'
 }
 
 interface EquipStats {
@@ -41,7 +33,6 @@ interface EquipStats {
 export interface EquipConfig extends InteractionConfig {
   slot: EquipSlot | EquipSlot[];
   type?: EquipType;
-  subType?: WeaponType | ArmorType;
   name: string;
   durability: RangeParameters;
   stats?: EquipStats;
@@ -49,6 +40,7 @@ export interface EquipConfig extends InteractionConfig {
 
 export interface EquipParameters extends InteractionParameters {
   durability: RangeParameters;
+  name?: string;
   stats?: EquipStats;
 }
 
@@ -61,14 +53,13 @@ export class Equip extends InteractionObject {
   get slot(): EquipSlot | EquipSlot[] {
     return this.config.slot;
   }
+
   get type(): EquipType {
     return this.config.type;
   }
-  get subType(): WeaponType | ArmorType {
-    return this.config.subType;
-  }
+
   get name(): string {
-    return this.config.name;
+    return this.parameters.name || this.config.name;
   }
 
   initialize(

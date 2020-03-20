@@ -6,7 +6,6 @@ export const characterConfig: CharacterConfig = {
     stamina: { max: 150 }
   },
   counters: {
-    armor: 0,
     experience: 0
   },
   effects: [

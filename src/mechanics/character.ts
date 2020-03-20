@@ -4,10 +4,11 @@ import { Range, RangeParameters } from './utils';
 import { characterConfig } from './configs/character';
 import { EffectsController, EffectParameters } from './effects/index';
 import { EquipsController, EquipParameters } from './equips/index';
-import { SkillsController, SkillParameters } from './skills/index';
+import { SkillsController, Skill, SkillParameters } from './skills/index';
 
 type Attributes = { [key in Attribute]?: RangeParameters };
 type Counters = { [key: string]: number };
+type AttributesRange = { [key in Attribute]?: Range };
 
 export interface CharacterConfig {
   attributes: Attributes;
@@ -18,27 +19,39 @@ export interface CharacterConfig {
   armorProtect?: number;
 }
 
-export class Character extends WorldObject {
+export interface CharacterParameters extends CharacterConfig {
   name: string;
-  attributes: { [key in Attribute]?: Range };
-  counters: { [key: string]: number };
+}
+
+export class Character extends WorldObject {
+  attributes: AttributesRange;
   effects: EffectsController;
   skills: SkillsController;
   equips: EquipsController;
-  armorProtect: number;
+  protected parameters: CharacterParameters;
+  protected config: CharacterConfig;
+
+  get name(): string {
+    return this.parameters.name;
+  }
+
+  get counters(): Counters {
+    return this.parameters.counters;
+  }
 
   initialize(
-    parameters: CharacterConfig,
+    parameters: CharacterParameters,
     config: CharacterConfig = characterConfig
   ) {
     super.initialize();
-    this.armorProtect = parameters.armorProtect || config.armorProtect;
+    this.parameters = parameters;
+    this.config = config;
     this.initialize_attributes(parameters.attributes, config.attributes);
     this.initialize_counters(parameters.counters, config.counters);
     this.initialize_effects(parameters.effects, config.effects);
     this.initialize_skills(parameters.skills, config.skills);
-    this.initialize_equipments(parameters.equips, config.equips);
-    this.armorProtect = config.armorProtect;
+    const armorProtect = parameters.armorProtect || config.armorProtect;
+    this.initialize_equipments(parameters.equips, config.equips, armorProtect);
   }
 
   protected initialize_attributes(
@@ -48,6 +61,7 @@ export class Character extends WorldObject {
     this.attributes = {};
     let key: Attribute;
     for (key in config) {
+      parameters[key] = parameters[key] || {};
       this.attributes[key] = new Range(config[key], parameters[key]);
     }
   }
@@ -56,7 +70,7 @@ export class Character extends WorldObject {
     parameters: Counters,
     config: Counters
   ) {
-    this.counters = { ...config, ...parameters };
+    parameters = { ...config, ...parameters };
   }
 
   protected initialize_effects(
@@ -81,12 +95,13 @@ export class Character extends WorldObject {
 
   protected initialize_equipments(
     parameters: EquipParameters[],
-    config: EquipParameters[]
+    config: EquipParameters[],
+    armorProtect: number
   ) {
     this.equips = new EquipsController;
     const impact = new Impact;
     const list = [...config, ...parameters];
-    this.equips.initialize(list, impact);
+    this.equips.initialize(list, impact, armorProtect);
     this.apply_impact(impact);
   }
 
@@ -139,23 +154,9 @@ export class Character extends WorldObject {
   ): InteractResult {
     this.effects.onOuterImpact(innerImpact);
     const result = this.skills.onOuterImpact(innerImpact);
-    this.armor_protection(innerImpact);
+    this.equips.onOuterImpact(innerImpact);
     this.apply_impact(innerImpact);
     return result;
-  }
-
-  protected armor_protection(
-    impact: Impact
-  ): boolean {
-    let damage = impact.negative.health;
-    if (!damage || damage < 0) return false;
-    if (damage > this.counters.armor) {
-      damage -= this.counters.armor * this.armorProtect;
-    } else {
-      damage *= 1 - this.armorProtect;
-    }
-    impact.negative.health = damage;
-    return true;
   }
 
   useSkill(
@@ -163,6 +164,20 @@ export class Character extends WorldObject {
   ): boolean {
     const skill = this.skills.getToUse(id as string);
     if (!skill) return false;
+    const checked = this.check_skill(skill);
+    if (!checked) return false;
+    const innerImpact = new Impact;
+    const outerImpact = new Impact;
+    this.skills.use(skill, innerImpact, outerImpact);
+    this.apply_skill(innerImpact, outerImpact);
+    this.apply_impact(innerImpact);
+    this.apply_interaction(outerImpact);
+    return true;
+  }
+
+  protected check_skill(
+    skill: Skill
+  ) {
     if (skill.needs) {
       const checked = skill.checkNeeds({
         equips: this.equips.getSlots(skill.needs.equips)
@@ -179,12 +194,6 @@ export class Character extends WorldObject {
       const paid = this.apply_cost(costImpact);
       if (!paid) return false;
     }
-    const innerImpact = new Impact;
-    const outerImpact = new Impact;
-    this.skills.use(skill, innerImpact, outerImpact);
-    this.apply_skill(innerImpact, outerImpact);
-    this.apply_impact(innerImpact);
-    this.apply_interaction(outerImpact);
     return true;
   }
 

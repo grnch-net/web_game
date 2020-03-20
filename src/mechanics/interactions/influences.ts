@@ -1,84 +1,76 @@
 import { Impact, Attribute } from './impact';
 
-// export enum influenceTypes {
-//   positive,
-//   negative,
-//   native,
-//   unimportant,
-//   amplify
-// }
-
-export interface InfluenceArguments {
+export interface InfluenceParameters {
   attribute: Attribute;
   value: number;
   negative?: boolean;
 }
 
 export class Influence {
-  attribute: Attribute;
-  value: number;
-  negative: boolean;
+  constructor(
+    protected parameters: InfluenceParameters
+  ) {}
 
-  set(
-    attribute: Attribute,
-    value: number,
-    negative: boolean = false
-  ) {
-    this.attribute = attribute;
-    this.value = value;
-    this.negative = negative;
+  get attribute(): Attribute {
+    return this.parameters.attribute;
+  }
+
+  get value(): number {
+    return this.parameters.value;
+  }
+
+  get negative(): boolean {
+    return this.parameters.negative || false;
   }
 
   apply(
     impact: Impact
   ) {
-    const side = (this.negative) ? impact.negative : impact.positive;
-    side[this.attribute] = side[this.attribute] || 0;
-    side[this.attribute] += this.value;
+    this.update_impact(impact);
   }
 
   cancel(
     impact: Impact
   ) {
+    this.update_impact(impact, true);
+  }
+
+  protected update_impact(
+    impact: Impact,
+    isCancel = false
+  ) {
+    const multiply = isCancel ? -1 : 1;
     const side = (this.negative) ? impact.negative : impact.positive;
     side[this.attribute] = side[this.attribute] || 0;
-    side[this.attribute] -= this.value;
+    side[this.attribute] += this.value * multiply;
   }
 }
 
 export class GradualInfluence extends Influence {
   deltaValue: number;
 
-  set(
-    attribute: Attribute,
-    valuePerSecond: number,
-    negative: boolean = false
+  constructor(
+    parameters: InfluenceParameters
   ) {
-    super.set(attribute, valuePerSecond, negative);
+    super(parameters);
     this.deltaValue = 0;
   }
 
   tick(
     dt: number,
-    impact: Impact
+    impact?: Impact
   ) {
     this.deltaValue = this.value * dt;
-    this.apply(impact);
+    impact && this.apply(impact);
   }
 
-  apply(
-    impact: Impact
+  protected update_impact(
+    impact: Impact,
+    isCancel = false
   ) {
+    const multiply = isCancel ? -1 : 1;
     const side = (this.negative) ? impact.negative : impact.positive;
     side[this.attribute] = side[this.attribute] || 0;
-    side[this.attribute] += this.deltaValue;
-  }
-
-  cancel(
-    impact: Impact
-  ) {
-    const side = (this.negative) ? impact.negative : impact.positive;
-    side[this.attribute] = side[this.attribute] || 0;
-    side[this.attribute] -= this.deltaValue;
+    side[this.attribute] += this.deltaValue * multiply;
   }
 }

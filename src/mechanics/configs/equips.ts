@@ -1,12 +1,11 @@
-import { EquipConfig, EquipSlot, EquipType, WeaponType } from '../equips/index';
+import { EquipConfig, EquipSlot, EquipType } from '../equips/index';
 
 export type EquipsConfig = { [id: string]: EquipConfig };
 export const equipsConfig: EquipsConfig = {
   0: {
     name: 'Short sword',
     slot: [EquipSlot.MainHand, EquipSlot.SecondHand],
-    type: EquipType.Weapon,
-    subType: WeaponType.OneHand,
+    type: EquipType.OneHand,
     durability: { max: 100 },
     stats: {
       speed: 1,
@@ -18,8 +17,7 @@ export const equipsConfig: EquipsConfig = {
   1: {
     name: 'Small shield',
     slot: EquipSlot.SecondHand,
-    type: EquipType.Weapon,
-    subType: WeaponType.SecondHand,
+    type: EquipType.SecondHand,
     durability: { max: 30 },
     stats: {
       speed: 0.5,
@@ -30,8 +28,7 @@ export const equipsConfig: EquipsConfig = {
   2: {
     name: 'Wooden staf',
     slot: EquipSlot.MainHand,
-    type: EquipType.Weapon,
-    subType: WeaponType.TwoHand,
+    type: EquipType.TwoHand,
     durability: { max: 70 },
     stats: {
       speed: 1.5,
