@@ -1,9 +1,13 @@
+import { InventoryObjectConfig } from '../inventory/index';
 import { EquipConfig, EquipSlot, EquipType } from '../equips/index';
 
-export type EquipsConfig = { [id: string]: EquipConfig };
-export const equipsConfig: EquipsConfig = {
+export type InventoryConfig = {
+  [id: string]: InventoryObjectConfig | EquipConfig
+};
+export const inventoryConfig: InventoryConfig = {
   0: {
     name: 'Short sword',
+    specialClass: 'equip',
     slot: [EquipSlot.MainHand, EquipSlot.SecondHand],
     type: EquipType.OneHand,
     durability: { max: 100 },
@@ -16,6 +20,7 @@ export const equipsConfig: EquipsConfig = {
   },
   1: {
     name: 'Small shield',
+    specialClass: 'equip',
     slot: EquipSlot.SecondHand,
     type: EquipType.SecondHand,
     durability: { max: 30 },
@@ -27,6 +32,7 @@ export const equipsConfig: EquipsConfig = {
   },
   2: {
     name: 'Wooden staf',
+    specialClass: 'equip',
     slot: EquipSlot.MainHand,
     type: EquipType.TwoHand,
     durability: { max: 70 },
@@ -39,6 +45,7 @@ export const equipsConfig: EquipsConfig = {
   },
   3: {
     name: 'Iron helmet',
+    specialClass: 'equip',
     slot: EquipSlot.Head,
     durability: { max: 10 },
     stats: {
@@ -47,6 +54,7 @@ export const equipsConfig: EquipsConfig = {
   },
   4: {
     name: 'Leather armor',
+    specialClass: 'equip',
     slot: EquipSlot.Body,
     durability: { max: 20 },
     stats: {
@@ -55,10 +63,21 @@ export const equipsConfig: EquipsConfig = {
   },
   5: {
     name: 'Small bag',
+    specialClass: 'equip',
     slot: EquipSlot.Bag,
     durability: { max: 100 },
     stats: {
       slots: 1
     }
+  },
+  6: {
+    name: 'Pie',
+    usageTime: 60,
+    innerGradualInfluences: [
+      {
+        attribute: 'health',
+        value: 2
+      }
+    ]
   }
-};
+}

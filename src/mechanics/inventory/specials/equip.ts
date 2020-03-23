@@ -1,50 +1,11 @@
-import { Range, RangeParameters } from '../utils';
 import {
-  InteractionObject, InteractionConfig, InteractionParameters, Impact
-} from '../interactions/index';
+  EquipConfig, EquipParameters, EquipSlot, EquipType, EquipStats
+} from './equip_types'
+import { Range, RangeParameters } from '../../utils';
+import { Impact } from '../../interactions/index';
+import { InventoryObject } from '../inventory_object';
 
-export enum EquipSlot {
-  MainHand = 'MainHand',
-  SecondHand = 'SecondHand',
-  Head = 'Head',
-  Body = 'Body',
-  Bag = 'Bag'
-}
-
-export enum EquipType {
-  OneHand = 'OneHand',
-  SecondHand = 'SecondHand',
-  TwoHand = 'TwoHand',
-  LightArmor = 'LightArmor',
-  MediumArmor = 'MediumArmor',
-  HeavyArmor = 'HeavyArmor'
-}
-
-interface EquipStats {
-  penetration?: number;
-  damage?: number;
-  range?: number;
-  block?: number;
-  speed?: number;
-  armor?: number;
-  slots?: number;
-}
-
-export interface EquipConfig extends InteractionConfig {
-  slot: EquipSlot | EquipSlot[];
-  type?: EquipType;
-  name: string;
-  durability: RangeParameters;
-  stats?: EquipStats;
-}
-
-export interface EquipParameters extends InteractionParameters {
-  durability: RangeParameters;
-  name?: string;
-  stats?: EquipStats;
-}
-
-export class Equip extends InteractionObject {
+export class Equip extends InventoryObject {
   durability: Range;
   stats: EquipStats;
   protected config: EquipConfig;
@@ -56,10 +17,6 @@ export class Equip extends InteractionObject {
 
   get type(): EquipType {
     return this.config.type;
-  }
-
-  get name(): string {
-    return this.parameters.name || this.config.name;
   }
 
   initialize(

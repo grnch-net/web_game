@@ -39,10 +39,10 @@ export class Influence {
     impact: Impact,
     isCancel = false
   ) {
-    const multiply = isCancel ? -1 : 1;
+    const operation = isCancel ? -1 : 1;
     const side = (this.negative) ? impact.negative : impact.positive;
     side[this.attribute] = side[this.attribute] || 0;
-    side[this.attribute] += this.value * multiply;
+    side[this.attribute] += this.value * operation;
   }
 }
 
@@ -68,9 +68,9 @@ export class GradualInfluence extends Influence {
     impact: Impact,
     isCancel = false
   ) {
-    const multiply = isCancel ? -1 : 1;
+    const operation = isCancel ? -1 : 1;
     const side = (this.negative) ? impact.negative : impact.positive;
     side[this.attribute] = side[this.attribute] || 0;
-    side[this.attribute] += this.deltaValue * multiply;
+    side[this.attribute] += this.deltaValue * operation;
   }
 }

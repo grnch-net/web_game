@@ -1,15 +1,14 @@
 import {
-  Equip, EquipConfig, EquipParameters, EquipSlot, EquipType
-} from './equip';
+  EquipConfig, EquipParameters, EquipSlot, EquipType
+} from '../inventory/specials/equip_types';
+import { Equip } from '../inventory/specials/equip';
 import { EquipsController } from './equips_controller';
-import { equipUtils } from './equips_utils';
 
 export {
-  EquipsController,
-  Equip,
+  EquipSlot,
+  EquipType,
   EquipConfig,
   EquipParameters,
-  equipUtils,
-  EquipSlot,
-  EquipType
+  Equip,
+  EquipsController
 }

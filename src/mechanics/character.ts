@@ -1,10 +1,10 @@
 import { WorldObject } from './world_object';
 import { Impact, Attribute, InteractResult } from './interactions/index';
 import { Range, RangeParameters } from './utils';
-import { characterConfig } from './configs/character';
 import { EffectsController, EffectParameters } from './effects/index';
 import { EquipsController, EquipParameters } from './equips/index';
 import { SkillsController, Skill, SkillParameters } from './skills/index';
+import { characterConfig } from './configs/character';
 
 type Attributes = { [key in Attribute]?: RangeParameters };
 type Counters = { [key: string]: number };
