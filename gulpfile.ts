@@ -36,7 +36,7 @@ function buildHTML() {
 
 function createBundler() {
 	return browserify({
-		entries: 'src/main.ts',
+		entries: ['src/utils/index.ts', 'src/main.ts'],
 		debug: true
 	})
 	.plugin(tsify);
@@ -55,8 +55,12 @@ function destJS(bundler: any) {
 
 function buildLibs() {
 	return browserify({
-		entries: 'src/libs/main.js',
+		entries: 'src/libs/main.ts',
 		debug: true
+	})
+	.plugin(tsify, {
+		files: ['src/libs/main.ts'],
+		allowJs: true
 	})
 	.transform(babelify, {
 		only: ["./src/libs/*"],
