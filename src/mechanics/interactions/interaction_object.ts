@@ -1,11 +1,19 @@
-import { Impact } from './impact';
-import { Influence, GradualInfluence, InfluenceParameters } from './influences';
+import {
+  Impact
+} from './impact';
 
-export interface InteractResult {
+import {
+  Influence,
+  GradualInfluence,
+  InfluenceParameters
+} from './influences';
+
+interface InteractResult {
   avoid?: boolean
 }
 
-export interface InteractionConfig {
+interface InteractionConfig {
+  name?: string;
   specialClass?: string;
   innerStaticInfluences?: InfluenceParameters[];
   innerGradualInfluences?: InfluenceParameters[];
@@ -13,11 +21,23 @@ export interface InteractionConfig {
   outerGradualInfluences?: InfluenceParameters[];
 }
 
-export interface InteractionParameters {
+interface InteractionParameters {
   id: string | number;
 }
 
-export class InteractionObject {
+class InteractionObject {
+  static customs: { [id: string]: typeof InteractionObject };
+
+  static AddCustomClass(
+    id: string,
+    custom: typeof InteractionObject
+  ) {
+    if (!this.hasOwnProperty('customs')) {
+      this.customs = {};
+    }
+    this.customs[id] = custom;
+  }
+
   protected config: InteractionConfig;
   protected parameters: InteractionParameters;
   protected inner_static_influences: Influence[];
@@ -93,4 +113,11 @@ export class InteractionObject {
   ): InteractResult {
     return {};
   }
+}
+
+export {
+  InteractResult,
+  InteractionConfig,
+  InteractionParameters,
+  InteractionObject
 }

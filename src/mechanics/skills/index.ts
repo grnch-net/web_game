@@ -1,15 +1,4 @@
-import {
-  Skill, SkillConfig, SkillParameters, SkillNeeds, SkillNeedsResult
-} from './skill';
-import { SkillsController } from './skills_controller';
-import { skillUtils } from './skills_utils';
-
-export {
-  SkillsController,
-  Skill,
-  SkillConfig,
-  SkillParameters,
-  SkillNeeds,
-  SkillNeedsResult,
-  skillUtils
-}
+export * from './skill';
+export * from './customs/index';
+export * from './skills_utils';
+export * from './skills_controller';

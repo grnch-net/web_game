@@ -1,10 +1,13 @@
-import type { RangeParameters } from '../../utils';
 import type {
-  InventoryObjectConfig, InventoryObjectParameters
-} from '../inventory_object';
+  RangeParameters
+} from '../utils';
 
+import type {
+  InteractionConfig,
+  // InteractionParameters
+} from '../interactions/index';
 
-export enum EquipSlot {
+enum EquipSlot {
   MainHand = 'MainHand',
   SecondHand = 'SecondHand',
   Head = 'Head',
@@ -12,7 +15,7 @@ export enum EquipSlot {
   Bag = 'Bag'
 }
 
-export enum EquipType {
+enum EquipType {
   OneHand = 'OneHand',
   SecondHand = 'SecondHand',
   TwoHand = 'TwoHand',
@@ -21,7 +24,7 @@ export enum EquipType {
   HeavyArmor = 'HeavyArmor'
 }
 
-export interface EquipStats {
+interface EquipStats {
   penetration?: number;
   damage?: number;
   range?: number;
@@ -31,14 +34,22 @@ export interface EquipStats {
   slots?: number;
 }
 
-export interface EquipConfig extends InventoryObjectConfig {
+interface EquipConfig extends InteractionConfig {
   slot: EquipSlot | EquipSlot[];
   type?: EquipType;
   durability: RangeParameters;
   stats?: EquipStats;
 }
 
-export interface EquipParameters extends InventoryObjectParameters {
+interface EquipParameters {
   durability: RangeParameters;
   stats?: EquipStats;
+}
+
+export {
+  EquipSlot,
+  EquipType,
+  EquipStats,
+  EquipConfig,
+  EquipParameters
 }

@@ -1,17 +1,39 @@
+import type {
+  SkillConfig,
+  SkillParameters
+} from '../skills/index';
+
+import type {
+  EquipConfig,
+  EquipParameters
+} from '../equips/index';
+
 import {
-  InteractionObject, InteractionConfig, InteractionParameters
+  InteractionConfig,
+  InteractionParameters,
+  InteractionObject
 } from '../interactions/index';
 
-export interface InventoryObjectConfig extends InteractionConfig {
-  name: string;
-  usageTime?: number;
+interface UsageConfig extends SkillConfig {
+  count?: number;
 }
 
-export interface InventoryObjectParameters extends InteractionParameters {
+interface UsageParameters extends SkillParameters {
+  count?: number;
+}
+
+interface InventoryObjectConfig extends InteractionConfig {
+  usage?: UsageConfig;
+  equip?: EquipConfig;
+}
+
+interface InventoryObjectParameters extends InteractionParameters {
   name?: string;
+  usage?: UsageParameters;
+  equip?: EquipParameters;
 }
 
-export class InventoryObject extends InteractionObject {
+class InventoryObject extends InteractionObject {
   protected config: InventoryObjectConfig;
   protected parameters: InventoryObjectParameters;
 
@@ -22,4 +44,10 @@ export class InventoryObject extends InteractionObject {
   get customName(): string {
     return this.parameters.name;
   }
+}
+
+export {
+  InventoryObjectConfig,
+  InventoryObjectParameters,
+  InventoryObject
 }

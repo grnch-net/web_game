@@ -1,7 +1,10 @@
-import { InventoryObject } from './inventory_object';
-import { toArray } from '../utils';
+import type {
+  InventoryObject
+} from './inventory_object';
 
-export class InventoryController {
+import * as utils from '../utils';
+
+class InventoryController {
   list: InventoryObject[];
 
   constructor(
@@ -11,7 +14,7 @@ export class InventoryController {
   add(
     items: InventoryObject | InventoryObject[]
   ): boolean {
-    items = toArray(items) as InventoryObject[];
+    items = utils.toArray(items) as InventoryObject[];
     const length = this.list.length + items.length;
     if (length >= this.slots) return false;
     this.list.push(...items);
@@ -27,3 +30,7 @@ export class InventoryController {
     return true;
   }
 }
+
+ export {
+   InventoryController
+ }

@@ -1,8 +1,14 @@
-import { Effect } from '../effects/index';
+// import type {
+//   Effect
+// } from '../effects/index';
 
-export type Attribute = 'health' | 'stamina';
+type Attribute = 'health' | 'stamina';
+// enum Attribute {
+//   health,
+//   stamina
+// }
 
-export enum ImpactSide {
+enum ImpactSide {
   Front,
   Right,
   Back,
@@ -19,9 +25,15 @@ interface Rules {
 
 type Influenced = { [key in Attribute]?: number };
 
-export class Impact {
+class Impact {
   positive: Influenced = {};
   negative: Influenced = {};
-  effects: Effect[] = [];
+  // effects: Effect[] = [];
   rules: Rules = {};
+}
+
+export {
+  Attribute,
+  ImpactSide,
+  Impact
 }

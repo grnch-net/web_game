@@ -1,3 +1,4 @@
+import './modifications/index';
 import { World } from './world';
 import { Character, CharacterParameters } from './character';
 
@@ -22,11 +23,15 @@ export function test_mechanics() {
     equips: [
       {
         id: 0,
-        durability: { value: 98 }
+        equip:{
+          durability: { value: 98 }
+        }
       },
       {
         id: 1,
-        durability: { value: 50 }
+        equip: {
+          durability: { value: 50 }
+        }
       }
     ]
   };
@@ -51,11 +56,15 @@ export function test_mechanics() {
     equips: [
         {
         id: 0,
-        durability: { value: 98 }
+        equip: {
+          durability: { value: 98 }
+        }
       },
       {
         id: 1,
-        durability: { value: 50 }
+        equip: {
+          durability: { value: 50 }
+        }
       }
     ]
   };

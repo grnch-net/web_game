@@ -1,22 +1,40 @@
-import { EquipParameters, EquipSlot, EquipType } from '../inventory/specials/equip_types';
-import { Equip } from '../inventory/specials/equip';
-import { InventoryController, inventoryUtils } from '../inventory/index';
-import { Impact } from '../interactions/index';
-import { toArray } from '../utils';
+import type {
+  Impact
+} from '../interactions/index';
+
+import {
+  toArray
+} from '../utils';
+
+import {
+  EquipSlot,
+  EquipType,
+  Equip
+} from './equip';
+
+import {
+  InventoryObjectParameters,
+  InventoryUtils,
+  InventoryController
+} from '../inventory/index';
 
 const weaponTypes = [
-  EquipType.OneHand, EquipType.SecondHand, EquipType.TwoHand
+  EquipType.OneHand,
+  EquipType.SecondHand,
+  EquipType.TwoHand
 ];
 
 const armorTypes = [
-  EquipType.LightArmor, EquipType.MediumArmor, EquipType.HeavyArmor
+  EquipType.LightArmor,
+  EquipType.MediumArmor,
+  EquipType.HeavyArmor
 ];
 
 interface Stats {
   armor: number;
 }
 
-export class EquipsController {
+class EquipsController {
   static defaultSlots = 6;
   list: { [key in EquipSlot]?: Equip };
   inventory: InventoryController;
@@ -24,7 +42,7 @@ export class EquipsController {
   stats: Stats;
 
   initialize(
-    list: EquipParameters[],
+    list: InventoryObjectParameters[],
     innerImpact: Impact,
     armorProtect: number
   ) {
@@ -36,7 +54,7 @@ export class EquipsController {
     const slots = EquipsController.defaultSlots;
     this.inventory = new InventoryController(slots);
     for (const parameters of list) {
-      const equip = inventoryUtils.create(parameters) as Equip;
+      const equip = InventoryUtils.create(parameters) as Equip;
       this.add(equip, innerImpact);
     }
   }
@@ -161,4 +179,8 @@ export class EquipsController {
     impact.negative.health = damage;
     return true;
   }
+}
+
+export {
+  EquipsController
 }

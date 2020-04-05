@@ -1,7 +1,15 @@
-import { Skill, SkillNeedsResult } from '../skill';
-import { Impact, InteractResult } from '../../interactions/index';
+import type {
+  Impact,
+  InteractResult
+} from '../../interactions/index';
 
-export class Attack extends Skill {
+import {
+  Skill,
+  SkillNeedsResult
+} from '../skill';
+
+@UTILS.modifiable
+class Attack extends Skill {
   protected combinations: number;
 
   reset() {
@@ -15,20 +23,21 @@ export class Attack extends Skill {
   ) {
     super.on_cast_complete(innerImpact, outerImpact);
     const [main_equip, second_equip] = this.equips;
+    const rules = outerImpact.rules;
     const turn_second = (this.combinations % 2) == 1;
     if (second_equip && turn_second) {
       outerImpact.negative.health = second_equip.stats.damage;
-      outerImpact.rules.penetration = second_equip.stats.penetration;
-      outerImpact.rules.range = second_equip.stats.range;
+      rules.penetration = second_equip.stats.penetration;
+      rules.range = second_equip.stats.range;
     } else
     if (main_equip) {
       outerImpact.negative.health = main_equip.stats.damage;
-      outerImpact.rules.penetration = main_equip.stats.penetration;
-      outerImpact.rules.range = main_equip.stats.range;
+      rules.penetration = main_equip.stats.penetration;
+      rules.range = main_equip.stats.range;
     } else {
-      outerImpact.rules.range = 1;
+      rules.range = 1;
     }
-    outerImpact.rules.penetration += this.experience * Skill.multiplyEfficiency;
+    rules.penetration += this.experience * Attack.multiplyEfficiency;
     this.combinations++;
   }
 
@@ -66,4 +75,10 @@ export class Attack extends Skill {
       this.parameters.experience += 1;
     }
   }
+}
+
+Skill.AddCustomClass('attack', Attack);
+
+export {
+  Attack
 }

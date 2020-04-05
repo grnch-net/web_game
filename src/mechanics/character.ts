@@ -1,10 +1,40 @@
-import { WorldObject } from './world_object';
-import { Impact, Attribute, InteractResult } from './interactions/index';
-import { Range, RangeParameters } from './utils';
-import { EffectsController, EffectParameters } from './effects/index';
-import { EquipsController, EquipParameters } from './equips/index';
-import { SkillsController, Skill, SkillParameters } from './skills/index';
-import { characterConfig } from './configs/character';
+import {
+  WorldObject
+} from './world_object';
+
+import {
+  Impact,
+  Attribute,
+  InteractResult
+} from './interactions/index';
+
+import {
+  Range,
+  RangeParameters
+} from './utils';
+
+import {
+  EffectsController,
+  EffectParameters
+} from './effects/index';
+
+import {
+  EquipsController,
+} from './equips/index';
+
+import {
+  InventoryObjectParameters,
+} from './inventory/index';
+
+import {
+  Skill,
+  SkillParameters,
+  SkillsController
+} from './skills/index';
+
+import {
+  characterConfig
+} from './configs/character_config';
 
 type Attributes = { [key in Attribute]?: RangeParameters };
 type Counters = { [key: string]: number };
@@ -15,7 +45,7 @@ export interface CharacterConfig {
   counters: Counters;
   effects: EffectParameters[];
   skills: SkillParameters[];
-  equips: EquipParameters[];
+  equips: InventoryObjectParameters[];
   armorProtect?: number;
 }
 
@@ -94,8 +124,8 @@ export class Character extends WorldObject {
   }
 
   protected initialize_equipments(
-    parameters: EquipParameters[],
-    config: EquipParameters[],
+    parameters: InventoryObjectParameters[],
+    config: InventoryObjectParameters[],
     armorProtect: number
   ) {
     this.equips = new EquipsController;
@@ -135,9 +165,9 @@ export class Character extends WorldObject {
   protected apply_impact(
     innerImpact: Impact
   ) {
-    for (const effect of innerImpact.effects) {
-      this.effects.add(effect, innerImpact);
-    }
+    // for (const effect of innerImpact.effects) {
+    //   this.effects.add(effect, innerImpact);
+    // }
     let key: Attribute;
     for (key in innerImpact.positive) {
       const value = innerImpact.positive[key];

@@ -1,9 +1,15 @@
-import { Skill } from '../skill';
 import {
-  Impact, ImpactSide, InteractResult
+  Impact,
+  ImpactSide,
+  InteractResult
 } from '../../interactions/index';
 
-export class Block extends Skill {
+import {
+  Skill
+} from '../skill';
+
+class Block extends Skill {
+
   onOuterImpact(
     impact: Impact
   ): InteractResult {
@@ -14,7 +20,7 @@ export class Block extends Skill {
     if (!damage && !stun) return;
     if (side !== ImpactSide.Front) return;
     const equip = this.equips[0];
-    let block = this.experience * Skill.multiplyEfficiency;
+    let block = this.experience * Block.multiplyEfficiency;
     let armor = 0;
     if (equip) {
       block += equip.stats.block;
@@ -22,15 +28,21 @@ export class Block extends Skill {
     }
     result.avoid = this.block_calculation(block, penetration);
     if (result.avoid) {
-      this.block_apply(impact, armor);
+      this.apply_block(impact, armor);
+      this.apply_stock(impact);
     } else {
       this.parameters.experience += 1;
     }
+    this.usageTime = 0;
+    return result;
+  }
+
+  protected apply_stock(
+    impact: Impact
+  ) {
     for (const influence of this.stock) {
       influence.apply(impact);
     }
-    this.usageTime = 0;
-    return result;
   }
 
   protected block_calculation(
@@ -42,7 +54,7 @@ export class Block extends Skill {
     return random > penetration;
   }
 
-  protected block_apply(
+  protected apply_block(
     impact: Impact,
     armor: number
   ) {
@@ -68,4 +80,10 @@ export class Block extends Skill {
     }
     super.use(innerImpact, outerImpact);
   }
+}
+
+Skill.AddCustomClass('block', Block);
+
+export {
+  Block
 }

@@ -1,14 +1,20 @@
-import { InteractionUtils } from '../interactions/index';
-import { Effect, EffectConfig, EffectParameters } from './effect';
-import { effectsConfig, EffectsConfig } from '../configs/effects';
-import { specialClassList } from './specials/index';
+import {
+  EffectConfig,
+  EffectParameters,
+  Effect
+} from './effect';
 
-type ClassList = { [id: string]: typeof Effect };
+import {
+  InteractionUtils
+} from '../interactions/index';
 
-export class effectUtils extends InteractionUtils {
-  static BaseClass: typeof Effect = Effect;
-  static configs: EffectsConfig = effectsConfig;
-  static specialClassList: ClassList = specialClassList;
+import {
+  effectsConfig
+} from '../configs/effects_config';
+
+class EffectUtils extends InteractionUtils {
+  static BaseClass = Effect;
+  static configs = effectsConfig;
 
   static findConfig(id: string): EffectConfig {
     return super.findConfig(id) as EffectConfig;
@@ -24,4 +30,8 @@ export class effectUtils extends InteractionUtils {
   ): Effect {
     return super.create(parameters, config) as Effect;
   }
+}
+
+export {
+  EffectUtils
 }

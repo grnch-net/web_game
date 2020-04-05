@@ -1,16 +1,20 @@
-import { InteractionUtils } from '../interactions/index';
 import {
-  InventoryObject, InventoryObjectConfig, InventoryObjectParameters
+  InventoryObjectConfig,
+  InventoryObjectParameters,
+  InventoryObject
 } from './inventory_object';
-import { inventoryConfig, InventoryConfig } from '../configs/inventory';
-import { specialClassList } from './specials/index';
 
-type ClassList = { [id: string]: typeof InventoryObject };
+import {
+  inventoryConfig
+} from '../configs/inventory_config';
 
-export class inventoryUtils extends InteractionUtils {
-  static BaseClass: typeof InventoryObject = InventoryObject;
-  static get configs(): InventoryConfig { return inventoryConfig; }
-  static specialClassList: ClassList = specialClassList;
+import {
+  InteractionUtils
+} from '../interactions/index';
+
+class InventoryUtils extends InteractionUtils {
+  static BaseClass = InventoryObject;
+  static configs = inventoryConfig;
 
   static findConfig(
     id: string
@@ -30,4 +34,8 @@ export class inventoryUtils extends InteractionUtils {
   ): InventoryObject {
     return super.create(parameters, config) as InventoryObject;
   }
+}
+
+export {
+  InventoryUtils
 }

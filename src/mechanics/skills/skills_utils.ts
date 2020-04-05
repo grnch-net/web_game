@@ -1,14 +1,20 @@
-import { InteractionUtils } from '../interactions/index';
-import { Skill, SkillConfig, SkillParameters } from './skill';
-import { skillsConfig, SkillsConfig } from '../configs/skills';
-import { specialClassList } from './specials/index';
+import {
+  Skill,
+  SkillConfig,
+  SkillParameters
+} from './skill';
 
-type ClassList = { [id: string]: typeof Skill };
+import {
+  skillsConfig
+} from '../configs/skills_config';
 
-export class skillUtils extends InteractionUtils {
-  static BaseClass: typeof Skill = Skill;
-  static configs: SkillsConfig = skillsConfig;
-  static specialClassList: ClassList = specialClassList;
+import {
+  InteractionUtils
+} from '../interactions/index';
+
+class SkillsUtils extends InteractionUtils {
+  static BaseClass = Skill;
+  static configs = skillsConfig;
 
   static findConfig(
     id: string
@@ -17,9 +23,9 @@ export class skillUtils extends InteractionUtils {
   }
 
   static findSpecialClass(
-    specialId: string
+    id: string
   ): typeof Skill {
-    return super.findSpecialClass(specialId) as typeof Skill;
+    return Skill.customs[id] as typeof Skill;
   }
 
   static create(
@@ -28,4 +34,8 @@ export class skillUtils extends InteractionUtils {
   ): Skill {
     return super.create(parameters, config) as Skill;
   }
+}
+
+export {
+  SkillsUtils
 }

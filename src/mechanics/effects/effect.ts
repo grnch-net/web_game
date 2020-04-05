@@ -1,18 +1,20 @@
 import {
-  InteractionObject, InteractionConfig, InteractionParameters, Impact
+  Impact,
+  InteractionConfig,
+  InteractionParameters,
+  InteractionObject
 } from '../interactions/index';
 
-export interface EffectConfig extends InteractionConfig{
-  name?: string;
+interface EffectConfig extends InteractionConfig {
   unique?: string;
   liveTime?: number;
 }
 
-export interface EffectParameters extends InteractionParameters {
+interface EffectParameters extends InteractionParameters {
   liveTime?: number;
 }
 
-export class Effect extends InteractionObject {
+class Effect extends InteractionObject {
   active: boolean;
   ended: boolean;
   protected config: EffectConfig;
@@ -82,4 +84,10 @@ export class Effect extends InteractionObject {
     innerImpact: Impact,
     outerImpact: Impact
   ) {}
+}
+
+export {
+  EffectConfig,
+  EffectParameters,
+  Effect
 }

@@ -1,16 +1,16 @@
 import {
-  InteractionObject, InteractionConfig, InteractionParameters
+  InteractionObject,
+  InteractionConfig,
+  InteractionParameters
 } from '../interactions/index';
 
 type Configs = { [id: string]: InteractionConfig };
-type ClassList = { [id: string]: typeof InteractionObject };
 
-export class InteractionUtils {
+class InteractionUtils {
   protected constructor() {}
 
   static BaseClass: typeof InteractionObject;
   static configs: Configs;
-  static specialClassList: ClassList;
 
   static findConfig(
     id: string
@@ -21,7 +21,7 @@ export class InteractionUtils {
   static findSpecialClass(
     specialId: string
   ): typeof InteractionObject {
-    return this.specialClassList[specialId];
+    return this.BaseClass.customs[specialId];
   }
 
   static create(
@@ -37,7 +37,7 @@ export class InteractionUtils {
     if (config.specialClass) {
       BaseClass = this.findSpecialClass(config.specialClass);;
       if (!BaseClass) {
-        console.error('Can not find special class.', config.specialClass);
+        console.error('Can not find special class.', config, parameters);
         return null;
       }
     }
@@ -45,4 +45,8 @@ export class InteractionUtils {
     _object.initialize(config, parameters);
     return _object;
   }
+}
+
+export {
+  InteractionUtils
 }

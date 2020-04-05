@@ -1,12 +1,15 @@
-import { Impact, Attribute } from './impact';
+import {
+  Impact,
+  Attribute
+} from './impact';
 
-export interface InfluenceParameters {
+interface InfluenceParameters {
   attribute: Attribute;
   value: number;
   negative?: boolean;
 }
 
-export class Influence {
+class Influence {
   constructor(
     protected parameters: InfluenceParameters
   ) {}
@@ -46,7 +49,7 @@ export class Influence {
   }
 }
 
-export class GradualInfluence extends Influence {
+class GradualInfluence extends Influence {
   deltaValue: number;
 
   constructor(
@@ -73,4 +76,10 @@ export class GradualInfluence extends Influence {
     side[this.attribute] = side[this.attribute] || 0;
     side[this.attribute] += this.deltaValue * operation;
   }
+}
+
+export {
+  InfluenceParameters,
+  Influence,
+  GradualInfluence
 }

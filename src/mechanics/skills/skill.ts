@@ -1,11 +1,20 @@
 import {
-  InteractionObject, InteractionConfig, InteractionParameters,
-  Influence, GradualInfluence, InfluenceParameters, Impact, InteractResult
+  InteractionObject,
+  InteractionConfig,
+  InteractionParameters,
+  Influence,
+  GradualInfluence,
+  InfluenceParameters,
+  Impact,
+  InteractResult
 } from '../interactions/index';
-import { Equip, EquipSlot } from '../equips/index';
 
-export interface SkillConfig extends InteractionConfig {
-  name: string;
+import type {
+  Equip,
+  EquipSlot
+} from '../equips/index';
+
+interface SkillConfig extends InteractionConfig {
   castTime?: number;
   usageTime?: number;
   recoveryTime?: number;
@@ -16,22 +25,23 @@ export interface SkillConfig extends InteractionConfig {
   reusable?: boolean;
 }
 
-export interface SkillParameters extends InteractionParameters {
+interface SkillParameters extends InteractionParameters {
   experience?: number;
   recoveryTime?: number;
 }
 
-export interface SkillNeeds {
+interface SkillNeeds {
   equips: EquipSlot[];
 }
 
-export interface SkillNeedsResult {
+interface SkillNeedsResult {
   equips: Equip[];
 }
 
-
-export class Skill extends InteractionObject {
+@UTILS.modifiable
+class Skill extends InteractionObject {
   static multiplyEfficiency = 0.001;
+
   castTime: number;
   usageTime: number;
   stock: Influence[];
@@ -245,4 +255,12 @@ export class Skill extends InteractionObject {
   interactResult(
     result: InteractResult
   ) {}
+}
+
+export {
+  SkillConfig,
+  SkillParameters,
+  SkillNeeds,
+  SkillNeedsResult,
+  Skill
 }

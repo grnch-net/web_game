@@ -1,6 +1,8 @@
-import { CharacterConfig } from '../character';
+import {
+  CharacterConfig
+} from '../character';
 
-export const characterConfig: CharacterConfig = {
+const characterConfig: CharacterConfig = {
   attributes: {
     health: { max: 100 },
     stamina: { max: 150 }
@@ -17,3 +19,7 @@ export const characterConfig: CharacterConfig = {
   equips: [],
   armorProtect: 0.9
 };
+
+export {
+  characterConfig
+}

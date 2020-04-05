@@ -1,10 +1,19 @@
-import { Effect, EffectParameters } from './effect';
-import { effectUtils } from './effects_utils';
-import { Impact } from '../interactions/index';
+import type {
+  Effect,
+  EffectParameters
+} from './effect';
+
+import type {
+  Impact
+} from '../interactions/index';
+
+import {
+  EffectUtils
+} from './effects_utils';
 
 type ClassList = { [id: string]: Effect };
 
-export class EffectsController {
+class EffectsController {
   list: Effect[];
   protected unique_list: ClassList;
 
@@ -14,7 +23,7 @@ export class EffectsController {
   ) {
     this.list = [];
     for (const parameters of list) {
-      const effect = effectUtils.create(parameters);
+      const effect = EffectUtils.create(parameters);
       this.add(effect, innerImpact);
     }
   }
@@ -97,4 +106,8 @@ export class EffectsController {
       effect.onUseSkill(innerImpact, outerImpact);
     };
   }
+}
+
+export {
+  EffectsController
 }

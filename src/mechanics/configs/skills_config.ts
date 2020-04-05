@@ -1,8 +1,14 @@
-import { SkillConfig } from '../skills/index';
-import { EquipSlot } from '../equips/index';
+import type {
+  SkillConfig
+} from '../skills/index';
 
-export type SkillsConfig = { [id: string]: SkillConfig };
-export const skillsConfig: SkillsConfig = {
+import {
+  EquipSlot
+} from '../equips/index';
+
+type SkillsConfig = { [id: string]: SkillConfig };
+
+const skillsConfig: SkillsConfig = {
   0: {
     name: 'Recreation',
     usageTime: Infinity,
@@ -52,3 +58,8 @@ export const skillsConfig: SkillsConfig = {
     }
   }
 };
+
+export {
+  SkillsConfig,
+  skillsConfig
+}
