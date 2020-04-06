@@ -25,10 +25,9 @@ class EffectUtils extends InteractionUtils {
   }
 
   static create(
-    parameters: EffectParameters,
-    config?: EffectConfig
+    parameters: EffectParameters
   ): Effect {
-    return super.create(parameters, config) as Effect;
+    return super.create(parameters, parameters.id) as Effect;
   }
 }
 

@@ -14,6 +14,7 @@ import {
 
 import {
   InventoryObjectParameters,
+  InventoryObject,
   InventoryUtils,
   InventoryController
 } from '../inventory/index';
@@ -36,7 +37,7 @@ interface Stats {
 
 class EquipsController {
   static defaultSlots = 6;
-  list: { [key in EquipSlot]?: Equip };
+  list: { [key in EquipSlot]?: InventoryObject };
   inventory: InventoryController;
   armorProtect: number;
   stats: Stats;
@@ -54,31 +55,35 @@ class EquipsController {
     const slots = EquipsController.defaultSlots;
     this.inventory = new InventoryController(slots);
     for (const parameters of list) {
-      const equip = InventoryUtils.create(parameters) as Equip;
+      const equip = InventoryUtils.create(parameters);
       this.add(equip, innerImpact);
     }
   }
 
   add(
-    equip: Equip,
+    item: InventoryObject,
     innerImpact: Impact
   ): boolean {
+    const equip = item.equip;
+    if (!equip) return false;
     const slots: EquipSlot[] = toArray(equip.slot);
     for (const slot of slots) {
       if (!this.list[slot]) {
-        return this.replace_slot(slot, equip, innerImpact);
+        return this.replace_slot(slot, item, innerImpact);
       }
     }
-    return this.replace_slot(slots[0], equip, innerImpact);
+    return this.replace_slot(slots[0], item, innerImpact);
   }
 
   protected replace_slot(
     slot: EquipSlot,
-    equip: Equip,
+    item: InventoryObject,
     innerImpact: Impact
   ): boolean {
+    const equip = item.equip;
+    if (!equip) return;
     if (weaponTypes.includes(equip.type)) {
-      const mainHand = this.list[EquipSlot.MainHand];
+      const mainHand = this.list[EquipSlot.MainHand].equip;
       let isTwoHand = mainHand && mainHand.type == EquipType.TwoHand;
       if (isTwoHand || equip.type == EquipType.TwoHand) {
         this.removeSlot(EquipSlot.MainHand, innerImpact, true);
@@ -89,32 +94,32 @@ class EquipsController {
     } else {
       this.removeSlot(slot, innerImpact, true);
     }
-    this.list[slot] = equip;
+    this.list[slot] = item;
     equip.added(innerImpact);
     this.update_stats(equip, slot);
     return true;
   }
 
   remove(
-    equip: Equip,
+    item: InventoryObject,
     innerImpact: Impact
   ): boolean {
-    let slot = this.getEquippedSlot(equip);
+    let slot = this.getEquippedSlot(item);
     if (!slot) return false;
-    return this.remove_equipped_item(equip, slot, innerImpact);
+    return this.remove_equipped_item(item.equip, slot, innerImpact);
   }
 
   removeSlot(
     slot: EquipSlot,
     innerImpact: Impact,
     toInventory = false
-  ): Equip {
-    const equip: Equip = this.list[slot];
-    if (!equip) return null;
-    const checked = this.remove_equipped_item(equip, slot, innerImpact);
+  ): InventoryObject {
+    const item = this.list[slot];
+    if (!item) return null;
+    const checked = this.remove_equipped_item(item.equip, slot, innerImpact);
     if (checked) {
-      toInventory && this.inventory.add(equip);
-      return equip;
+      toInventory && this.inventory.add(item);
+      return item;
     }
     return null;
   }
@@ -145,23 +150,25 @@ class EquipsController {
   }
 
 
-  getSlots(
+  getSlotsEquip(
     slots: EquipSlot[]
   ): Equip[] {
     if (!slots) return null;
-    const result = [];
+    const equips = [];
     for (const slot of slots) {
-      result.push(this.list[slot]);
+      equips.push(this.list[slot].equip);
     }
-    return result;
+    return equips;
   }
 
   getEquippedSlot(
-    equip: Equip
+    item: InventoryObject
   ): EquipSlot {
+    const equip = item.equip;
+    if (!equip) return null;
     const slots: EquipSlot[] = toArray(equip.slot);
     for (const slot of slots) {
-      const checked = this.list[slot] == equip;
+      const checked = this.list[slot] == item;
       return checked ? slot : null;
     }
   }

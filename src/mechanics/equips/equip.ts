@@ -3,8 +3,9 @@ import {
   RangeParameters
 } from '../utils';
 
-import type {
-  Impact
+import {
+  Impact,
+  InteractionObject
 } from '../interactions/index';
 
 import {
@@ -15,38 +16,32 @@ import {
   EquipParameters
 } from './equip_types'
 
-import {
-  InventoryObjectConfig,
-  InventoryObjectParameters,
-  InventoryObject
-} from '../inventory/index';
-
-class Equip extends InventoryObject {
+class Equip extends InteractionObject {
   durability: Range;
   stats: EquipStats;
-  protected equip_config: EquipConfig;
+  protected config: EquipConfig;
+  protected parameters: EquipParameters;
 
   get slot(): EquipSlot | EquipSlot[] {
-    return this.equip_config.slot;
+    return this.config.slot;
   }
 
   get type(): EquipType {
-    return this.equip_config.type;
+    return this.config.type;
   }
 
   initialize(
-    config: InventoryObjectConfig,
-    parameters: InventoryObjectParameters
+    config: EquipConfig,
+    parameters: EquipParameters
   ) {
     super.initialize(config, parameters);
-    this.equip_config = config.equip;
     this.initialize_durability(
-      config.equip.durability,
-      parameters.equip.durability
+      config.durability,
+      parameters.durability
     );
     this.initialize_stats(
-      config.equip.stats,
-      parameters.equip.stats
+      config.stats,
+      parameters.stats
     );
   }
 
@@ -83,8 +78,6 @@ class Equip extends InventoryObject {
     outerImpact: Impact
   ) {}
 }
-
-InventoryObject.AddCustomClass('equip', Equip);
 
 export {
   EquipSlot,

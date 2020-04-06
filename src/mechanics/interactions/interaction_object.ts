@@ -21,9 +21,7 @@ interface InteractionConfig {
   outerGradualInfluences?: InfluenceParameters[];
 }
 
-interface InteractionParameters {
-  id: string | number;
-}
+interface InteractionParameters {}
 
 class InteractionObject {
   static customs: { [id: string]: typeof InteractionObject };

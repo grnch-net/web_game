@@ -11,6 +11,7 @@ interface EffectConfig extends InteractionConfig {
 }
 
 interface EffectParameters extends InteractionParameters {
+  id: string | number;
   liveTime?: number;
 }
 

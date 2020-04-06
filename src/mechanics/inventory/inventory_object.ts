@@ -1,11 +1,11 @@
 import type {
-  SkillConfig,
-  SkillParameters
+  SkillParameters,
+  Skill
 } from '../skills/index';
 
 import type {
-  EquipConfig,
-  EquipParameters
+  EquipParameters,
+  Equip
 } from '../equips/index';
 
 import {
@@ -14,26 +14,21 @@ import {
   InteractionObject
 } from '../interactions/index';
 
-interface UsageConfig extends SkillConfig {
-  count?: number;
-}
-
-interface UsageParameters extends SkillParameters {
-  count?: number;
-}
-
 interface InventoryObjectConfig extends InteractionConfig {
-  usage?: UsageConfig;
-  equip?: EquipConfig;
+  skill?: string | number;
+  equip?: string | number;
 }
 
 interface InventoryObjectParameters extends InteractionParameters {
+  id: string | number;
   name?: string;
-  usage?: UsageParameters;
+  skill?: SkillParameters;
   equip?: EquipParameters;
 }
 
 class InventoryObject extends InteractionObject {
+  equip: Equip | null;
+  skill: Skill | null;
   protected config: InventoryObjectConfig;
   protected parameters: InventoryObjectParameters;
 
@@ -43,6 +38,23 @@ class InventoryObject extends InteractionObject {
 
   get customName(): string {
     return this.parameters.name;
+  }
+
+  initialize(
+    config: InventoryObjectConfig,
+    parameters: InventoryObjectParameters
+  ) {
+    super.initialize(config, parameters);
+    this.initialize_equip();
+    this.initialize_skill();
+  }
+
+  initialize_equip() {
+
+  }
+
+  initialize_skill() {
+
   }
 }
 

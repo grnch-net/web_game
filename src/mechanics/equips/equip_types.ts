@@ -3,8 +3,7 @@ import type {
 } from '../utils';
 
 import type {
-  InteractionConfig,
-  // InteractionParameters
+  InteractionConfig
 } from '../interactions/index';
 
 enum EquipSlot {
@@ -41,7 +40,7 @@ interface EquipConfig extends InteractionConfig {
   stats?: EquipStats;
 }
 
-interface EquipParameters {
+interface EquipParameters  {
   durability: RangeParameters;
   stats?: EquipStats;
 }

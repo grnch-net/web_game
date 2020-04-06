@@ -56,6 +56,16 @@ const skillsConfig: SkillsConfig = {
     needs: {
       equips: [EquipSlot.SecondHand]
     }
+  },
+  3: {
+    useCount: 1,
+    usageTime: 60,
+    innerGradualInfluences: [
+      {
+        attribute: 'health',
+        value: 2
+      }
+    ]
   }
 };
 

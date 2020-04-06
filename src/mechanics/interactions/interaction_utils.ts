@@ -26,11 +26,11 @@ class InteractionUtils {
 
   static create(
     parameters: InteractionParameters,
-    config?: InteractionConfig
+    id: string | number
   ): InteractionObject {
-    config = config || this.findConfig(parameters.id as string);
+    const config = this.findConfig(id as string);
     if (!config) {
-      console.error('Can not find equip config with id:', parameters.id);
+      console.error('Can not find config', parameters, config);
       return null;
     }
     let BaseClass = this.BaseClass;

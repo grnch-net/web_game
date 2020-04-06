@@ -30,9 +30,8 @@ class SkillsUtils extends InteractionUtils {
 
   static create(
     parameters: SkillParameters,
-    config?: SkillConfig
   ): Skill {
-    return super.create(parameters, config) as Skill;
+    return super.create(parameters, parameters.id) as Skill;
   }
 }
 

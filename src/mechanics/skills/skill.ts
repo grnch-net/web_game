@@ -15,6 +15,7 @@ import type {
 } from '../equips/index';
 
 interface SkillConfig extends InteractionConfig {
+  useCount?: number;
   castTime?: number;
   usageTime?: number;
   recoveryTime?: number;
@@ -26,6 +27,8 @@ interface SkillConfig extends InteractionConfig {
 }
 
 interface SkillParameters extends InteractionParameters {
+  id: string | number;
+  useCount?: number;
   experience?: number;
   recoveryTime?: number;
 }
