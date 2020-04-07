@@ -210,7 +210,7 @@ export class Character extends WorldObject {
   ) {
     if (skill.needs) {
       const checked = skill.checkNeeds({
-        equips: this.equips.getSlots(skill.needs.equips)
+        equips: this.equips.getSlotsEquip(skill.needs.equips)
       });
       if (!checked) return false;
     }

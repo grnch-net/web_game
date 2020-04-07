@@ -83,7 +83,8 @@ class EquipsController {
     const equip = item.equip;
     if (!equip) return;
     if (weaponTypes.includes(equip.type)) {
-      const mainHand = this.list[EquipSlot.MainHand].equip;
+      const mainHandItem = this.list[EquipSlot.MainHand];
+      const mainHand = mainHandItem && mainHandItem.equip;
       let isTwoHand = mainHand && mainHand.type == EquipType.TwoHand;
       if (isTwoHand || equip.type == EquipType.TwoHand) {
         this.removeSlot(EquipSlot.MainHand, innerImpact, true);

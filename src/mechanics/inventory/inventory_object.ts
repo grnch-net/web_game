@@ -1,11 +1,13 @@
-import type {
+import {
   SkillParameters,
-  Skill
+  Skill,
+  SkillsUtils
 } from '../skills/index';
 
-import type {
+import {
   EquipParameters,
-  Equip
+  Equip,
+  EquipsUtils
 } from '../equips/index';
 
 import {
@@ -45,16 +47,25 @@ class InventoryObject extends InteractionObject {
     parameters: InventoryObjectParameters
   ) {
     super.initialize(config, parameters);
-    this.initialize_equip();
-    this.initialize_skill();
+    this.initialize_equip(config.equip, parameters.equip);
+    this.initialize_skill(config.skill, parameters.skill);
   }
 
-  initialize_equip() {
-
+  initialize_equip(
+    id: string | number,
+    parameters: EquipParameters
+  ) {
+    if (id === undefined) return;
+    this.equip = EquipsUtils.create(parameters, id);
   }
 
-  initialize_skill() {
-
+  initialize_skill(
+    id: string | number,
+    parameters: SkillParameters
+  ) {
+    if (id === undefined) return;
+    parameters.id = id;
+    this.skill = SkillsUtils.create(parameters)
   }
 }
 
