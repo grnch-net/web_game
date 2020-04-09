@@ -1,5 +1,6 @@
 import type {
-  Impact
+  Impact,
+  InteractResult
 } from '../interactions/index';
 
 import {
@@ -175,17 +176,17 @@ class EquipsController {
   }
 
   onOuterImpact(
-    impact: Impact
-  ): boolean {
-    let damage = impact.negative.health;
-    if (!damage || damage < 0) return false;
+    innerImpact: Impact,
+    result: InteractResult
+  ) {
+    let damage = innerImpact.negative.health;
+    if (!damage || damage < 0) return;
     if (damage > this.stats.armor) {
       damage -= this.stats.armor * this.armorProtect;
     } else {
       damage *= 1 - this.armorProtect;
     }
-    impact.negative.health = damage;
-    return true;
+    innerImpact.negative.health = damage;
   }
 }
 

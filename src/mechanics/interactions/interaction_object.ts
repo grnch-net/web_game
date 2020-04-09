@@ -9,7 +9,8 @@ import {
 } from './influences';
 
 interface InteractResult {
-  avoid?: boolean
+  avoid?: boolean;
+  hit?: boolean;
 }
 
 interface InteractionConfig {
@@ -107,10 +108,9 @@ class InteractionObject {
   }
 
   onOuterImpact(
-    innerImpact: Impact
-  ): InteractResult {
-    return {};
-  }
+    innerImpact: Impact,
+    result: InteractResult
+  ) {}
 }
 
 export {

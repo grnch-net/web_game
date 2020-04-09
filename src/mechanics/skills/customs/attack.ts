@@ -3,14 +3,20 @@ import type {
   InteractResult
 } from '../../interactions/index';
 
+import type {
+  Equip
+} from '../../equips/index';
+
 import {
   Skill,
   SkillNeedsResult
 } from '../skill';
 
+
 @UTILS.modifiable
 class Attack extends Skill {
   protected combinations: number;
+  protected usageEquip: Equip | null;
 
   reset() {
     super.reset();
@@ -22,18 +28,12 @@ class Attack extends Skill {
     outerImpact: Impact
   ) {
     super.on_cast_complete(innerImpact, outerImpact);
-    const [main_equip, second_equip] = this.equips;
     const rules = outerImpact.rules;
-    const turn_second = (this.combinations % 2) == 1;
-    if (second_equip && turn_second) {
-      outerImpact.negative.health = second_equip.stats.damage;
-      rules.penetration = second_equip.stats.penetration;
-      rules.range = second_equip.stats.range;
-    } else
-    if (main_equip) {
-      outerImpact.negative.health = main_equip.stats.damage;
-      rules.penetration = main_equip.stats.penetration;
-      rules.range = main_equip.stats.range;
+    if (this.usageEquip) {
+      const equip_stats = this.usageEquip.stats
+      outerImpact.negative.health = equip_stats.damage;
+      rules.penetration = equip_stats.penetration;
+      rules.range = equip_stats.range;
     } else {
       rules.range = 1;
     }
@@ -46,9 +46,15 @@ class Attack extends Skill {
   ): boolean {
     const success = super.checkNeeds(result);
     if (!success) return false;
-    this.equips = [];
-    for (const equip of result.equips) {
-      equip.stats.damage && this.equips.push(equip);
+    const [main_equip, second_equip] = this.equips;
+    const turn_second = (this.combinations % 2) == 1;
+    if (turn_second && second_equip && second_equip.stats.damage) {
+      this.usageEquip = second_equip;
+    } else
+    if (main_equip && main_equip.stats.damage) {
+      this.usageEquip = main_equip
+    } else {
+      this.usageEquip = null;
     }
     return true;
   }
@@ -57,13 +63,8 @@ class Attack extends Skill {
     innerImpact: Impact,
     outerImpact: Impact
   ) {
-    const [main_equip, second_equip] = this.equips;
-    const turn_second = (this.combinations % 2) == 1;
-    if (second_equip && turn_second) {
-      this.castTime = second_equip.stats.speed;
-    } else
-    if (main_equip) {
-      this.castTime = main_equip.stats.speed;
+    if (this.usageEquip) {
+      this.castTime = this.usageEquip.stats.speed;
     }
     super.use(innerImpact, outerImpact);
   }
@@ -71,8 +72,12 @@ class Attack extends Skill {
   interactResult(
     result: InteractResult
   ) {
+    if (!result.hit) return;
     if (result.avoid) {
       this.parameters.experience += 1;
+    }
+    if (this.usageEquip) {
+      this.usageEquip.durability -= 1;
     }
   }
 }

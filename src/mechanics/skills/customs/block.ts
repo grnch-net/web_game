@@ -1,3 +1,7 @@
+import type {
+  Equip
+} from '../../equips/index';
+
 import {
   Impact,
   ImpactSide,
@@ -5,31 +9,37 @@ import {
 } from '../../interactions/index';
 
 import {
-  Skill
+  Skill,
+  SkillNeedsResult
 } from '../skill';
 
+
 class Block extends Skill {
+  protected usageEquip: Equip | null;
 
   onOuterImpact(
-    impact: Impact
+    innerImpact: Impact,
+    result: InteractResult
   ): InteractResult {
-    const result = super.onOuterImpact(impact);
+    super.onOuterImpact(innerImpact, result);
     if (!this.usageTime) return;
-    const damage = impact.negative.health;
-    const { stun, side, penetration } = impact.rules;
+    const damage = innerImpact.negative.health;
+    const { stun, side, penetration } = innerImpact.rules;
     if (!damage && !stun) return;
     if (side !== ImpactSide.Front) return;
-    const equip = this.equips[0];
     let block = this.experience * Block.multiplyEfficiency;
     let armor = 0;
-    if (equip) {
-      block += equip.stats.block;
-      armor += equip.stats.armor;
+    if (this.usageEquip) {
+      block += this.usageEquip.stats.block;
+      armor += this.usageEquip.stats.armor;
     }
     result.avoid = this.block_calculation(block, penetration);
     if (result.avoid) {
-      this.apply_block(impact, armor);
-      this.apply_stock(impact);
+      this.apply_block(innerImpact, armor);
+      this.apply_stock(innerImpact);
+      if (this.usageEquip) {
+        this.usageEquip.durability -= 1;
+      }
     } else {
       this.parameters.experience += 1;
     }
@@ -70,13 +80,26 @@ class Block extends Skill {
     }
   }
 
+  checkNeeds(
+    result: SkillNeedsResult
+  ): boolean {
+    const success = super.checkNeeds(result);
+    if (!success) return false;
+    const [equip] = this.equips;
+    if (equip && equip.stats.block) {
+      this.usageEquip = equip
+    } else {
+      this.usageEquip = null;
+    }
+    return true;
+  }
+
   use(
     innerImpact: Impact,
     outerImpact: Impact
   ) {
-    const equip = this.equips[0];
-    if (equip && equip.stats.speed) {
-      this.castTime = equip.stats.speed;
+    if (this.usageEquip && this.usageEquip.stats.speed) {
+      this.castTime = this.usageEquip.stats.speed;
     }
     super.use(innerImpact, outerImpact);
   }

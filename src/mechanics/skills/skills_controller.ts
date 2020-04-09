@@ -85,18 +85,17 @@ class SkillsController {
   }
 
   onOuterImpact(
-    impact: Impact
-  ): InteractResult {
+    innerImpact: Impact,
+    result: InteractResult
+  ) {
     if (!this.using) return;
-    let result: InteractResult;
-    if (this.using.castTime && impact.rules.stun) {
+    if (this.using.castTime && innerImpact.rules.stun) {
       this.cancelUse();
     } else
     if (this.using.usageTime) {
-      result = this.using.onOuterImpact(impact);
-      impact.rules.stun && this.cancelUse();
+      this.using.onOuterImpact(innerImpact, result);
+      innerImpact.rules.stun && this.cancelUse();
     }
-    return result;
   }
 
   getToUse(

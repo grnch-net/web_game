@@ -1,9 +1,4 @@
 import {
-  Range,
-  RangeParameters
-} from '../utils';
-
-import {
   Impact,
   InteractionObject
 } from '../interactions/index';
@@ -17,8 +12,6 @@ import {
 } from './equip_types'
 
 class Equip extends InteractionObject {
-  durability: Range;
-  stats: EquipStats;
   protected config: EquipConfig;
   protected parameters: EquipParameters;
 
@@ -30,33 +23,31 @@ class Equip extends InteractionObject {
     return this.config.type;
   }
 
+  get durability(): number {
+    return this.parameters.durability;
+  }
+
+  set durability(value: number) {
+    this.parameters.durability = value;
+  }
+
+  get stats(): EquipStats {
+    return this.config.stats;
+  }
+
   initialize(
     config: EquipConfig,
     parameters: EquipParameters
   ) {
     super.initialize(config, parameters);
-    this.initialize_durability(
-      config.durability,
-      parameters.durability
-    );
-    this.initialize_stats(
-      config.stats,
-      parameters.stats
-    );
+    this.initialize_durability(config, parameters);
   }
 
   protected initialize_durability(
-    config: RangeParameters,
-    parameters: RangeParameters
+    config: EquipConfig,
+    parameters: EquipParameters
   ) {
-    this.durability = new Range(config, parameters);
-  }
-
-  protected initialize_stats(
-    config: EquipStats = {},
-    parameters: EquipStats = {}
-  ) {
-    this.stats = { ...config, ...parameters };
+    parameters.durability = parameters.durability || config.stats.durability;
   }
 
   added(

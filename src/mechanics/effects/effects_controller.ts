@@ -4,7 +4,8 @@ import type {
 } from './effect';
 
 import type {
-  Impact
+  Impact,
+  InteractResult
 } from '../interactions/index';
 
 import {
@@ -89,11 +90,12 @@ class EffectsController {
   }
 
   onOuterImpact(
-    impact: Impact
+    innerImpact: Impact,
+    result: InteractResult
   ) {
     for (const effect of this.list) {
       if (!effect.active) continue;
-      effect.onOuterImpact(impact);
+      effect.onOuterImpact(innerImpact, result);
     };
   }
 

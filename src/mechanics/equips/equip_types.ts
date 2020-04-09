@@ -1,8 +1,4 @@
 import type {
-  RangeParameters
-} from '../utils';
-
-import type {
   InteractionConfig
 } from '../interactions/index';
 
@@ -24,6 +20,7 @@ enum EquipType {
 }
 
 interface EquipStats {
+  durability?: number;
   penetration?: number;
   damage?: number;
   range?: number;
@@ -36,13 +33,11 @@ interface EquipStats {
 interface EquipConfig extends InteractionConfig {
   slot: EquipSlot | EquipSlot[];
   type?: EquipType;
-  durability: RangeParameters;
   stats?: EquipStats;
 }
 
-interface EquipParameters  {
-  durability: RangeParameters;
-  stats?: EquipStats;
+interface EquipParameters {
+  durability?: number;
 }
 
 export {

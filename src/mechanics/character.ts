@@ -182,9 +182,11 @@ export class Character extends WorldObject {
   interact(
     innerImpact: Impact
   ): InteractResult {
-    this.effects.onOuterImpact(innerImpact);
-    const result = this.skills.onOuterImpact(innerImpact);
-    this.equips.onOuterImpact(innerImpact);
+    const result: InteractResult = {};
+    result.hit = true;
+    this.effects.onOuterImpact(innerImpact, result);
+    this.skills.onOuterImpact(innerImpact, result);
+    this.equips.onOuterImpact(innerImpact, result);
     this.apply_impact(innerImpact);
     return result;
   }

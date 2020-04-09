@@ -24,13 +24,13 @@ export function test_mechanics() {
       {
         id: 0,
         equip:{
-          durability: { value: 98 }
+          durability: 98
         }
       },
       {
         id: 1,
         equip: {
-          durability: { value: 50 }
+          durability: 50
         }
       }
     ]
@@ -57,13 +57,13 @@ export function test_mechanics() {
         {
         id: 0,
         equip: {
-          durability: { value: 98 }
+          durability: 98
         }
       },
       {
         id: 1,
         equip: {
-          durability: { value: 50 }
+          durability: 50
         }
       }
     ]

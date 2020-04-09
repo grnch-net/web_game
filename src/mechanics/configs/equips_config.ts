@@ -13,8 +13,8 @@ const equipsConfig: EquipsConfig = {
   0: {
     slot: [EquipSlot.MainHand, EquipSlot.SecondHand],
     type: EquipType.OneHand,
-    durability: { max: 100 },
     stats: {
+      durability: 100,
       speed: 1,
       penetration: 10,
       damage: 30,
@@ -24,8 +24,8 @@ const equipsConfig: EquipsConfig = {
   1: {
     slot: EquipSlot.SecondHand,
     type: EquipType.SecondHand,
-    durability: { max: 30 },
     stats: {
+      durability: 30,
       speed: 0.5,
       block: 15,
       armor: 25
@@ -34,8 +34,8 @@ const equipsConfig: EquipsConfig = {
   2: {
     slot: EquipSlot.MainHand,
     type: EquipType.TwoHand,
-    durability: { max: 70 },
     stats: {
+      durability: 70,
       speed: 1.5,
       penetration: 5,
       damage: 50,
@@ -44,21 +44,20 @@ const equipsConfig: EquipsConfig = {
   },
   3: {
     slot: EquipSlot.Head,
-    durability: { max: 10 },
     stats: {
+      durability: 10,
       armor: 1
     }
   },
   4: {
     slot: EquipSlot.Body,
-    durability: { max: 20 },
     stats: {
+      durability: 20,
       armor: 1
     }
   },
   5: {
     slot: EquipSlot.Bag,
-    durability: { max: 100 },
     stats: {
       slots: 1
     }
