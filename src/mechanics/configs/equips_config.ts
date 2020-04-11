@@ -18,7 +18,9 @@ const equipsConfig: EquipsConfig = {
       speed: 1,
       penetration: 10,
       damage: 30,
-      range: 1
+      range: 1,
+      parry: 5,
+      defense: 10
     }
   },
   1: {
@@ -28,7 +30,7 @@ const equipsConfig: EquipsConfig = {
       durability: 30,
       speed: 0.5,
       block: 15,
-      armor: 25
+      defense: 25
     }
   },
   2: {
@@ -39,7 +41,9 @@ const equipsConfig: EquipsConfig = {
       speed: 1.5,
       penetration: 5,
       damage: 50,
-      range: 2
+      range: 2,
+      parry: 10,
+      defense: 25
     }
   },
   3: {

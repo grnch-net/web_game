@@ -18,19 +18,13 @@ export function test_mechanics() {
     effects: [],
     skills: [
       { id: 1, experience: 0 },
-      { id: 2, experience: 0 }
+      { id: 4, experience: 0 }
     ],
     equips: [
       {
-        id: 0,
+        id: 2,
         equip:{
           durability: 98
-        }
-      },
-      {
-        id: 1,
-        equip: {
-          durability: 50
         }
       }
     ]
@@ -54,7 +48,7 @@ export function test_mechanics() {
       { id: 2, experience: 0 }
     ],
     equips: [
-        {
+      {
         id: 0,
         equip: {
           durability: 98
@@ -75,7 +69,9 @@ export function test_mechanics() {
 
   hero2.position.set(0, 0, 1);
   hero2.rotation = Math.PI * 1;
-  hero2.useSkill(2);
-  hero.useSkill(1);
+  // hero2.useSkill(2);
+  // hero.useSkill(1);
+  hero.useSkill(4);
+  hero2.useSkill(1);
   world.tick(1);
 }

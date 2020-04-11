@@ -257,6 +257,14 @@ class Skill extends InteractionObject {
   interactResult(
     result: InteractResult
   ) {}
+
+  protected randomize_chance(
+    value: number
+  ): number {
+    const half = value * 0.5;
+    const random = Math.random() * half;
+    return half + random;
+  }
 }
 
 export {

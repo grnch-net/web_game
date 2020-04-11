@@ -158,7 +158,11 @@ class EquipsController {
     if (!slots) return null;
     const equips = [];
     for (const slot of slots) {
-      equips.push(this.list[slot].equip);
+      if (this.list[slot]) {
+        equips.push(this.list[slot].equip);
+      } else {
+        equips.push(null);
+      }
     }
     return equips;
   }

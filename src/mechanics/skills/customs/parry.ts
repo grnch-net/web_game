@@ -15,12 +15,12 @@ import {
   Equip
 } from '../../equips/index';
 
-class Block extends Skill {
-  protected usageEquip: Equip | null;
+class Parry extends Skill {
+  protected usageEquips: Equip[] | null;
 
   get needs(): SkillNeeds {
     return {
-      equips: [EquipSlot.SecondHand]
+      equips: [EquipSlot.MainHand, EquipSlot.SecondHand]
     };
   }
 
@@ -34,19 +34,19 @@ class Block extends Skill {
     const { stun, side, penetration } = innerImpact.rules;
     if (!damage && !stun) return;
     if (side !== ImpactSide.Front) return;
-    let block = this.experience * Block.multiplyEfficiency;
+    let parry = this.experience * Parry.multiplyEfficiency;
     let defense = 0;
-    if (this.usageEquip) {
-      block += this.usageEquip.stats.block;
-      defense += this.usageEquip.stats.defense;
+    for (const equip of this.usageEquips) {
+      parry += equip.stats.parry;
+      defense += equip.stats.defense;
     }
-    const chance = this.randomize_chance(block);
+    const chance = this.randomize_chance(parry);
     result.avoid = chance > penetration;
     if (result.avoid) {
-      this.apply_block(innerImpact, defense);
+      this.apply_parry(innerImpact, defense);
       this.apply_stock(innerImpact);
-      if (this.usageEquip) {
-        this.usageEquip.durability -= 1;
+      for (const equip of this.usageEquips) {
+        equip.durability -= 1;
       }
     } else {
       this.parameters.experience += 1;
@@ -63,7 +63,7 @@ class Block extends Skill {
     }
   }
 
-  protected apply_block(
+  protected apply_parry(
     impact: Impact,
     defense: number
   ) {
@@ -83,11 +83,11 @@ class Block extends Skill {
     result: SkillNeedsResult
   ): boolean {
     super.checkNeeds(result);
-    const [equip] = result.equips;
-    if (equip && equip.stats.block) {
-      this.usageEquip = equip
-    } else {
-      this.usageEquip = null;
+    this.usageEquips = [];
+    for (const equip of result.equips) {
+      if (equip && equip.stats.parry) {
+        this.usageEquips.push(equip)
+      }
     }
     return true;
   }
@@ -96,15 +96,21 @@ class Block extends Skill {
     innerImpact: Impact,
     outerImpact: Impact
   ) {
-    if (this.usageEquip && this.usageEquip.stats.speed) {
-      this.castTime = this.usageEquip.stats.speed;
+    let equips_speed = 0;
+    for (const equip of this.usageEquips) {
+      if (equip.stats.speed && equip.stats.speed > equips_speed) {
+        equips_speed = equip.stats.speed;
+      }
+    }
+    if (equips_speed) {
+      this.castTime = equips_speed * 0.5;
     }
     super.use(innerImpact, outerImpact);
   }
 }
 
-Skill.AddCustomClass('block', Block);
+Skill.AddCustomClass('parry', Parry);
 
 export {
-  Block
+  Parry
 }

@@ -23,9 +23,11 @@ interface EquipStats {
   durability?: number;
   penetration?: number;
   damage?: number;
+  defense?: number;
   range?: number;
-  block?: number;
+  parry?: number;
   speed?: number;
+  block?: number;
   armor?: number;
   slots?: number;
 }

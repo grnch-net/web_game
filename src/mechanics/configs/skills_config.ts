@@ -47,17 +47,30 @@ const skillsConfig: SkillsConfig = {
     stock: [
       {
         attribute: 'stamina',
-        value: 25
+        value: 10
       }
     ]
   },
   3: {
+    name: 'Eat',
     useCount: 1,
     usageTime: 60,
     innerGradualInfluences: [
       {
         attribute: 'health',
         value: 2
+      }
+    ]
+  },
+  4: {
+    name: 'Parry',
+    specialClass: 'parry',
+    castTime: 0.5,
+    usageTime: Infinity,
+    stock: [
+      {
+        attribute: 'stamina',
+        value: 20
       }
     ]
   }
