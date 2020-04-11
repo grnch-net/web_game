@@ -37,10 +37,7 @@ const skillsConfig: SkillsConfig = {
         value: 10,
         negative: true
       }
-    ],
-    needs: {
-      equips: [EquipSlot.MainHand, EquipSlot.SecondHand]
-    }
+    ]
   },
   2: {
     name: 'Block',
@@ -52,10 +49,7 @@ const skillsConfig: SkillsConfig = {
         attribute: 'stamina',
         value: 25
       }
-    ],
-    needs: {
-      equips: [EquipSlot.SecondHand]
-    }
+    ]
   },
   3: {
     useCount: 1,

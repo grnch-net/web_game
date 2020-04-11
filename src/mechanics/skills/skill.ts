@@ -53,7 +53,6 @@ class Skill extends InteractionObject {
   protected config: SkillConfig;
   protected parameters: SkillParameters;
   protected _ended: boolean;
-  protected equips: Equip[];
 
   get ended(): boolean {
     return this._ended;
@@ -213,7 +212,7 @@ class Skill extends InteractionObject {
   checkNeeds(
     result: SkillNeedsResult
   ): boolean {
-    this.equips = result.equips;
+    // TODO: check result
     return true;
   }
 

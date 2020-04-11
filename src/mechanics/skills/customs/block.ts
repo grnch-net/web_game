@@ -1,7 +1,3 @@
-import type {
-  Equip
-} from '../../equips/index';
-
 import {
   Impact,
   ImpactSide,
@@ -10,12 +6,23 @@ import {
 
 import {
   Skill,
+  SkillNeeds,
   SkillNeedsResult
 } from '../skill';
 
+import {
+  EquipSlot,
+  Equip
+} from '../../equips/index';
 
 class Block extends Skill {
   protected usageEquip: Equip | null;
+
+  get needs(): SkillNeeds {
+    return {
+      equips: [EquipSlot.SecondHand]
+    };
+  }
 
   onOuterImpact(
     innerImpact: Impact,
@@ -83,9 +90,8 @@ class Block extends Skill {
   checkNeeds(
     result: SkillNeedsResult
   ): boolean {
-    const success = super.checkNeeds(result);
-    if (!success) return false;
-    const [equip] = this.equips;
+    super.checkNeeds(result);
+    const [equip] = result.equips;
     if (equip && equip.stats.block) {
       this.usageEquip = equip
     } else {

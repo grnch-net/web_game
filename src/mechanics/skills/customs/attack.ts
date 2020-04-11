@@ -3,12 +3,14 @@ import type {
   InteractResult
 } from '../../interactions/index';
 
-import type {
+import {
+  EquipSlot,
   Equip
 } from '../../equips/index';
 
 import {
   Skill,
+  SkillNeeds,
   SkillNeedsResult
 } from '../skill';
 
@@ -17,6 +19,12 @@ import {
 class Attack extends Skill {
   protected combinations: number;
   protected usageEquip: Equip | null;
+
+  get needs(): SkillNeeds {
+    return {
+      equips: [EquipSlot.MainHand, EquipSlot.SecondHand]
+    };
+  }
 
   reset() {
     super.reset();
@@ -44,15 +52,14 @@ class Attack extends Skill {
   checkNeeds(
     result: SkillNeedsResult
   ): boolean {
-    const success = super.checkNeeds(result);
-    if (!success) return false;
-    const [main_equip, second_equip] = this.equips;
+    super.checkNeeds(result);
+    const [main_hand, second_hand] = result.equips;
     const turn_second = (this.combinations % 2) == 1;
-    if (turn_second && second_equip && second_equip.stats.damage) {
-      this.usageEquip = second_equip;
+    if (turn_second && second_hand && second_hand.stats.damage) {
+      this.usageEquip = second_hand;
     } else
-    if (main_equip && main_equip.stats.damage) {
-      this.usageEquip = main_equip
+    if (main_hand && main_hand.stats.damage) {
+      this.usageEquip = main_hand
     } else {
       this.usageEquip = null;
     }
