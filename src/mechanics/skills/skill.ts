@@ -4,7 +4,7 @@ import {
   InteractionParameters,
   Influence,
   GradualInfluence,
-  InfluenceParameters,
+  InfluenceList,
   Impact,
   InteractResult
 } from '../interactions/index';
@@ -19,9 +19,9 @@ interface SkillConfig extends InteractionConfig {
   castTime?: number;
   usageTime?: number;
   recoveryTime?: number;
-  stock?: InfluenceParameters[],
-  cost?: InfluenceParameters[],
-  gradualCost?: InfluenceParameters[],
+  stock?: InfluenceList,
+  cost?: InfluenceList,
+  gradualCost?: InfluenceList,
   needs?: SkillNeeds;
   reusable?: boolean;
 }
@@ -47,9 +47,9 @@ class Skill extends InteractionObject {
 
   castTime: number;
   usageTime: number;
-  stock: Influence[];
-  cost: Influence[];
-  gradualCost: GradualInfluence[];
+  stock: Influence | null;
+  cost: Influence | null;
+  gradualCost: GradualInfluence | null;
   protected config: SkillConfig;
   protected parameters: SkillParameters;
   protected _ended: boolean;
@@ -87,44 +87,20 @@ class Skill extends InteractionObject {
     parameters: SkillParameters
   ) {
     super.initialize(config, parameters);
-    this.initialize_stock(config.stock);
-    this.initialize_cost(config.cost);
-    this.initialize_gradual_cost(config.gradualCost);
+    this.initialize_influences(config);
   }
 
-  protected initialize_stock(
-    list: InfluenceParameters[]
+  initialize_influences(
+    config: SkillConfig
   ) {
-    if (!list) return;
-    this.stock = [];
-    for (const parameters of list) {
-      parameters.negative = true;
-      const influence = new Influence(parameters);
-      this.stock.push(influence);
+    if (config.stock) {
+      this.stock = new Influence(config.stock);
     }
-  }
-
-  protected initialize_cost(
-    list: InfluenceParameters[]
-  ) {
-    if (!list) return;
-    this.cost = [];
-    for (const parameters of list) {
-      parameters.negative = true;
-      const influence = new Influence(parameters);
-      this.cost.push(influence);
+    if (config.cost) {
+      this.cost = new Influence(config.cost);
     }
-  }
-
-  protected initialize_gradual_cost(
-    list: InfluenceParameters[]
-  ) {
-    if (!list) return;
-    this.gradualCost = [];
-    for (const parameters of list) {
-      parameters.negative = true;
-      const influence = new GradualInfluence(parameters);
-      this.gradualCost.push(influence);
+    if (config.gradualCost) {
+      this.gradualCost = new GradualInfluence(config.gradualCost);
     }
   }
 
@@ -156,7 +132,7 @@ class Skill extends InteractionObject {
       this.castTime -= dt;
       return null;
     } else {
-      this.on_cast_complete(innerImpact, outerImpact);
+      this.on_apply(innerImpact, outerImpact);
       dt -= this.castTime;
       this.castTime = 0;
       return this.tick(dt, innerImpact, outerImpact);
@@ -177,7 +153,7 @@ class Skill extends InteractionObject {
         dt -= this.usageTime;
         this.usageTime = 0;
       }
-      this.on_use_complete(innerImpact, outerImpact);
+      this.on_complete(innerImpact, outerImpact);
       this._ended = true;
       this.tickRecovery(dt);
     }
@@ -193,18 +169,16 @@ class Skill extends InteractionObject {
     }
   }
 
-  protected on_cast_complete(
+  protected on_apply(
     innerImpact: Impact,
     outerImpact: Impact
   ) {
-    this.inner_static_influences
-    .forEach(influence => influence.apply(innerImpact));
-    this.outer_static_influences
-    .forEach(influence => influence.apply(outerImpact));
+    this.inner_static_influence.apply(innerImpact.influenced);
+    this.outer_static_influence.apply(outerImpact.influenced);
     this.parameters.recoveryTime = this.config.recoveryTime || 0;
   }
 
-  protected on_use_complete(
+  protected on_complete(
     innerImpact: Impact,
     outerImpact: Impact
   ) {}
@@ -216,31 +190,25 @@ class Skill extends InteractionObject {
     return true;
   }
 
-  getStockImpact(): Impact {
+  getStockImpact(): InfluenceList {
     if (!this.stock) return null;
-    const impact = new Impact;
-    for (const influence of this.stock) {
-      influence.apply(impact);
-    }
-    return impact;
+    const influenced: InfluenceList = {};
+    this.stock.apply(influenced);
+    return influenced;
   }
 
-  getCostImpact(): Impact {
+  getCostImpact(): InfluenceList {
     if (!this.cost) return null;
-    const impact = new Impact;
-    for (const influence of this.cost) {
-      influence.apply(impact);
-    }
-    return impact;
+    const influenced: InfluenceList = {};
+    this.cost.apply(influenced);
+    return influenced;
   }
 
-  getGradualCostImpact(): Impact {
+  getGradualCostImpact(): InfluenceList {
     if (!this.gradualCost) return null;
-    const impact = new Impact;
-    for (const influence of this.gradualCost) {
-      influence.apply(impact);
-    }
-    return impact;
+    const influenced: InfluenceList = {};
+    this.gradualCost.apply(influenced);
+    return influenced;
   }
 
   use(
@@ -248,7 +216,7 @@ class Skill extends InteractionObject {
     outerImpact: Impact
   ) {
     if (!this.castTime) {
-      this.on_cast_complete(innerImpact, outerImpact);
+      this.on_apply(innerImpact, outerImpact);
     }
   }
 

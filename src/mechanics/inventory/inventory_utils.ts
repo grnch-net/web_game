@@ -30,8 +30,12 @@ class InventoryUtils extends InteractionUtils {
 
   static create(
     parameters: InventoryObjectParameters,
+    id?: string | number
   ): InventoryObject {
-    return super.create(parameters, parameters.id) as InventoryObject;
+    if (!id && id !== 0) {
+      id = parameters.id;
+    }
+    return super.create(parameters, id) as InventoryObject;
   }
 }
 

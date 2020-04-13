@@ -51,9 +51,7 @@ class Effect extends InteractionObject {
   ) {
     if (this.active) return;
     this.active = true;
-    for (const influence of this.inner_static_influences) {
-      influence.apply(innerImpact);
-    }
+    this.inner_static_influence.apply(innerImpact.influenced);
   }
 
   removed(
@@ -61,9 +59,7 @@ class Effect extends InteractionObject {
   ) {
     if (!this.active) return;
     this.active = false;
-    for (const influence of this.inner_static_influences) {
-      influence.cancel(innerImpact);
-    }
+    this.inner_static_influence.cancel(innerImpact.influenced);
   }
 
   tick(

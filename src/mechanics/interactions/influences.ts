@@ -1,85 +1,90 @@
 import {
-  Impact,
-  Attribute
+  Attribute,
+  InfluenceList
 } from './impact';
 
-interface InfluenceParameters {
-  attribute: Attribute;
-  value: number;
-  negative?: boolean;
-}
-
 class Influence {
+  protected parameters: InfluenceList
+
   constructor(
-    protected parameters: InfluenceParameters
-  ) {}
-
-  get attribute(): Attribute {
-    return this.parameters.attribute;
+    parameters: InfluenceList
+  ) {
+    this.initialize(parameters);
   }
 
-  get value(): number {
-    return this.parameters.value;
-  }
-
-  get negative(): boolean {
-    return this.parameters.negative || false;
+  protected initialize(
+    parameters: InfluenceList
+  ) {
+    this.parameters = parameters;
   }
 
   apply(
-    impact: Impact
+    influenced: InfluenceList
   ) {
-    this.update_impact(impact);
+    this.update_impact(influenced);
   }
 
   cancel(
-    impact: Impact
+    influenced: InfluenceList
   ) {
-    this.update_impact(impact, true);
+    this.update_impact(influenced, true);
   }
 
   protected update_impact(
-    impact: Impact,
-    isCancel = false
+    influenced: InfluenceList,
+    cancel = false
   ) {
-    const operation = isCancel ? -1 : 1;
-    const side = (this.negative) ? impact.negative : impact.positive;
-    side[this.attribute] = side[this.attribute] || 0;
-    side[this.attribute] += this.value * operation;
+    const operation = cancel ? -1 : 1;
+    let attribute: Attribute;
+    for (attribute in this.parameters) {
+      const value = this.parameters[attribute];
+      influenced[attribute] = influenced[attribute] || 0;
+      influenced[attribute] += value * operation;
+    }
   }
 }
 
 class GradualInfluence extends Influence {
-  deltaValue: number;
+  deltaValues: InfluenceList;
 
-  constructor(
-    parameters: InfluenceParameters
+  protected initialize(
+    parameters: InfluenceList
   ) {
-    super(parameters);
-    this.deltaValue = 0;
+    super.initialize(parameters);
+    this.deltaValues = {};
+    let attribute: Attribute;
+    for (attribute in this.parameters) {
+      this.deltaValues[attribute] = 0;
+    }
   }
 
   tick(
     dt: number,
-    impact?: Impact
+    influenced?: InfluenceList
   ) {
-    this.deltaValue = this.value * dt;
-    impact && this.apply(impact);
+    let attribute: Attribute;
+    for (attribute in this.parameters) {
+      const value = this.parameters[attribute];
+      this.deltaValues[attribute] = value * dt;
+    }
+    influenced && this.apply(influenced);
   }
 
   protected update_impact(
-    impact: Impact,
-    isCancel = false
+    influenced: InfluenceList,
+    cancel = false
   ) {
-    const operation = isCancel ? -1 : 1;
-    const side = (this.negative) ? impact.negative : impact.positive;
-    side[this.attribute] = side[this.attribute] || 0;
-    side[this.attribute] += this.deltaValue * operation;
+    const operation = cancel ? -1 : 1;
+    let attribute: Attribute;
+    for (attribute in this.parameters) {
+      const value = this.deltaValues[attribute];
+      influenced[attribute] = influenced[attribute] || 0;
+      influenced[attribute] += value * operation;
+    }
   }
 }
 
 export {
-  InfluenceParameters,
   Influence,
   GradualInfluence
 }

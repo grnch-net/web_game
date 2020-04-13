@@ -3,10 +3,6 @@
 // } from '../effects/index';
 
 type Attribute = 'health' | 'stamina';
-// enum Attribute {
-//   health,
-//   stamina
-// }
 
 enum ImpactSide {
   Front,
@@ -23,17 +19,17 @@ interface Rules {
   sector?: number;
 }
 
-type Influenced = { [key in Attribute]?: number };
+type InfluenceList = { [key in Attribute]?: number };
 
 class Impact {
-  positive: Influenced = {};
-  negative: Influenced = {};
+  influenced: InfluenceList = {};
   // effects: Effect[] = [];
   rules: Rules = {};
 }
 
 export {
   Attribute,
+  InfluenceList,
   ImpactSide,
   Impact
 }

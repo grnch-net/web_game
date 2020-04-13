@@ -1,11 +1,11 @@
 import {
-  Impact
+  Impact,
+  InfluenceList
 } from './impact';
 
 import {
   Influence,
   GradualInfluence,
-  InfluenceParameters
 } from './influences';
 
 interface InteractResult {
@@ -16,16 +16,23 @@ interface InteractResult {
 interface InteractionConfig {
   name?: string;
   specialClass?: string;
-  innerStaticInfluences?: InfluenceParameters[];
-  innerGradualInfluences?: InfluenceParameters[];
-  outerStaticInfluences?: InfluenceParameters[];
-  outerGradualInfluences?: InfluenceParameters[];
+  innerStaticInfluence?: InfluenceList;
+  innerGradualInfluence?: InfluenceList;
+  outerStaticInfluence?: InfluenceList;
+  outerGradualInfluence?: InfluenceList;
 }
 
-interface InteractionParameters {}
+interface InteractionParameters {
+  innerStaticInfluence?: InfluenceList;
+  innerGradualInfluence?: InfluenceList;
+  outerStaticInfluence?: InfluenceList;
+  outerGradualInfluence?: InfluenceList;
+}
+
+type CustomsList = { [id: string]: typeof InteractionObject };
 
 class InteractionObject {
-  static customs: { [id: string]: typeof InteractionObject };
+  static customs: CustomsList;
 
   static AddCustomClass(
     id: string,
@@ -39,51 +46,40 @@ class InteractionObject {
 
   protected config: InteractionConfig;
   protected parameters: InteractionParameters;
-  protected inner_static_influences: Influence[];
-  protected inner_gradual_influences: GradualInfluence[];
-  protected outer_static_influences: Influence[];
-  protected outer_gradual_influences: GradualInfluence[];
+  protected inner_static_influence: Influence;
+  protected inner_gradual_influence: GradualInfluence;
+  protected outer_static_influence: Influence;
+  protected outer_gradual_influence: GradualInfluence;
 
   initialize(
     config: InteractionConfig,
-    parameters: InteractionParameters,
-    ...options: any
+    parameters: InteractionParameters
   ) {
     this.config = config;
     this.parameters = parameters;
-    this.inner_static_influences = [];
-    this.inner_gradual_influences = [];
-    this.outer_static_influences = [];
-    this.outer_gradual_influences = [];
-    this.initialize_influences(config, ...options);
+    this.update_influences(config, parameters);
   }
 
-  protected initialize_influences(
+  protected update_influences(
     config: InteractionConfig,
-    ...options: any
+    parameters: InteractionParameters
   ) {
-    const {
-      innerStaticInfluences = [],
-      innerGradualInfluences = [],
-      outerStaticInfluences = [],
-      outerGradualInfluences = []
-    } = config;
-    for (const parameters of innerStaticInfluences) {
-      const influence = new Influence(parameters);
-      this.inner_static_influences.push(influence);
-    }
-    for (const parameters of innerGradualInfluences) {
-      const influence = new GradualInfluence(parameters);
-      this.inner_gradual_influences.push(influence);
-    }
-    for (const parameters of outerStaticInfluences) {
-      const influence = new Influence(parameters);
-      this.outer_static_influences.push(influence);
-    }
-    for (const parameters of outerGradualInfluences) {
-      const influence = new GradualInfluence(parameters);
-      this.outer_gradual_influences.push(influence);
-    }
+    this.inner_static_influence = new Influence({
+      ...config.innerStaticInfluence,
+      ...parameters.innerStaticInfluence
+    });
+    this.inner_gradual_influence = new GradualInfluence({
+      ...config.innerGradualInfluence,
+      ...parameters.innerGradualInfluence
+    });
+    this.outer_static_influence = new Influence({
+      ...config.outerStaticInfluence,
+      ...parameters.outerStaticInfluence
+    });
+    this.outer_gradual_influence = new GradualInfluence({
+      ...config.outerGradualInfluence,
+      ...parameters.outerGradualInfluence
+    });
   }
 
   tick(
@@ -99,12 +95,8 @@ class InteractionObject {
     innerImpact: Impact,
     outerImpact: Impact
   ) {
-    for (const influence of this.inner_gradual_influences) {
-      influence.tick(dt, innerImpact);
-    }
-    for (const influence of this.outer_gradual_influences) {
-      influence.tick(dt, outerImpact);
-    }
+    this.inner_gradual_influence.tick(dt, innerImpact.influenced);
+    this.outer_gradual_influence.tick(dt, outerImpact.influenced);
   }
 
   onOuterImpact(

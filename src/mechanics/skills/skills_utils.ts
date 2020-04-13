@@ -30,8 +30,12 @@ class SkillsUtils extends InteractionUtils {
 
   static create(
     parameters: SkillParameters,
+    id?: string | number
   ): Skill {
-    return super.create(parameters, parameters.id) as Skill;
+    if (!id && id !== 0) {
+      id = parameters.id;
+    }
+    return super.create(parameters, id) as Skill;
   }
 }
 

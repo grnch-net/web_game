@@ -25,9 +25,13 @@ class EffectUtils extends InteractionUtils {
   }
 
   static create(
-    parameters: EffectParameters
+    parameters: EffectParameters,
+    id?: string | number
   ): Effect {
-    return super.create(parameters, parameters.id) as Effect;
+    if (!id && id !== 0) {
+      id = parameters.id;
+    }
+    return super.create(parameters, id) as Effect;
   }
 }
 

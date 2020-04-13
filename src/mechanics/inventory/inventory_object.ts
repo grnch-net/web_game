@@ -64,8 +64,7 @@ class InventoryObject extends InteractionObject {
     parameters: SkillParameters
   ) {
     if (id === undefined) return;
-    parameters.id = id;
-    this.skill = SkillsUtils.create(parameters)
+    this.skill = SkillsUtils.create(parameters, id);
   }
 }
 

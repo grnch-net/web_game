@@ -30,8 +30,8 @@ class Parry extends Skill {
   ): InteractResult {
     super.onOuterImpact(innerImpact, result);
     if (!this.usageTime) return;
-    const damage = innerImpact.negative.health;
     const { stun, side, penetration } = innerImpact.rules;
+    const damage = innerImpact.influenced.health < 0;
     if (!damage && !stun) return;
     if (side !== ImpactSide.Front) return;
     let parry = this.experience * Parry.multiplyEfficiency;
@@ -43,8 +43,8 @@ class Parry extends Skill {
     const chance = this.randomize_chance(parry);
     result.avoid = chance > penetration;
     if (result.avoid) {
+      this.stock.apply(innerImpact.influenced);
       this.apply_parry(innerImpact, defense);
-      this.apply_stock(innerImpact);
       for (const equip of this.usageEquips) {
         equip.durability -= 1;
       }
@@ -55,23 +55,16 @@ class Parry extends Skill {
     return result;
   }
 
-  protected apply_stock(
-    impact: Impact
-  ) {
-    for (const influence of this.stock) {
-      influence.apply(impact);
-    }
-  }
-
   protected apply_parry(
     impact: Impact,
     defense: number
   ) {
-    if (impact.negative.health) {
-      if (impact.negative.health < defense) {
-        impact.negative.health = 0;
+    const damage = -impact.influenced.health;
+    if (damage > 0) {
+      if (damage > defense) {
+        impact.influenced.health += defense;
       } else {
-        impact.negative.health -= defense;
+        impact.influenced.health = 0;
       }
     }
     if (impact.rules.stun) {

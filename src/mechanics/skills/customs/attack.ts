@@ -31,16 +31,16 @@ class Attack extends Skill {
     this.combinations = 0;
   }
 
-  protected on_cast_complete(
+  protected on_apply(
     innerImpact: Impact,
     outerImpact: Impact
   ) {
-    super.on_cast_complete(innerImpact, outerImpact);
+    super.on_apply(innerImpact, outerImpact);
     const rules = outerImpact.rules;
     let penetration = this.experience * Attack.multiplyEfficiency;
     if (this.usageEquip) {
       const equip_stats = this.usageEquip.stats
-      outerImpact.negative.health = equip_stats.damage;
+      outerImpact.influenced.health = -equip_stats.damage;
       rules.range = equip_stats.range;
       penetration = equip_stats.penetration;
     } else {

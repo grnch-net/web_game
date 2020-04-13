@@ -5,6 +5,7 @@ import {
 import {
   Impact,
   Attribute,
+  InfluenceList,
   InteractResult
 } from './interactions/index';
 
@@ -168,15 +169,17 @@ export class Character extends WorldObject {
     // for (const effect of innerImpact.effects) {
     //   this.effects.add(effect, innerImpact);
     // }
+    this.apply_influence(innerImpact.influenced);
+  }
+
+  protected apply_influence(
+    influenced: InfluenceList
+  ) {
     let key: Attribute;
-    for (key in innerImpact.positive) {
-      const value = innerImpact.positive[key];
-      this.attributes[key].value += value;
+    for (key in influenced) {
+      this.attributes[key].value += influenced[key];
     }
-    for (key in innerImpact.negative) {
-      const value = innerImpact.negative[key];
-      this.attributes[key].value -= value;
-    }
+
   }
 
   interact(
@@ -230,11 +233,11 @@ export class Character extends WorldObject {
   }
 
   protected apply_cost(
-    impact: Impact
+    influenced: InfluenceList
   ) {
-    const checked = this.check_impact(impact);
+    const checked = this.check_impact(influenced);
     if (!checked) return false;
-    this.apply_impact(impact);
+    this.apply_influence(influenced);
     return true;
   }
 
@@ -246,13 +249,13 @@ export class Character extends WorldObject {
   }
 
   protected check_impact(
-    impact: Impact
+    influenced: InfluenceList
   ): boolean {
     let key: Attribute;
-    for (key in impact.negative) {
-      const impact_value = impact.negative[key];
+    for (key in influenced) {
+      const inner_value = influenced[key];
       const current_value = this.attributes[key].value;
-      const result = current_value - impact_value;
+      const result = current_value - inner_value;
       if (result < 0) return false;
     }
     return true;

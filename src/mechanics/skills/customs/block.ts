@@ -1,6 +1,7 @@
 import {
   Impact,
   ImpactSide,
+  InfluenceList,
   InteractResult
 } from '../../interactions/index';
 
@@ -30,8 +31,8 @@ class Block extends Skill {
   ): InteractResult {
     super.onOuterImpact(innerImpact, result);
     if (!this.usageTime) return;
-    const damage = innerImpact.negative.health;
     const { stun, side, penetration } = innerImpact.rules;
+    const damage = innerImpact.influenced.health < 0;
     if (!damage && !stun) return;
     if (side !== ImpactSide.Front) return;
     let block = this.experience * Block.multiplyEfficiency;
@@ -43,8 +44,8 @@ class Block extends Skill {
     const chance = this.randomize_chance(block);
     result.avoid = chance > penetration;
     if (result.avoid) {
+      this.stock.apply(innerImpact.influenced);
       this.apply_block(innerImpact, defense);
-      this.apply_stock(innerImpact);
       if (this.usageEquip) {
         this.usageEquip.durability -= 1;
       }
@@ -55,23 +56,16 @@ class Block extends Skill {
     return result;
   }
 
-  protected apply_stock(
-    impact: Impact
-  ) {
-    for (const influence of this.stock) {
-      influence.apply(impact);
-    }
-  }
-
   protected apply_block(
     impact: Impact,
     defense: number
   ) {
-    if (impact.negative.health) {
-      if (impact.negative.health < defense) {
-        impact.negative.health = 0;
+    const damage = -impact.influenced.health;
+    if (damage > 0) {
+      if (damage > defense) {
+        impact.influenced.health += defense;
       } else {
-        impact.negative.health -= defense;
+        impact.influenced.health = 0;
       }
     }
     if (impact.rules.stun) {

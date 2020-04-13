@@ -53,15 +53,13 @@ class Equip extends InteractionObject {
   added(
     innerImpact: Impact
   ) {
-    this.inner_static_influences
-    .forEach(influence => influence.apply(innerImpact));
+    this.inner_static_influence.apply(innerImpact.influenced);
   }
 
   removed(
     innerImpact: Impact
   ) {
-    this.inner_static_influences
-    .forEach(influence => influence.cancel(innerImpact));
+    this.inner_static_influence.cancel(innerImpact.influenced);
   }
 
   onUseSkill(

@@ -183,14 +183,14 @@ class EquipsController {
     innerImpact: Impact,
     result: InteractResult
   ) {
-    let damage = innerImpact.negative.health;
+    let damage = -innerImpact.influenced.health;
     if (!damage || damage < 0) return;
     if (damage > this.stats.armor) {
       damage -= this.stats.armor * this.armorProtect;
     } else {
       damage *= 1 - this.armorProtect;
     }
-    innerImpact.negative.health = damage;
+    innerImpact.influenced.health = -damage;
   }
 }
 
