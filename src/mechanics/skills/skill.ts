@@ -186,7 +186,6 @@ class Skill extends InteractionObject {
   checkNeeds(
     result: SkillNeedsResult
   ): boolean {
-    // TODO: check result
     return true;
   }
 

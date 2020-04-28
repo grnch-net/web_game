@@ -16,7 +16,7 @@ const inventoryConfig: InventoryConfig = {
     equip: 1
   },
   2: {
-    name: 'Wooden staf',
+    name: 'Wooden staff',
     equip: 2
   },
   3: {
@@ -34,6 +34,18 @@ const inventoryConfig: InventoryConfig = {
   6: {
     name: 'Pie',
     skill: 3
+  },
+  7: {
+    name: 'Bow',
+    equip: 6
+  },
+  8: {
+    name: 'Arrow',
+    equip: 7
+  },
+  9: {
+    name: 'Throwing spears',
+    equip: 8
   }
 }
 

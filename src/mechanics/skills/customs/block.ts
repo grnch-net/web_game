@@ -1,7 +1,6 @@
 import {
   Impact,
   ImpactSide,
-  InfluenceList,
   InteractResult
 } from '../../interactions/index';
 
@@ -17,11 +16,11 @@ import {
 } from '../../equips/index';
 
 class Block extends Skill {
-  protected usageEquip: Equip | null;
+  protected usage_equip: Equip | null;
 
   get needs(): SkillNeeds {
     return {
-      equips: [EquipSlot.SecondHand]
+      equips: [EquipSlot.Hold]
     };
   }
 
@@ -37,17 +36,17 @@ class Block extends Skill {
     if (side !== ImpactSide.Front) return;
     let block = this.experience * Block.multiplyEfficiency;
     let defense = 0;
-    if (this.usageEquip) {
-      block += this.usageEquip.stats.block;
-      defense += this.usageEquip.stats.defense;
+    if (this.usage_equip) {
+      block += this.usage_equip.stats.block;
+      defense += this.usage_equip.stats.defense;
     }
     const chance = this.randomize_chance(block);
     result.avoid = chance > penetration;
     if (result.avoid) {
       this.stock.apply(innerImpact.influenced);
       this.apply_block(innerImpact, defense);
-      if (this.usageEquip) {
-        this.usageEquip.durability -= 1;
+      if (this.usage_equip) {
+        this.usage_equip.durability -= 1;
       }
     } else {
       this.parameters.experience += 1;
@@ -77,11 +76,12 @@ class Block extends Skill {
     result: SkillNeedsResult
   ): boolean {
     super.checkNeeds(result);
-    const [equip] = result.equips;
-    if (equip && equip.stats.block) {
-      this.usageEquip = equip
-    } else {
-      this.usageEquip = null;
+    this.usage_equip = null;
+    for (const equip of result.equips) {
+      if (equip && equip.stats.block) {
+        this.usage_equip = equip
+        break;
+      }
     }
     return true;
   }
@@ -90,8 +90,8 @@ class Block extends Skill {
     innerImpact: Impact,
     outerImpact: Impact
   ) {
-    if (this.usageEquip && this.usageEquip.stats.speed) {
-      this.castTime = this.usageEquip.stats.speed;
+    if (this.usage_equip && this.usage_equip.stats.speed) {
+      this.castTime = this.usage_equip.stats.speed;
     }
     super.use(innerImpact, outerImpact);
   }

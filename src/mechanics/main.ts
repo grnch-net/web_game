@@ -23,7 +23,7 @@ export function test_mechanics() {
     equips: [
       {
         id: 2,
-        equip:{
+        equip: {
           durability: 98
         }
       }
@@ -32,6 +32,39 @@ export function test_mechanics() {
   const hero = (window as any).hero = new Character();
   hero.initialize(heroParameters)
   world.addCharacter(hero);
+
+  const hero3Parameters: CharacterParameters = {
+    name: 'hero3',
+    attributes: {
+      health: { value: 100 },
+      stamina: { value: 150 }
+    },
+    counters: {
+      experience: 100
+    },
+    effects: [],
+    skills: [
+      { id: 1, experience: 0 },
+      { id: 5, experience: 0 }
+    ],
+    equips: [
+      {
+        id: 7,
+        equip: {
+          durability: 98
+        }
+      },
+      {
+        id: 8,
+        equip: {
+          durability: 98
+        }
+      }
+    ]
+  };
+  const hero3 = (window as any).hero3 = new Character();
+  hero3.initialize(hero3Parameters)
+  world.addCharacter(hero3);
 
   const hero2Parameters: CharacterParameters = {
     name: 'hero2',
@@ -69,9 +102,10 @@ export function test_mechanics() {
 
   hero2.position.set(0, 0, 1);
   hero2.rotation = Math.PI * 1;
-  // hero2.useSkill(2);
+  hero2.useSkill(2);
   // hero.useSkill(1);
-  hero.useSkill(4);
-  hero2.useSkill(1);
-  world.tick(1);
+  hero3.useSkill(5);
+  // hero.useSkill(4);
+  // hero2.useSkill(1);
+  world.tick(3);
 }

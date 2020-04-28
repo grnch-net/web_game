@@ -16,11 +16,11 @@ import {
 } from '../../equips/index';
 
 class Parry extends Skill {
-  protected usageEquips: Equip[] | null;
+  protected usage_equips: Equip[] | null;
 
   get needs(): SkillNeeds {
     return {
-      equips: [EquipSlot.MainHand, EquipSlot.SecondHand]
+      equips: [EquipSlot.Hold]
     };
   }
 
@@ -36,7 +36,7 @@ class Parry extends Skill {
     if (side !== ImpactSide.Front) return;
     let parry = this.experience * Parry.multiplyEfficiency;
     let defense = 0;
-    for (const equip of this.usageEquips) {
+    for (const equip of this.usage_equips) {
       parry += equip.stats.parry;
       defense += equip.stats.defense;
     }
@@ -45,7 +45,7 @@ class Parry extends Skill {
     if (result.avoid) {
       this.stock.apply(innerImpact.influenced);
       this.apply_parry(innerImpact, defense);
-      for (const equip of this.usageEquips) {
+      for (const equip of this.usage_equips) {
         equip.durability -= 1;
       }
     } else {
@@ -76,10 +76,10 @@ class Parry extends Skill {
     result: SkillNeedsResult
   ): boolean {
     super.checkNeeds(result);
-    this.usageEquips = [];
+    this.usage_equips = [];
     for (const equip of result.equips) {
       if (equip && equip.stats.parry) {
-        this.usageEquips.push(equip)
+        this.usage_equips.push(equip)
       }
     }
     return true;
@@ -90,7 +90,7 @@ class Parry extends Skill {
     outerImpact: Impact
   ) {
     let equips_speed = 0;
-    for (const equip of this.usageEquips) {
+    for (const equip of this.usage_equips) {
       if (equip.stats.speed && equip.stats.speed > equips_speed) {
         equips_speed = equip.stats.speed;
       }

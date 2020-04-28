@@ -131,8 +131,8 @@ export class Character extends WorldObject {
   ) {
     this.equips = new EquipsController;
     const impact = new Impact;
-    const list = [...config, ...parameters];
-    this.equips.initialize(list, impact, armorProtect);
+    // const list = [...config, ...parameters];
+    this.equips.initialize(impact, parameters, armorProtect);
     this.apply_impact(impact);
   }
 
@@ -215,7 +215,7 @@ export class Character extends WorldObject {
   ) {
     if (skill.needs) {
       const checked = skill.checkNeeds({
-        equips: this.equips.getSlotsEquip(skill.needs.equips)
+        equips: this.equips.getEquips(skill.needs.equips)
       });
       if (!checked) return false;
     }

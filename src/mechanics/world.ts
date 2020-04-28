@@ -31,10 +31,11 @@ export class World {
     let result: InteractResult;
     for (const target of this.characters) {
       if (author == target) continue;
-      const length = author.position.lengthTo(target.position);
-      if (length > impact.rules.range) continue;
+      const distance = author.position.lengthTo(target.position);
+      if (distance > impact.rules.range) continue;
       const hit = this.check_hit(author, target, impact.rules.sector);
       if (!hit) continue;
+      this.apply_range(distance, impact);
       impact.rules.side = this.calculate_impact_side(author, target);
       result = target.interact(impact);
       break;
@@ -54,8 +55,16 @@ export class World {
     const vx = x * cosA - z * sinA;
     const vz = z * cosA + x * sinA;
     const angle = Math.acos(vz / Math.sqrt(vx ** 2 + vz ** 2));
-    if (sector) return angle <= sector;
+    if (sector) return angle <= (sector / 2);
     return angle <= (Math.PI * 0.25);
+  }
+
+  apply_range(
+    distance: number,
+    impact: Impact
+  ): boolean {
+    if (distance < 2) return true;
+    impact.rules.penetration -= distance;
   }
 
   protected calculate_impact_side(

@@ -6,6 +6,7 @@ import {
 import {
   EquipSlot,
   EquipType,
+  EquipSubType,
   EquipStats,
   EquipConfig,
   EquipParameters
@@ -15,12 +16,16 @@ class Equip extends InteractionObject {
   protected config: EquipConfig;
   protected parameters: EquipParameters;
 
-  get slot(): EquipSlot | EquipSlot[] {
+  get slot(): EquipSlot {
     return this.config.slot;
   }
 
   get type(): EquipType {
     return this.config.type;
+  }
+
+  get subType(): EquipSubType {
+    return this.config.subType
   }
 
   get durability(): number {
@@ -71,6 +76,7 @@ class Equip extends InteractionObject {
 export {
   EquipSlot,
   EquipType,
+  EquipSubType,
   EquipStats,
   EquipConfig,
   EquipParameters,

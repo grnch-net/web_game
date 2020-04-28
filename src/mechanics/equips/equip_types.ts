@@ -4,28 +4,34 @@ import type {
 } from '../interactions/index';
 
 enum EquipSlot {
-  MainHand = 'MainHand',
-  SecondHand = 'SecondHand',
-  Head = 'Head',
-  Body = 'Body',
-  Bag = 'Bag'
+  Hold,
+  Head,
+  Body,
+  Bag
 }
 
 enum EquipType {
-  OneHand = 'OneHand',
-  SecondHand = 'SecondHand',
-  TwoHand = 'TwoHand',
-  LightArmor = 'LightArmor',
-  MediumArmor = 'MediumArmor',
-  HeavyArmor = 'HeavyArmor'
+  OneHand,
+  TwoHand
+}
+
+enum EquipSubType {
+  Polearm,
+  Sword,
+  Shield,
+  Bow,
+  Arrow,
+  Thrown
 }
 
 interface EquipStats {
   durability?: number;
-  penetration?: number;
-  damage?: number;
-  defense?: number;
+  rangePenetration?: number;
+  rangeDamage?: number;
+  meleePenetration?: number;
+  meleeDamage?: number;
   range?: number;
+  defense?: number;
   parry?: number;
   speed?: number;
   block?: number;
@@ -34,8 +40,9 @@ interface EquipStats {
 }
 
 interface EquipConfig extends InteractionConfig {
-  slot: EquipSlot | EquipSlot[];
+  slot: EquipSlot;
   type?: EquipType;
+  subType?: EquipSubType;
   stats?: EquipStats;
 }
 
@@ -46,6 +53,7 @@ interface EquipParameters extends InteractionParameters {
 export {
   EquipSlot,
   EquipType,
+  EquipSubType,
   EquipStats,
   EquipConfig,
   EquipParameters

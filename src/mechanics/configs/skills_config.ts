@@ -2,10 +2,6 @@ import type {
   SkillConfig
 } from '../skills/index';
 
-import {
-  EquipSlot
-} from '../equips/index';
-
 type SkillsConfig = { [id: string]: SkillConfig };
 
 const skillsConfig: SkillsConfig = {
@@ -53,6 +49,13 @@ const skillsConfig: SkillsConfig = {
     usageTime: Infinity,
     stock: {
       'stamina': 20
+    }
+  },
+  5: {
+    name: 'Shot',
+    specialClass: 'shot',
+    stock: {
+      'stamina': 10
     }
   }
 };

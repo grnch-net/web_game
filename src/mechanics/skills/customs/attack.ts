@@ -17,18 +17,18 @@ import {
 
 @UTILS.modifiable
 class Attack extends Skill {
-  protected combinations: number;
-  protected usageEquip: Equip | null;
+  protected combination: number;
+  protected usage_equip: Equip | null;
 
   get needs(): SkillNeeds {
     return {
-      equips: [EquipSlot.MainHand, EquipSlot.SecondHand]
+      equips: [EquipSlot.Hold]
     };
   }
 
   reset() {
     super.reset();
-    this.combinations = 0;
+    this.combination = 0;
   }
 
   protected on_apply(
@@ -38,31 +38,38 @@ class Attack extends Skill {
     super.on_apply(innerImpact, outerImpact);
     const rules = outerImpact.rules;
     let penetration = this.experience * Attack.multiplyEfficiency;
-    if (this.usageEquip) {
-      const equip_stats = this.usageEquip.stats
-      outerImpact.influenced.health = -equip_stats.damage;
-      rules.range = equip_stats.range;
-      penetration = equip_stats.penetration;
-    } else {
-      rules.range = 1;
+    if (this.usage_equip) {
+      const equip_stats = this.usage_equip.stats;
+      outerImpact.influenced.health = -equip_stats.meleeDamage;
+      penetration = equip_stats.meleePenetration;
     }
     rules.penetration = this.randomize_chance(penetration);
-    this.combinations++;
+    rules.range = 2;
+    this.combination++;
   }
 
   checkNeeds(
     result: SkillNeedsResult
   ): boolean {
     super.checkNeeds(result);
-    const [main_hand, second_hand] = result.equips;
-    const turn_second = (this.combinations % 2) == 1;
-    if (turn_second && second_hand && second_hand.stats.damage) {
-      this.usageEquip = second_hand;
+    this.usage_equip = null;
+    let main_hand: Equip;
+    let off_hand: Equip;
+    for(const equip of result.equips) {
+      if (equip.stats.meleeDamage) {
+        if (main_hand) {
+          off_hand = equip;
+        } else {
+          main_hand = equip;
+        }
+      }
+    }
+    const turn_second = (this.combination % 2) == 1;
+    if (turn_second && off_hand) {
+      this.usage_equip = off_hand;
     } else
-    if (main_hand && main_hand.stats.damage) {
-      this.usageEquip = main_hand
-    } else {
-      this.usageEquip = null;
+    if (main_hand) {
+      this.usage_equip = main_hand
     }
     return true;
   }
@@ -71,8 +78,8 @@ class Attack extends Skill {
     innerImpact: Impact,
     outerImpact: Impact
   ) {
-    if (this.usageEquip) {
-      this.castTime = this.usageEquip.stats.speed;
+    if (this.usage_equip) {
+      this.castTime = this.usage_equip.stats.speed;
     }
     super.use(innerImpact, outerImpact);
   }
@@ -84,8 +91,8 @@ class Attack extends Skill {
     if (result.avoid) {
       this.parameters.experience += 1;
     }
-    if (this.usageEquip) {
-      this.usageEquip.durability -= 1;
+    if (this.usage_equip) {
+      this.usage_equip.durability -= 1;
     }
   }
 }
