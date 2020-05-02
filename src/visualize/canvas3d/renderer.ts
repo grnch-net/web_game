@@ -10,6 +10,7 @@ export class Renderer {
     resolution: number
   ) {
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer.outputEncoding = THREE.sRGBEncoding;
     this.renderer.shadowMap.enabled = true;
     this.renderer.autoClear = false;
     this.renderer.setPixelRatio(resolution);

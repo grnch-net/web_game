@@ -1,4 +1,5 @@
 import { DisplayObject } from './display_object';
+import { GameObject } from './game_object';
 import  { Text } from './text';
 
 type Action = (dt: number) => void;
@@ -11,11 +12,12 @@ export class Player extends DisplayObject {
   protected actions: Action[];
   protected fixed_camera: boolean;
   protected sensetive: number = 0.4;
-  protected move_speed: any = 10;
+  protected move_speed: number = 10;
+  protected anim_walk: THREE.AnimationAction;
 
   initialize(
     camera: THREE.PerspectiveCamera,
-    character: DisplayObject
+    character: GameObject
   ) {
     this.initialize_actions();
     this.camera = camera;
@@ -34,18 +36,20 @@ export class Player extends DisplayObject {
     name.initialize('Player', style);
     name.model.position.y = 10;
 
-
     this.model = new THREE.Group;
     this.model.add(this.camera_pivot, this.character.model, name.model);
+
+    this.anim_walk = character.mixer.clipAction(character.animations[1]);
+    this.anim_walk.reset();
   }
 
   protected initialize_actions() {
     this.actions = [];
-    this.initialize_wath();
+    this.initialize_watch();
     this.initialize_move();
   }
 
-  protected initialize_wath() {
+  protected initialize_watch() {
     let start_pos: number;
     let angle: number;
     const action = (dt: number) => {
@@ -106,6 +110,7 @@ export class Player extends DisplayObject {
       this.model.quaternion.multiply(this.camera_pivot.quaternion);
       this.camera_pivot.quaternion.set(0, 0, 0, 1);
       this.actions.push(action);
+      this.anim_walk.play();
     };
     const moveend = () => {
       count--;
@@ -113,6 +118,7 @@ export class Player extends DisplayObject {
       this.fixed_camera = false;
       const index = this.actions.indexOf(action);
       this.actions.splice(index, 1);
+      this.anim_walk.stop();
     };
     document.addEventListener('touchstart', () => {
       direction.set(0, 0, 1);

@@ -117,6 +117,7 @@ const init = gulp.parallel(buildHTML, buildLibs);
 
 exports.clearjs = clearJS;
 exports.clearall = clearAll;
+exports.buildhtml = buildHTML;
 exports.buildlibs = buildLibs;
 exports.init = init;
 exports.run = gulp.series(init, clearJS, runServer);
