@@ -74,9 +74,10 @@ export class World {
     let rotate = (target.rotation - author.rotation) % (Math.PI * 2);
     if (rotate < 0) rotate += Math.PI * 2;
     const unit = Math.PI * 0.25;
-    if (rotate < unit || rotate > (unit * 7)) return ImpactSide.Back;
-    if (rotate < (unit * 3)) return ImpactSide.Right;
-    if (rotate < (unit * 5)) return ImpactSide.Front;
+    rotate += unit;
+    if (rotate < (unit * 2)) return ImpactSide.Back;
+    if (rotate < (unit * 4)) return ImpactSide.Right;
+    if (rotate < (unit * 6)) return ImpactSide.Front;
     return ImpactSide.Left;
   }
 }

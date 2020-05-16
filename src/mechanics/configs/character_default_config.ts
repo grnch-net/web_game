@@ -17,6 +17,7 @@ const characterConfig: CharacterConfig = {
     { id: 0 }
   ],
   equips: [],
+  inventory: [],
   armorProtect: 0.9
 };
 

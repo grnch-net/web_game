@@ -35,7 +35,7 @@ import {
 
 import {
   characterConfig
-} from './configs/character_config';
+} from './configs/character_default_config';
 
 type Attributes = { [key in Attribute]?: RangeParameters };
 type Counters = { [key: string]: number };
@@ -47,6 +47,7 @@ export interface CharacterConfig {
   effects: EffectParameters[];
   skills: SkillParameters[];
   equips: InventoryObjectParameters[];
+  inventory: InventoryObjectParameters[];
   armorProtect?: number;
 }
 
