@@ -75,6 +75,24 @@ function buildLibs() {
   .pipe(gulp.dest('build/'));
 }
 
+function buildLibs2D() {
+	return browserify({
+		entries: 'src/libs/main2d.ts',
+		debug: true
+	})
+	.plugin(tsify, {
+		files: ['src/libs/main2d.ts'],
+		allowJs: true
+	})
+	.bundle()
+	.on('error', fancy_log)
+	.pipe(source('libs.js'))
+  .pipe(buffer())
+  .pipe(sourcemaps.init({loadMaps: true}))
+  .pipe(sourcemaps.write('./'))
+  .pipe(gulp.dest('build/'));
+}
+
 function buildJS() {
 	return destJS(createBundler());
 };
@@ -113,12 +131,13 @@ function runServer(done: any) {
 	return build();
 }
 
-const init = gulp.parallel(buildHTML, buildLibs);
+const init = gulp.parallel(buildHTML);
 
 exports.clearjs = clearJS;
 exports.clearall = clearAll;
 exports.buildhtml = buildHTML;
 exports.buildlibs = buildLibs;
+exports.buildlibs2d = buildLibs2D;
 exports.init = init;
 exports.run = gulp.series(init, clearJS, runServer);
 exports.default = gulp.series(clearJS, buildJS);

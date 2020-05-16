@@ -27,6 +27,7 @@
     "gulp-sourcemaps": "^2.6.5",
     "gulp-uglify": "^3.0.2",
     "gulp-util": "^3.0.8",
+    "pixi.js": "^5.2.3",
     "three": "^0.113.2",
     "ts-node": "^8.6.2",
     "tsify": "^4.0.1",

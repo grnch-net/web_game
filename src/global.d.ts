@@ -2,6 +2,8 @@ import type * as three from 'three';
 import type * as gltf from 'three/examples/jsm/loaders/GLTFLoader';
 import type * as utils from './utils/index';
 
+import 'pixi.js';
+
 declare global {
   const THREE: typeof three;
   const GLTFLoader: typeof gltf.GLTFLoader;
