@@ -106,8 +106,15 @@ class SkillsController {
       console.error(`Skill "${id}" is undefined.`);
       return null;
     }
+    const checked = this.readyToUse(skill);
+    return checked ? skill : null;
+  }
+
+  readyToUse(
+    skill: Skill
+  ): boolean {
     if (this.using == skill && !skill.reusable) {
-      console.error(`Skill "${id}" used.`);
+      console.error(`Skill "${skill.id}" used.`);
       return null;
     }
     const is_recovering = this.recoveries.includes(skill);
@@ -115,7 +122,7 @@ class SkillsController {
       console.info(`Skill recovery: ${skill.recoveryTime}.`);
       return null;
     }
-    return skill;
+    return true;
   }
 
   use(
@@ -151,6 +158,12 @@ class SkillsController {
     } else {
       skill.reset();
     }
+  }
+
+  addToRecovery(
+    skill: Skill
+  ) {
+    this.add_to_recovery(skill);
   }
 
   interactResult(

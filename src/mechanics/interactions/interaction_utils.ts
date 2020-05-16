@@ -33,15 +33,15 @@ class InteractionUtils {
       console.error('Can not find config', parameters, config);
       return null;
     }
-    let BaseClass = this.BaseClass;
+    let ObjectClass = this.BaseClass;
     if (config.specialClass) {
-      BaseClass = this.findSpecialClass(config.specialClass);;
-      if (!BaseClass) {
+      ObjectClass = this.findSpecialClass(config.specialClass);;
+      if (!ObjectClass) {
         console.error('Can not find special class.', config, parameters);
         return null;
       }
     }
-    const _object = new BaseClass();
+    const _object = new ObjectClass();    
     _object.initialize(config, parameters);
     return _object;
   }

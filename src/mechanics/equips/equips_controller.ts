@@ -49,24 +49,29 @@ class EquipsController {
     this.stats = {
       armor: 0
     };
+    this.initialize_list(innerImpact, list);
+    this.initialize_inventory();
+  }
+
+  protected initialize_list(
+    innerImpact: Impact,
+    list: InventoryObjectParameters[]
+  ) {
     this.list = {};
     for (const key in slotCells) {
       let slot: EquipSlot = key as any;
       this.list[slot] = [];
     }
-    this.initialize_inventory(innerImpact, list);
-  }
-
-  protected initialize_inventory(
-    innerImpact: Impact,
-    list: InventoryObjectParameters[]
-  ) {
-    const slots = EquipsController.defaultInventorySlots;
-    this.inventory = new InventoryController(slots);
     for (const parameters of list) {
       const item = InventoryUtils.create(parameters);
       this.add(innerImpact, item);
     }
+  }
+
+  initialize_inventory() {
+    const slots = EquipsController.defaultInventorySlots;
+    this.inventory = new InventoryController;
+    this.inventory.initialize(slots);
   }
 
   add(
@@ -196,6 +201,17 @@ class EquipsController {
       }
     }
     return equips;
+  }
+
+  getAll(): InventoryObject[] {
+    const list = [];
+    const slots = Object.values(this.list);
+    for (const slot of slots) {
+      for (const item of slot) {
+        list.push(item);
+      }
+    }
+    return list;
   }
 
   protected get_item_cell(

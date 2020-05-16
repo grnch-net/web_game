@@ -47,24 +47,26 @@ class InventoryObject extends InteractionObject {
     parameters: InventoryObjectParameters
   ) {
     super.initialize(config, parameters);
-    this.initialize_equip(config.equip, parameters.equip);
-    this.initialize_skill(config.skill, parameters.skill);
+    this.initialize_equip(config.equip, parameters);
+    this.initialize_skill(config.skill, parameters);
   }
 
   initialize_equip(
     id: string | number,
-    parameters: EquipParameters
+    parameters: InventoryObjectParameters
   ) {
     if (id === undefined) return;
-    this.equip = EquipsUtils.create(parameters, id);
+    if (!parameters.equip) parameters.equip = {};
+    this.equip = EquipsUtils.create(parameters.equip, id);
   }
 
   initialize_skill(
     id: string | number,
-    parameters: SkillParameters
+    parameters: InventoryObjectParameters
   ) {
     if (id === undefined) return;
-    this.skill = SkillsUtils.create(parameters, id);
+    if (!parameters.skill) parameters.skill = { id };
+    this.skill = SkillsUtils.create(parameters.skill, id);
   }
 }
 

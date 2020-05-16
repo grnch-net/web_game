@@ -1,2 +1,4 @@
 import './attack';
-import './skill';
+import './shot';
+// import './skill';
+import './character';

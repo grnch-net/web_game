@@ -25,6 +25,7 @@ import {
 
 import {
   InventoryObjectParameters,
+  InventoryController
 } from './inventory/index';
 
 import {
@@ -55,6 +56,7 @@ export interface CharacterParameters extends CharacterConfig {
   name: string;
 }
 
+@UTILS.modifiable
 export class Character extends WorldObject {
   attributes: AttributesRange;
   effects: EffectsController;
@@ -71,6 +73,10 @@ export class Character extends WorldObject {
     return this.parameters.counters;
   }
 
+  get inventory(): InventoryController {
+    return this.equips.inventory;
+  }
+
   initialize(
     parameters: CharacterParameters,
     config: CharacterConfig = characterConfig
@@ -83,7 +89,8 @@ export class Character extends WorldObject {
     this.initialize_effects(parameters.effects, config.effects);
     this.initialize_skills(parameters.skills, config.skills);
     const armorProtect = parameters.armorProtect || config.armorProtect;
-    this.initialize_equipments(parameters.equips, config.equips, armorProtect);
+    this.initialize_equipments(parameters.equips, armorProtect);
+    this.initialize_inventory(parameters.inventory);
   }
 
   protected initialize_attributes(
@@ -127,14 +134,25 @@ export class Character extends WorldObject {
 
   protected initialize_equipments(
     parameters: InventoryObjectParameters[],
-    config: InventoryObjectParameters[],
     armorProtect: number
   ) {
     this.equips = new EquipsController;
     const impact = new Impact;
-    // const list = [...config, ...parameters];
     this.equips.initialize(impact, parameters, armorProtect);
     this.apply_impact(impact);
+    const list = this.equips.getAll();
+    for (const item of list) {
+      if (item.skill) this.skills.addToRecovery(item.skill);
+    }
+  }
+
+  protected initialize_inventory(
+    parameters: InventoryObjectParameters[]
+  ) {
+    this.inventory.initializeList(parameters);
+    for (const item of this.inventory.list) {
+      if (item.skill) this.skills.addToRecovery(item.skill);
+    }
   }
 
   tick(
@@ -195,11 +213,28 @@ export class Character extends WorldObject {
     return result;
   }
 
+  useInventoryItem(
+    index: number
+  ): boolean {
+    const item = this.inventory.getUsableItem(index);
+    if (!item) return false;
+    const skill = item.skill;
+    const is_ready = this.skills.readyToUse(skill);
+    if (!is_ready) return false;
+    return this.use_skill(skill);
+  }
+
   useSkill(
     id: string | number
   ): boolean {
     const skill = this.skills.getToUse(id as string);
     if (!skill) return false;
+    return this.use_skill(skill);
+  }
+
+  protected use_skill(
+    skill: Skill
+  ): boolean {
     const checked = this.check_skill(skill);
     if (!checked) return false;
     const innerImpact = new Impact;

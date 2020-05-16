@@ -23,6 +23,7 @@ const ammoEquips = [
   EquipSubType.Arrow
 ];
 
+@UTILS.modifiable
 class Shot extends Skill {
   protected usage_equips: Equip[];
 

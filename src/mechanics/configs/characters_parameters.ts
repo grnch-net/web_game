@@ -57,7 +57,9 @@ const charactersParameters: CharactersParameters = {
         }
       }
     ],
-    inventory: []
+    inventory: [
+      { id: 6 }
+    ]
   },
   2: {
     name: 'hero3',

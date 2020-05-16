@@ -20,7 +20,7 @@ export function test_mechanics() {
   world.addCharacter(hero2);
 
   enum SkillName {
-    Attackn = 1,
+    Attack = 1,
     Block = 2,
     Parry = 4,
     Shot = 5
@@ -29,7 +29,7 @@ export function test_mechanics() {
   hero2.position.set(0, 0, 1);
   hero2.rotation = Math.PI * 1;
   hero2.useSkill(SkillName.Block);
-  
+
   // hero.useSkill(SkillName.Attack);
   hero3.useSkill(SkillName.Shot);
 
@@ -37,4 +37,9 @@ export function test_mechanics() {
   // hero2.useSkill(SkillName.Attack);
 
   world.tick(3);
+  console.info('hero2 health:', hero2.attributes.health.value);
+
+  hero2.useInventoryItem(0);
+  world.tick(1);
+  console.info('hero2 health:', hero2.attributes.health.value);
 }
