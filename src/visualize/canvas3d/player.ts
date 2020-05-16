@@ -2,12 +2,13 @@ import { DisplayObject } from './display_object';
 import { GameObject } from './game_object';
 import  { Text } from './text';
 
-type Action = (dt: number) => void;
+type Action = (dt: number) => boolean;
 
 export class Player extends DisplayObject {
   model: THREE.Group;
   camera: THREE.PerspectiveCamera;
   character: DisplayObject;
+  renderer: THREE.Renderer;
   protected camera_pivot: THREE.Object3D;
   protected actions: Action[];
   protected fixed_camera: boolean;
@@ -17,11 +18,13 @@ export class Player extends DisplayObject {
 
   initialize(
     camera: THREE.PerspectiveCamera,
-    character: GameObject
+    character: GameObject,
+    renderer: THREE.Renderer
   ) {
-    this.initialize_actions();
     this.camera = camera;
     this.character = character;
+    this.renderer = renderer;
+    this.initialize_actions();
     this.camera.position.set(0, 15, -30);
     this.camera.rotation.set(Math.PI * 0.05, Math.PI, 0);
     this.camera_pivot = new THREE.Object3D;
@@ -59,16 +62,12 @@ export class Player extends DisplayObject {
       } else {
         this.camera_pivot.rotateY(angle);
       }
-      const index = this.actions.indexOf(action);
-      this.actions.splice(index, 1);
+      return false;
     };
-    const mouseover = (event: MouseEvent) => {
-      start_pos = event.clientX;
-    };
+    const mouseover = (event: MouseEvent) => {};
     const mousemove = (event: MouseEvent) => {
-      angle = start_pos - event.clientX;
+      angle = -event.movementX;
       this.actions.push(action);
-      start_pos = event.clientX;
     };
     const touchstart = (event: TouchEvent) => {
       start_pos = event.touches[0].clientX;
@@ -78,34 +77,37 @@ export class Player extends DisplayObject {
       this.actions.push(action);
       start_pos = event.touches[0].clientX;
     };
-    document.addEventListener('mouseover', mouseover);
-    document.addEventListener('mousemove', mousemove);
-    document.addEventListener('touchstart', touchstart);
-    document.addEventListener('touchmove', touchmove);
+    const canvas = this.renderer.domElement;
+    canvas.addEventListener('mouseover', mouseover);
+    canvas.addEventListener('mousemove', mousemove);
+    canvas.addEventListener('touchstart', touchstart);
+    canvas.addEventListener('touchmove', touchmove);
 
     // const touchmove = (event: TouchEvent) => {
     //   angle = event.touches[0].clientX - start_pos;
     //   this.actions.push(action);
     //   start_pos = event.touches[0].clientX;
     // };
-    // document.addEventListener('touchstart', event => {
+    // canvas.addEventListener('touchstart', event => {
     //   start_pos = event.touches[0].clientX;
-    //   document.addEventListener('touchmove', touchmove);
+    //   canvas.addEventListener('touchmove', touchmove);
     // });
-    // document.addEventListener('touchend', () => {
-    //   document.removeEventListener('touchmove', touchmove);
+    // canvas.addEventListener('touchend', () => {
+    //   canvas.removeEventListener('touchmove', touchmove);
     // });
   }
 
   protected initialize_move() {
     const direction = new THREE.Vector3;
-    let count = 0;
+    let isMove = false;
     const action = (dt: number) => {
+      if (!isMove) return false;
       this.model.translateOnAxis(direction, this.move_speed * dt);
+      return true;
     };
     const movestart = () => {
-      count++;
-      if (count > 1) return;
+      if (isMove) return;
+      isMove = true;
       this.fixed_camera = true;
       this.model.quaternion.multiply(this.camera_pivot.quaternion);
       this.camera_pivot.quaternion.set(0, 0, 0, 1);
@@ -113,8 +115,8 @@ export class Player extends DisplayObject {
       this.anim_walk.play();
     };
     const moveend = () => {
-      count--;
-      if (count > 0) return;
+      if (direction.x != 0 || direction.z != 0) return;
+      isMove = false;
       this.fixed_camera = false;
       const index = this.actions.indexOf(action);
       this.actions.splice(index, 1);
@@ -124,29 +126,52 @@ export class Player extends DisplayObject {
       direction.set(0, 0, 1);
       movestart();
     });
-    document.addEventListener('touchend', moveend);
+    document.addEventListener('touchend', () => {
+      direction.set(0, 0, 0);
+      moveend();
+    });
     document.addEventListener('keydown', event => {
-      if (event.code == 'KeyW') direction.z = 1;
-      else if (event.code == 'KeyS') direction.z = -1;
-      else if (event.code == 'KeyA') direction.x = 1;
-      else if (event.code == 'KeyD') direction.x = -1;
-      else return;
+      if (event.key == 'w') {
+        direction.z = 1;
+      } else
+      if (event.key == 's') {
+        direction.z = -1;
+      } else
+      if (event.key == 'a') {
+        direction.x = 1;
+      } else
+      if (event.key == 'd') {
+        direction.x = -1;
+      } else return;
       movestart();
     });
     document.addEventListener('keyup', event => {
-      if (event.code == 'KeyW') direction.z = 0;
-      else if (event.code == 'KeyS') direction.z = 0;
-      else if (event.code == 'KeyA') direction.x = 0;
-      else if (event.code == 'KeyD') direction.x = 0;
-      else return;
+      if (event.key == 'w') {
+        if (direction.z != 1) return;
+        direction.z = 0;
+      } else
+      if (event.key == 's') {
+        if (direction.z != -1) return;
+        direction.z = 0;
+      } else
+      if (event.key == 'a') {
+        if (direction.x != 1) return;
+        direction.x = 0;
+      } else
+      if (event.key == 'd') {
+        if (direction.x != -1) return;
+        direction.x = 0;
+      } else return;
       moveend();
     });
   }
 
   tick(dt: number) {
+    const actions = [];
     for (const action of this.actions) {
-      action(dt);
+      action(dt) && actions.push(action);
     }
+    this.actions = actions;
     this.character.tick(dt);
   }
 }

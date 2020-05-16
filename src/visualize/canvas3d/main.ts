@@ -36,7 +36,7 @@ const player = new Player;
 const hero = new GameObject;
 hero.load('res/sham/')
 .then(() => {
-  player.initialize(world.camera, hero);
+  player.initialize(world.camera, hero, renderer.renderer);
   hero.model.position.set(0, 0, 0);
   hero.model.scale.set(0.06, 0.06, 0.06);
   world.addChild(player);

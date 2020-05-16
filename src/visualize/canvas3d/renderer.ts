@@ -15,8 +15,16 @@ export class Renderer {
     this.renderer.autoClear = false;
     this.renderer.setPixelRatio(resolution);
     this.renderer.setSize(width, height);
-    document.body.appendChild(this.renderer.domElement);
     this.layers = [];
+    this.initialize_canvas();
+  }
+
+  initialize_canvas() {
+    const canvas = this.renderer.domElement;
+    document.body.appendChild(canvas);
+    canvas.addEventListener('click', () => {
+      canvas.requestPointerLock();
+    });
   }
 
   addLayer(
