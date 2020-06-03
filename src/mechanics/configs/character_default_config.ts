@@ -8,7 +8,7 @@ const characterConfig: CharacterConfig = {
     stamina: { max: 150 }
   },
   counters: {
-    experience: 0
+    // experience: 0
   },
   effects: [
     { id: 0 }
@@ -17,7 +17,6 @@ const characterConfig: CharacterConfig = {
     { id: 0 }
   ],
   equips: [],
-  inventory: [],
   armorProtect: 0.9
 };
 

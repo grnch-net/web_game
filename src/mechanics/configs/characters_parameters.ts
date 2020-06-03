@@ -12,7 +12,7 @@ const charactersParameters: CharactersParameters = {
       stamina: { value: 150 }
     },
     counters: {
-      experience: 100
+      // experience: 100
     },
     effects: [],
     skills: [
@@ -26,8 +26,7 @@ const charactersParameters: CharactersParameters = {
           durability: 98
         }
       }
-    ],
-    inventory: []
+    ]
   },
   1: {
     name: 'hero2',
@@ -36,7 +35,7 @@ const charactersParameters: CharactersParameters = {
       stamina: { value: 150 }
     },
     counters: {
-      experience: 100
+      // experience: 100
     },
     effects: [],
     skills: [
@@ -55,10 +54,13 @@ const charactersParameters: CharactersParameters = {
         equip: {
           durability: 50
         }
+      },
+      {
+        id: 5,
+        inventory: [
+          { id: 6 }
+        ]
       }
-    ],
-    inventory: [
-      { id: 6 }
     ]
   },
   2: {
@@ -68,7 +70,7 @@ const charactersParameters: CharactersParameters = {
       stamina: { value: 150 }
     },
     counters: {
-      experience: 100
+      // experience: 100
     },
     effects: [],
     skills: [
@@ -88,8 +90,7 @@ const charactersParameters: CharactersParameters = {
           durability: 98
         }
       }
-    ],
-    inventory: []
+    ]
   }
 };
 

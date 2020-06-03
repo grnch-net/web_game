@@ -1,4 +1,8 @@
 import {
+  InventoryController
+} from './inventory_controller';
+
+import {
   SkillParameters,
   Skill,
   SkillsUtils
@@ -17,6 +21,7 @@ import {
 } from '../interactions/index';
 
 interface InventoryObjectConfig extends InteractionConfig {
+  slots?: number;
   skill?: string | number;
   equip?: string | number;
 }
@@ -26,11 +31,13 @@ interface InventoryObjectParameters extends InteractionParameters {
   name?: string;
   skill?: SkillParameters;
   equip?: EquipParameters;
+  inventory?: InventoryObjectParameters[];
 }
 
 class InventoryObject extends InteractionObject {
   equip: Equip | null;
   skill: Skill | null;
+  inventory: InventoryController;
   protected config: InventoryObjectConfig;
   protected parameters: InventoryObjectParameters;
 
@@ -42,6 +49,10 @@ class InventoryObject extends InteractionObject {
     return this.parameters.name;
   }
 
+  get slots(): number {
+    return this.config.slots;
+  }
+
   initialize(
     config: InventoryObjectConfig,
     parameters: InventoryObjectParameters
@@ -49,6 +60,7 @@ class InventoryObject extends InteractionObject {
     super.initialize(config, parameters);
     this.initialize_equip(config.equip, parameters);
     this.initialize_skill(config.skill, parameters);
+    this.initialize_inventory(config.slots, parameters);
   }
 
   initialize_equip(
@@ -67,6 +79,15 @@ class InventoryObject extends InteractionObject {
     if (id === undefined) return;
     if (!parameters.skill) parameters.skill = { id };
     this.skill = SkillsUtils.create(parameters.skill, id);
+  }
+
+  initialize_inventory(
+    slots: number,
+    parameters: InventoryObjectParameters
+  ) {
+    if (slots === undefined) return;
+    this.inventory = new InventoryController;
+    this.inventory.initialize(slots, parameters.inventory);
   }
 }
 

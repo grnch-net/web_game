@@ -29,6 +29,7 @@ const inventoryConfig: InventoryConfig = {
   },
   5: {
     name: 'Small bag',
+    slots: 6,
     equip: 5
   },
   6: {

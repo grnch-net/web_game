@@ -64,9 +64,6 @@ const equipsConfig: EquipsConfig = {
   },
   5: { // Small bag
     slot: EquipSlot.Bag,
-    stats: {
-      slots: 1
-    }
   },
   6: { // Bow
     slot: EquipSlot.Hold,

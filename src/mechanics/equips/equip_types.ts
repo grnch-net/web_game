@@ -36,7 +36,6 @@ interface EquipStats {
   speed?: number;
   block?: number;
   armor?: number;
-  slots?: number;
 }
 
 interface EquipConfig extends InteractionConfig {

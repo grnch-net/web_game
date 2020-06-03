@@ -10,14 +10,20 @@ import {
 import * as utils from '../utils';
 
 class InventoryController {
-  public slots: number
+  public slots: number;
   public list: InventoryObject[];
 
+  get freeCells(): number {
+    return this.slots - this.list.length;
+  }
+
   initialize(
-    slots: number
+    slots: number,
+    list: InventoryObjectParameters[]
   ) {
     this.slots = slots;
     this.list = [];
+    this.initialize_list(list);
   }
 
   protected initialize_list(
@@ -27,12 +33,6 @@ class InventoryController {
       const item = InventoryUtils.create(parameters);
       this.add(item);
     }
-  }
-
-  initializeList(
-    list: InventoryObjectParameters[]
-  ) {
-    this.initialize_list(list);
   }
 
   add(
@@ -54,13 +54,23 @@ class InventoryController {
     return true;
   }
 
-  getUsableItem(
+  getItem(
     index: number
   ): InventoryObject {
-    const item = this.list[index];
-    if (!item || !item.skill) return null;
-    return item;
+    return this.list[index];
   }
+
+  getAll(): InventoryObject[] {
+    return [...this.list];
+  }
+
+  // updateSlots(
+  //   slots: number
+  // ): boolean {
+  //   if (this.list.length < slots) return false;
+  //   this.slots = slots;
+  //   return true;
+  // }
 }
 
  export {
