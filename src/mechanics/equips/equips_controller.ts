@@ -4,10 +4,6 @@ import type {
 } from '../interactions/index';
 
 import {
-  isNumber
-} from '../utils';
-
-import {
   EquipSlot,
   EquipType,
   Equip
@@ -16,8 +12,7 @@ import {
 import {
   InventoryObjectParameters,
   InventoryObject,
-  InventoryUtils,
-  // InventoryController
+  InventoryUtils
 } from '../inventory/index';
 
 interface Stats {
@@ -72,99 +67,72 @@ class EquipsController {
     }
     for (const parameters of list) {
       const item = InventoryUtils.create(parameters);
-      this.add(innerImpact, item);
+      this.add([], innerImpact, item);
     }
   }
 
   add(
+    removedItems: InventoryObject[],
     innerImpact: Impact,
     item: InventoryObject,
-    cell?: number
-  ): boolean {
+    cell: number = -1
+  ) {
     const equip = item.equip;
-    if (!equip) return false;
-    let checked: boolean;
+    if (!equip) {
+      removedItems.push(item);
+      return;
+    }
     if (equip.slot == EquipSlot.Hold) {
-      checked = this.replace_hold_item(innerImpact, item, cell);
-      if (!checked) return false;
-    } else
-    if (equip.slot == EquipSlot.Bag) {
-      checked = this.replace_bag_item(innerImpact, item, cell);
-      if (!checked) return false;
+      this.replace_hold_item(removedItems, innerImpact, item, cell);
     } else {
-      checked = this.replace_equip(innerImpact, item, cell);
-      if (!checked) return false;
+      this.replace_equip(removedItems, innerImpact, item, cell);
     }
     equip.added(innerImpact);
     this.update_stats(item);
-    return true;
   }
 
   protected replace_equip(
+    removedItems: InventoryObject[],
     innerImpact: Impact,
     item: InventoryObject,
-    cell?: number
-  ): boolean {
+    cell: number
+  ) {
     const equip = item.equip;
-    let checked: boolean;
-    if (isNumber(cell) && cell < slotCells[equip.slot]) {
-      checked = this.removeSlotCell(innerImpact, equip.slot, cell);
-      if (!checked) return false;
-      this.list[EquipSlot.Hold][cell] = item;
-    } else {
-      const free_cell = this.get_free_cell(equip.slot);
-      if (free_cell == -1) {
-        checked = this.removeSlotCell(innerImpact, equip.slot, 0);
-        if (!checked) return false;
-        this.list[equip.slot][0] = item;
-      } else {
-        checked = this.removeSlotCell(innerImpact, equip.slot, free_cell);
-        if (!checked) return false;
-        this.list[equip.slot][free_cell] = item;
-      }
+    const slot = equip.slot;
+    if (cell > -1 && cell < slotCells[slot]) {
+      this.remove_equipped_item(removedItems, innerImpact, slot, cell);
+      this.list[slot][cell] = item;
+      return;
     }
-    return true;
-  }
-
-  protected replace_bag_item(
-    innerImpact: Impact,
-    item: InventoryObject,
-    cell?: number
-  ): boolean {
-    // TODO:
-    return true;
+    const free_cell = this.get_free_cell(slot);
+    if (free_cell > -1) {
+      this.list[slot][free_cell] = item;
+      return;
+    }
+    this.replace_equip(removedItems, innerImpact, item, 0);
   }
 
   protected replace_hold_item(
+    removedItems: InventoryObject[],
     innerImpact: Impact,
     item: InventoryObject,
-    cell?: number
-  ): boolean {
-    const equip = item.equip;
-    const mainHandItem = this.list[EquipSlot.Hold][0];
-    const offHandItem = this.list[EquipSlot.Hold][1];
-    const mainHand = mainHandItem && mainHandItem.equip;
-    let isTwoHand = mainHand && mainHand.type == EquipType.TwoHand;
-    let checked: boolean;
-    if (isTwoHand || equip.type == EquipType.TwoHand) {
-      checked = this.removeAllSlotCells(innerImpact, EquipSlot.Hold);
-      if (!checked) return false;
-      this.list[EquipSlot.Hold][0] = item;
-    } else {
-      if (isNumber(cell) && cell < slotCells[equip.slot]) {
-        checked = this.removeSlotCell(innerImpact, equip.slot, cell);
-        if (!checked) return false;
-        this.list[EquipSlot.Hold][cell] = item;
-      } else
-      if (offHandItem) {
-        checked = this.removeSlotCell(innerImpact, EquipSlot.Hold, 0);
-        if (!checked) return false;
-        this.list[EquipSlot.Hold][0] = item;
-      } else {
-        this.list[EquipSlot.Hold][1] = item;
-      }
+    cell: number
+  ) {
+    const slot = item.equip.slot;
+    const mainHandItem = this.list[slot][0];
+    if (this.isTwoHand(mainHandItem) || this.isTwoHand(item)) {
+      this.remove_equipped_item(removedItems, innerImpact, slot, 0);
+      this.remove_equipped_item(removedItems, innerImpact, slot, 1);
+      this.list[slot][0] = item;
+      return;
     }
-    return true;
+    this.replace_equip(removedItems, innerImpact, item, cell);
+  }
+
+  isTwoHand(
+    item: InventoryObject
+  ): boolean {
+    return item && item.equip && item.equip.type === EquipType.TwoHand;
   }
 
   protected get_free_cell(
@@ -176,7 +144,20 @@ class EquipsController {
     return -1;
   }
 
+  removeToInventory(
+    removedItems: InventoryObject[],
+    innerImpact: Impact,
+    item: InventoryObject
+  ) {
+    this.remove(removedItems, innerImpact, item);
+    while (removedItems.length && this.stats.freeCells > 0) {
+      const removed_item = removedItems.pop();
+      this.add_to_inventory(removed_item);
+    }
+  }
+
   remove(
+    removedItems: InventoryObject[],
     innerImpact: Impact,
     item: InventoryObject
   ): boolean {
@@ -185,61 +166,23 @@ class EquipsController {
       console.error('The item is not equipped.');
       return false;
     }
-    if (this.check_inventory_free_cell) return false;
-    this.remove_equipped_item(innerImpact, item, cell);
-    return true;
-  }
-
-  removeSlotCell(
-    innerImpact: Impact,
-    slot: EquipSlot,
-    cell: number = 0
-  ): boolean {
-    const item = this.list[slot][cell];
-    if (!item) return false;
-    if (this.check_inventory_free_cell) return false;
-    this.remove_equipped_item(innerImpact, item, cell);
-    return true;
-  }
-
-  protected check_inventory_free_cell() {
-    if (this.stats.freeCells > 0) {
-      return true;
-    }
-    console.info('Equip cannot be removed. The inventory is full.');
-    return false;
-  }
-
-  removeAllSlotCells(
-    innerImpact: Impact,
-    slot: EquipSlot
-  ): boolean {
-    let count: number = 0;
-    for (const item of this.list[slot]) {
-      item && count++;
-    }
-    if (count == 0) return true;
-    if (count > this.stats.freeCells) {
-      return false;
-    }
-    let cell = -1;
-    for (const item of this.list[slot]) {
-      cell++;
-      if (!item) continue;
-      this.remove_equipped_item(innerImpact, item, cell);
-    }
+    const slot = item.equip.slot;
+    this.remove_equipped_item(removedItems, innerImpact, slot, cell);
     return true;
   }
 
   protected remove_equipped_item(
+    removedItems: InventoryObject[],
     innerImpact: Impact,
-    item: InventoryObject,
+    slot: EquipSlot,
     cell: number
   ) {
-    this.list[item.equip.slot][cell] = null;
+    const item = this.list[slot][cell];
+    if (!item) return;
+    this.list[slot][cell] = null;
     this.update_stats(item, true);
     item.equip.removed(innerImpact);
-    this.add_to_inventory(item);
+    removedItems.push(item);
   }
 
   protected update_stats(
@@ -250,8 +193,7 @@ class EquipsController {
     if (item.equip.stats.armor) {
       this.stats.armor += item.equip.stats.armor * operation;
     }
-    if (item.slots) {
-      this.stats.slots += item.slots * operation;
+    if (item.inventory) {
       this.stats.freeCells += item.inventory.freeCells * operation;
       if (isRemove) {
         const index = this.inventory_equips.indexOf(item);
@@ -306,7 +248,7 @@ class EquipsController {
   addToInventory(
     item: InventoryObject
   ): boolean {
-    if (this.check_inventory_free_cell) return false;
+    if (this.stats.freeCells <= 0) return false;
     this.add_to_inventory(item);
     return true;
   }
@@ -315,37 +257,57 @@ class EquipsController {
     item: InventoryObject
   ) {
     for (const equip_item of this.inventory_equips) {
-      if (!equip_item.inventory.freeCells) continue;
+      if (equip_item.inventory.freeCells <= 0) continue;
       equip_item.inventory.add(item);
       break;
     }
     this.stats.freeCells--;
   }
 
+  addToInventoryIndex(
+    item: InventoryObject,
+    inventoryIndex: number
+  ): boolean {
+    const equip_item = this.inventory_equips[inventoryIndex];
+    if (!equip_item) return false;
+    const added = equip_item.inventory.add(item);
+    if (added) {
+      this.stats.freeCells--;
+      return true;
+    }
+    return false;
+  }
+
   equipInventoryItem(
+    removedItems: InventoryObject[],
     innerImpact: Impact,
     inventoryIndex: number,
     itemIndex: number,
     cell?: number
-  ): boolean {
-    const equip = this.inventory_equips[inventoryIndex];
-    if (!equip) return false;
-    const item = equip.inventory.getItem(itemIndex);
-    if (!item) return false;
-    equip.inventory.remove(item);
-    this.stats.freeCells++;
-    const added = this.add(innerImpact, item, cell);
-    if (!added) {
-      equip.inventory.add(item);
-      this.stats.freeCells--;
-      return false;
+  ) {
+    const item = this.removeInventoryItem(inventoryIndex, itemIndex);
+    this.add(removedItems, innerImpact, item, cell);
+    while (removedItems.length && this.stats.freeCells > 0) {
+      const removed_item = removedItems.pop();
+      this.add_to_inventory(removed_item);
     }
-    return true;
+  }
+
+  removeInventoryItem(
+    inventoryIndex: number,
+    itemIndex: number
+  ): InventoryObject {
+    const equip = this.inventory_equips[inventoryIndex];
+    if (!equip) return null;
+    const item = equip.inventory.removeIndex(itemIndex);
+    if (!item) return null;
+    this.stats.freeCells++;
+    return item;
   }
 
   getInventoryItem(
     inventoryIndex: number,
-    itemIndex: number,
+    itemIndex: number
   ): InventoryObject {
     const equip = this.inventory_equips[inventoryIndex];
     if (!equip) return null;

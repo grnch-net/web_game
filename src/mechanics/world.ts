@@ -1,4 +1,5 @@
 import { Impact, InteractResult, ImpactSide } from './interactions/index';
+import { InventoryController } from './inventory/index';
 import { Character } from './character';
 
 export class World {
@@ -59,7 +60,7 @@ export class World {
     return angle <= (Math.PI * 0.25);
   }
 
-  apply_range(
+  protected apply_range(
     distance: number,
     impact: Impact
   ): boolean {
@@ -79,5 +80,14 @@ export class World {
     if (rotate < (unit * 4)) return ImpactSide.Right;
     if (rotate < (unit * 6)) return ImpactSide.Front;
     return ImpactSide.Left;
+  }
+
+  getItemsContainer(
+    author: Character
+  ): InventoryController {
+    // TODO: need world items container extends world_object
+    const container = new InventoryController;
+    container.initialize(Infinity);
+    return container;
   }
 }

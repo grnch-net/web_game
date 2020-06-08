@@ -10,8 +10,8 @@ import {
 import * as utils from '../utils';
 
 class InventoryController {
-  public slots: number;
-  public list: InventoryObject[];
+  slots: number;
+  list: InventoryObject[];
 
   get freeCells(): number {
     return this.slots - this.list.length;
@@ -19,11 +19,11 @@ class InventoryController {
 
   initialize(
     slots: number,
-    list: InventoryObjectParameters[]
+    list?: InventoryObjectParameters[]
   ) {
     this.slots = slots;
     this.list = [];
-    this.initialize_list(list);
+    list && this.initialize_list(list);
   }
 
   protected initialize_list(
@@ -40,7 +40,7 @@ class InventoryController {
   ): boolean {
     items = utils.toArray(items) as InventoryObject[];
     const length = this.list.length + items.length;
-    if (length >= this.slots) return false;
+    if (length > this.slots) return false;
     this.list.push(...items);
     return true;
   }
@@ -48,10 +48,19 @@ class InventoryController {
   remove(
     item: InventoryObject
   ): boolean {
-    if (!this.list.includes(item)) return false;
     const index = this.list.indexOf(item);
+    if (index == -1) return false;
     this.list.splice(index, 1);
     return true;
+  }
+
+  removeIndex(
+    index: number
+  ): InventoryObject {
+    const item = this.list[index];
+    if (!item) return;
+    this.list.splice(index, 1);
+    return item;
   }
 
   getItem(

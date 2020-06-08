@@ -1,7 +1,8 @@
+import type { World } from './world';
 import { Point } from './point';
 
 export class WorldObject {
-  world: any;
+  world: World;
   position: Point;
   protected _rotation: number;
 

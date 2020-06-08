@@ -313,16 +313,24 @@ export class Character extends WorldObject {
     inventoryIndex: number,
     itemIndex: number,
     cell?: number
-  ): boolean {
+  ) {
+    const removedItems: InventoryObject[] = [];
     const impact = new Impact;
-    const added = this.equips.equipInventoryItem(
+    this.equips.equipInventoryItem(
+      removedItems,
       impact,
       inventoryIndex,
       itemIndex,
       cell
     );
-    if (!added) return false;
     this.apply_impact(impact);
-    return true;
+    this.throwItems(removedItems);
+  }
+
+  throwItems(
+    items: InventoryObject | InventoryObject[]
+  ) {
+    const container = this.world.getItemsContainer(this);
+    container.add(items);
   }
 }

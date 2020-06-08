@@ -35,9 +35,11 @@ interface InventoryObjectParameters extends InteractionParameters {
 }
 
 class InventoryObject extends InteractionObject {
-  equip: Equip | null;
-  skill: Skill | null;
-  inventory: InventoryController;
+  // TODO:
+  // _parent: any;
+  equip?: Equip;
+  skill?: Skill;
+  inventory?: InventoryController;
   protected config: InventoryObjectConfig;
   protected parameters: InventoryObjectParameters;
 
@@ -47,10 +49,6 @@ class InventoryObject extends InteractionObject {
 
   get customName(): string {
     return this.parameters.name;
-  }
-
-  get slots(): number {
-    return this.config.slots;
   }
 
   initialize(
