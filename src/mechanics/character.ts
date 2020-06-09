@@ -1,4 +1,5 @@
 import {
+  WorldObjectParameters,
   WorldObject
 } from './world_object';
 
@@ -25,8 +26,7 @@ import {
 
 import {
   InventoryObjectParameters,
-  InventoryObject,
-  // InventoryController
+  InventoryObject
 } from './inventory/index';
 
 import {
@@ -43,7 +43,7 @@ type Attributes = { [key in Attribute]?: RangeParameters };
 type Counters = { [key: string]: number };
 type AttributesRange = { [key in Attribute]?: Range };
 
-export interface CharacterConfig {
+interface CharacterConfig {
   attributes: Attributes;
   counters: Counters;
   effects: EffectParameters[];
@@ -52,12 +52,12 @@ export interface CharacterConfig {
   armorProtect?: number;
 }
 
-export interface CharacterParameters extends CharacterConfig {
+interface CharacterParameters extends CharacterConfig, WorldObjectParameters {
   name: string;
 }
 
 @UTILS.modifiable
-export class Character extends WorldObject {
+class Character extends WorldObject {
   attributes: AttributesRange;
   effects: EffectsController;
   skills: SkillsController;
@@ -77,7 +77,7 @@ export class Character extends WorldObject {
     parameters: CharacterParameters,
     config: CharacterConfig = characterConfig
   ) {
-    super.initialize();
+    super.initialize(parameters);
     this.parameters = parameters;
     this.config = config;
     this.initialize_attributes(parameters.attributes, config.attributes);
@@ -334,3 +334,9 @@ export class Character extends WorldObject {
     container.add(items);
   }
 }
+
+export {
+  CharacterConfig,
+  CharacterParameters,
+  Character
+};

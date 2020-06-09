@@ -7,6 +7,7 @@ type CharactersParameters = { [id: string]: CharacterParameters };
 const charactersParameters: CharactersParameters = {
   0: {
     name: 'hero',
+    position: { x: 0, y: 0, z: 0 },
     attributes: {
       health: { value: 100 },
       stamina: { value: 150 }
@@ -30,6 +31,7 @@ const charactersParameters: CharactersParameters = {
   },
   1: {
     name: 'hero2',
+    position: { x: 0, y: 0, z: 0 },
     attributes: {
       health: { value: 100 },
       stamina: { value: 150 }
@@ -62,9 +64,10 @@ const charactersParameters: CharactersParameters = {
         ]
       }
     ]
-  },
+    },
   2: {
     name: 'hero3',
+    position: { x: 0, y: 0, z: 0 },
     attributes: {
       health: { value: 100 },
       stamina: { value: 150 }

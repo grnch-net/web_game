@@ -1,12 +1,33 @@
-import { Impact, InteractResult, ImpactSide } from './interactions/index';
-import { InventoryController } from './inventory/index';
-import { Character } from './character';
+import type {
+  PointParameters
+} from './point';
+
+import type {
+  InventoryController
+} from './inventory/index';
+
+import {
+  Impact,
+  InteractResult,
+  ImpactSide
+} from './interactions/index';
+
+import {
+  Character
+} from './character';
+
+import {
+  BoxParameters,
+  Box
+} from './box';
 
 export class World {
   characters: Character[];
+  boxes: Box[];
 
   initialize() {
     this.characters = [];
+    this.boxes = [];
   }
 
   addCharacter(
@@ -85,9 +106,28 @@ export class World {
   getItemsContainer(
     author: Character
   ): InventoryController {
-    // TODO: need world items container extends world_object
-    const container = new InventoryController;
-    container.initialize(Infinity);
-    return container;
+    let box: Box;
+    for (const _box of this.boxes) {
+      const distance = _box.position.lengthTo(author.position);
+      if (distance > 2) continue;
+      box = _box;
+      break;
+    };
+    if (box) return box.inventory;
+    box = this.create_box(author.position);
+    return box.inventory;
+  }
+
+  protected create_box(
+    position: PointParameters
+  ): Box {
+    const parameters: BoxParameters = {
+      position: { ...position },
+      inventory: []
+    };
+    const box = new Box;
+    box.initialize(parameters);
+    this.boxes.push(box);
+    return box;
   }
 }

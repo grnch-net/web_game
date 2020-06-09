@@ -84,6 +84,7 @@ class InventoryObject extends InteractionObject {
     parameters: InventoryObjectParameters
   ) {
     if (slots === undefined) return;
+    if (!parameters.inventory) parameters.inventory = [];
     this.inventory = new InventoryController;
     this.inventory.initialize(slots, parameters.inventory);
   }

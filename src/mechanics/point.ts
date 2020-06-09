@@ -1,7 +1,37 @@
-export class Point {
-  x: number = 0;
-  y: number = 0;
-  z: number = 0;
+interface PointParameters {
+  x: number;
+  y: number;
+  z: number;
+}
+
+class Point {
+  constructor(
+    protected parameters: PointParameters
+  ) {};
+
+  get x(): number {
+    return this.parameters.x;
+  };
+
+  set x(value: number) {
+    this.parameters.x = value;
+  }
+
+  get y(): number {
+    return this.parameters.y;
+  };
+
+  set y(value: number) {
+    this.parameters.y = value;
+  }
+
+  get z(): number {
+    return this.parameters.z;
+  };
+
+  set z(value: number) {
+    this.parameters.z = value;
+  }
 
   set(
     x: number,
@@ -22,3 +52,8 @@ export class Point {
     return Math.sqrt(qX + qY + qZ);
   }
 }
+
+export {
+  PointParameters,
+  Point
+};

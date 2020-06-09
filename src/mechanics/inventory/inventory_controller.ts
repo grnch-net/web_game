@@ -19,18 +19,18 @@ class InventoryController {
 
   initialize(
     slots: number,
-    list?: InventoryObjectParameters[]
+    parameters?: InventoryObjectParameters[]
   ) {
     this.slots = slots;
     this.list = [];
-    list && this.initialize_list(list);
+    this.initialize_list(parameters);
   }
 
   protected initialize_list(
-    list: InventoryObjectParameters[]
+    parameters: InventoryObjectParameters[]
   ) {
-    for (const parameters of list) {
-      const item = InventoryUtils.create(parameters);
+    for (const data of parameters) {
+      const item = InventoryUtils.create(data);
       this.add(item);
     }
   }
