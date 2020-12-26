@@ -1,12 +1,15 @@
 import { Skill } from '../skills/skill';
+type Mod = Modifiable<typeof Skill>;
 
-(Skill as any).Modify((Latest: typeof Skill) => {
-  return class extends Latest {
-    use(
-      ...args: any
-    ) {
-      console.info('Use skill', this.name);
-      super.use(args[0], args[1]);
-    }
+class SkillLog extends (Skill as Mod).Latest {
+
+  use(
+    ...args: any
+  ) {
+    console.info('Use skill', this.name);
+    super.use(args[0], args[1]);
   }
-});
+
+}
+
+(Skill as Mod).modify(SkillLog);

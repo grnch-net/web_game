@@ -1,10 +1,7 @@
-const Class = class {};
-type AnyClass = typeof Class;
-
-function Modify<T extends AnyClass>(
-  mod: (Latest: AnyClass) => T
+function modify(
+  Modified: any
 ) {
-  const Modified = this.Latest = mod(this.Latest);
+  this.Latest = Modified;
   const properties = Object.getOwnPropertyDescriptors(Modified.prototype);
   const proto = Object.getPrototypeOf(Modified.prototype);
   Object.defineProperties(this.prototype, properties);
@@ -17,15 +14,26 @@ function Modify<T extends AnyClass>(
 }
 
 function modifiable(constructor: any): any {
+  const properties = Object.getOwnPropertyDescriptors(constructor.prototype);
   const proto = Object.getPrototypeOf(constructor.prototype);
-  return class extends constructor {
-    protected static Latest = constructor;
+  const Class = class extends constructor {
+    static Latest = constructor;
     static Base = constructor;
-    static Modify = Modify;
+    static modify = modify;
     baseSuper = proto;
   }
+  Object.defineProperties(Class.prototype, properties);
+  Object.setPrototypeOf(Class.prototype, proto);
+  return Class;
 }
 
 export {
   modifiable
+}
+
+declare global {
+  type Modifiable<T> = T & {
+    Latest: T;
+    modify: typeof modify;
+  }
 }
