@@ -4,14 +4,9 @@
 		"src/main.ts"
 	],
 	"compilerOptions": {
-		"allowJs": true,
-		"target": "es6",
-		"moduleResolution": "node",
-		"noImplicitAny": true,
-		"lib": [
-		  "dom",
-		  "es7"
-		],
-		"experimentalDecorators": true
+		"target":                 "ES5",
+    "downlevelIteration":     true,
+    "experimentalDecorators": true,
+    "lib":                    ["ESNEXT", "DOM"]
 	}
 }
