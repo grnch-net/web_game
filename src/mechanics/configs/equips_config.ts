@@ -6,12 +6,11 @@ import {
 } from '../equips/equip_types';
 
 
-type EquipsConfig = {
-  [id: string]: EquipConfig
-};
+type EquipsConfig = Associative<EquipConfig>;
 
 const equipsConfig: EquipsConfig = {
-  0: { // Short sword
+  0: {
+    name: 'Short sword',
     slot: EquipSlot.Hold,
     type: EquipType.OneHand,
     subType: EquipSubType.Sword,
@@ -24,7 +23,8 @@ const equipsConfig: EquipsConfig = {
       defense: 10
     }
   },
-  1: { // Small shield
+  1: {
+    name: 'Small shield',
     slot: EquipSlot.Hold,
     type: EquipType.OneHand,
     subType: EquipSubType.Shield,
@@ -35,7 +35,8 @@ const equipsConfig: EquipsConfig = {
       defense: 50
     }
   },
-  2: { // Wooden staff
+  2: {
+    name: 'Wooden staff',
     slot: EquipSlot.Hold,
     type: EquipType.TwoHand,
     subType: EquipSubType.Polearm,
@@ -48,24 +49,28 @@ const equipsConfig: EquipsConfig = {
       defense: 25
     }
   },
-  3: { // Iron helmet
+  3: {
+    name: 'Iron helmet',
     slot: EquipSlot.Head,
     stats: {
       durability: 10,
       armor: 1
     }
   },
-  4: { // Leather armor
+  4: {
+    name: 'Leather armor',
     slot: EquipSlot.Body,
     stats: {
       durability: 20,
       armor: 1
     }
   },
-  5: { // Small bag
-    slot: EquipSlot.Bag,
+  5: {
+    name: 'Small bag',
+    slot: EquipSlot.Bag
   },
-  6: { // Bow
+  6: {
+    name: 'Bow',
     slot: EquipSlot.Hold,
     type: EquipType.OneHand,
     subType: EquipSubType.Bow,
@@ -77,7 +82,8 @@ const equipsConfig: EquipsConfig = {
       range: 10
     }
   },
-  7: { // Arrow
+  7: {
+    name: 'Arrow',
     slot: EquipSlot.Hold,
     type: EquipType.OneHand,
     subType: EquipSubType.Arrow,
@@ -87,7 +93,8 @@ const equipsConfig: EquipsConfig = {
       range: 10
     }
   },
-  8: { // Throwing spears
+  8: {
+    name: 'Throwing spears',
     slot: EquipSlot.Hold,
     type: EquipType.OneHand,
     subType: EquipSubType.Thrown,

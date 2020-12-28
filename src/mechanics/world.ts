@@ -4,7 +4,7 @@ import type {
 
 import type {
   InventoryController
-} from './inventory/index';
+} from './inventories/index';
 
 import {
   Impact,

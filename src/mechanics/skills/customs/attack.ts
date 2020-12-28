@@ -14,9 +14,9 @@ import {
   SkillNeedsResult
 } from '../skill';
 
-
 @UTILS.modifiable
 class Attack extends Skill {
+
   protected combination: number;
   protected usage_equip: Equip | null;
 
@@ -95,6 +95,7 @@ class Attack extends Skill {
       this.usage_equip.durability -= 1;
     }
   }
+
 }
 
 Skill.AddCustomClass('attack', Attack);

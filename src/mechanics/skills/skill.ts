@@ -14,7 +14,12 @@ import type {
   EquipSlot
 } from '../equips/index';
 
+import {
+  skillsConfig
+} from '../configs/skills_config';
+
 interface SkillConfig extends InteractionConfig {
+  specialClass?: string;
   useCount?: number;
   castTime?: number;
   usageTime?: number;
@@ -41,8 +46,34 @@ interface SkillNeedsResult {
   equips: Equip[];
 }
 
+interface SkillCustomize {
+  customs: Associative<typeof Skill>;
+  configs: Associative<Skill>;
+
+  AddCustomClass(
+    id: string,
+    custom: typeof Skill
+  ): void;
+
+  findConfig(
+    id: string
+  ): SkillConfig;
+
+  findSpecialClass(
+    specialId: string
+  ): typeof Skill;
+
+  create(
+    parameters: SkillParameters,
+    id?: string | number
+  ): Skill;
+}
+
+type Customize = typeof InteractionObject & SkillCustomize;
+
+@UTILS.customize(skillsConfig)
 @UTILS.modifiable
-class Skill extends InteractionObject {
+class Skill extends (InteractionObject as Customize) {
   static multiplyEfficiency = 0.001;
 
   castTime: number;

@@ -16,6 +16,7 @@ import {
 } from '../../equips/index';
 
 class Block extends Skill {
+
   protected usage_equip: Equip | null;
 
   get needs(): SkillNeeds {
@@ -95,6 +96,7 @@ class Block extends Skill {
     }
     super.use(innerImpact, outerImpact);
   }
+
 }
 
 Skill.AddCustomClass('block', Block);

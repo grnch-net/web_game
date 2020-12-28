@@ -2,7 +2,7 @@ import type {
   SkillConfig
 } from '../skills/index';
 
-type SkillsConfig = { [id: string]: SkillConfig };
+type SkillsConfig = Associative<SkillConfig>;
 
 const skillsConfig: SkillsConfig = {
   0: {

@@ -5,7 +5,12 @@ import {
   InteractionObject
 } from '../interactions/index';
 
+import {
+  effectsConfig
+} from '../configs/effects_config';
+
 interface EffectConfig extends InteractionConfig {
+  specialClass?: string;
   unique?: string;
   liveTime?: number;
 }
@@ -15,15 +20,38 @@ interface EffectParameters extends InteractionParameters {
   liveTime?: number;
 }
 
-class Effect extends InteractionObject {
+interface EffectCustomize {
+  customs: Associative<typeof Effect>;
+  configs: Associative<Effect>;
+
+  AddCustomClass(
+    id: string,
+    custom: typeof Effect
+  ): void;
+
+  findConfig(
+    id: string
+  ): EffectConfig;
+
+  findSpecialClass(
+    specialId: string
+  ): typeof Effect;
+
+  create(
+    parameters: EffectParameters,
+    id?: string | number
+  ): Effect;
+}
+
+type Customize = typeof InteractionObject & EffectCustomize;
+
+@UTILS.customize(effectsConfig)
+class Effect extends (InteractionObject as Customize) {
+
   active: boolean;
   ended: boolean;
   protected config: EffectConfig;
   protected parameters: EffectParameters;
-
-  get name(): string {
-    return this.config.name;
-  }
 
   get unique(): string {
     return this.config.unique;
@@ -32,7 +60,6 @@ class Effect extends InteractionObject {
   get liveTime(): number {
     return this.parameters.liveTime;
   }
-
 
   initialize(
     config: EffectConfig,
@@ -81,6 +108,7 @@ class Effect extends InteractionObject {
     innerImpact: Impact,
     outerImpact: Impact
   ) {}
+
 }
 
 export {

@@ -11,9 +11,8 @@ import {
 
 import {
   InventoryObjectParameters,
-  InventoryObject,
-  InventoryUtils
-} from '../inventory/index';
+  InventoryObject
+} from '../inventories/index';
 
 interface Stats {
   armor: number;
@@ -31,10 +30,11 @@ const slotCells = {
 type EquipList = { [key in EquipSlot]?: InventoryObject[] };
 
 class EquipsController {
+
   list: EquipList;
   armorProtect: number;
   stats: Stats;
-  protected inventory_equips: InventoryObject[];
+  protected inventory_equips: InventoryObject[] = [];
 
   initialize(
     innerImpact: Impact,
@@ -66,7 +66,7 @@ class EquipsController {
       this.list[slot] = [];
     }
     for (const parameters of list) {
-      const item = InventoryUtils.create(parameters);
+      const item = InventoryObject.create(parameters);
       this.add([], innerImpact, item);
     }
   }
@@ -190,7 +190,7 @@ class EquipsController {
     isRemove = false
   ) {
     const operation = isRemove ? -1 : 1;
-    if (item.equip.stats.armor) {
+    if (item.equip.stats?.armor) {
       this.stats.armor += item.equip.stats.armor * operation;
     }
     if (item.inventory) {
@@ -327,6 +327,7 @@ class EquipsController {
     }
     innerImpact.influenced.health = -damage;
   }
+
 }
 
 export {

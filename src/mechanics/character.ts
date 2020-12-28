@@ -27,7 +27,7 @@ import {
 import {
   InventoryObjectParameters,
   InventoryObject
-} from './inventory/index';
+} from './inventories/index';
 
 import {
   Skill,

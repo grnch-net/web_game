@@ -1,10 +1,8 @@
 import type {
   InventoryObjectConfig
-} from '../inventory/index';
+} from '../inventories/index';
 
-type InventoryConfig = {
-  [id: string]: InventoryObjectConfig
-};
+type InventoryConfig = Associative<InventoryObjectConfig>;
 
 const inventoryConfig: InventoryConfig = {
   0: {

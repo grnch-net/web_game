@@ -13,7 +13,7 @@ function modify(
   // Object.setPrototypeOf(this, static_proto);
 }
 
-function modifiable(constructor: any): any {
+function modifiable<T extends AnyClass>(constructor: T) {
   const properties = Object.getOwnPropertyDescriptors(constructor.prototype);
   const proto = Object.getPrototypeOf(constructor.prototype);
   const Class = class extends constructor {
@@ -35,5 +35,5 @@ declare global {
   type Modifiable<T> = T & {
     Latest: T;
     modify: typeof modify;
-  }
+  };
 }

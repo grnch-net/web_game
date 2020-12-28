@@ -25,6 +25,7 @@ const ammoEquips = [
 
 @UTILS.modifiable
 class Shot extends Skill {
+
   protected usage_equips: Equip[];
 
   get needs(): SkillNeeds {
@@ -103,6 +104,7 @@ class Shot extends Skill {
       this.parameters.experience += 1;
     }
   }
+
 }
 
 Skill.AddCustomClass('shot', Shot);

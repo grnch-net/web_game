@@ -39,7 +39,8 @@ export function test_mechanics() {
   world.tick(3);
   console.info('hero2 health:', hero2.attributes.health.value);
 
-  hero2.useInventoryItem(0);
-  world.tick(1);
-  console.info('hero2 health:', hero2.attributes.health.value);
+  // TODO:
+  // hero2.useInventoryItem(0);
+  // world.tick(1);
+  // console.info('hero2 health:', hero2.attributes.health.value);
 }

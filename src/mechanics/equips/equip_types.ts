@@ -39,6 +39,7 @@ interface EquipStats {
 }
 
 interface EquipConfig extends InteractionConfig {
+  specialClass?: string;
   slot: EquipSlot;
   type?: EquipType;
   subType?: EquipSubType;

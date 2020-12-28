@@ -1,6 +1,6 @@
 import type { EffectConfig } from '../effects/index';
 
-type EffectsConfig = { [id: string]: EffectConfig };
+type EffectsConfig = Associative<EffectConfig>;
 
 const effectsConfig: EffectsConfig = {
   0: {

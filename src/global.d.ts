@@ -9,4 +9,7 @@ declare global {
   const GLTFLoader: typeof gltf.GLTFLoader;
   const GLTF: gltf.GLTF;
   const UTILS: typeof utils.UTILS;
+
+  type Associative<T> = { [key: string]: T };
+  type AnyClass = { new(...constructorArgs: any[]) };
 }

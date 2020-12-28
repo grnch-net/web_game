@@ -14,8 +14,7 @@ interface InteractResult {
 }
 
 interface InteractionConfig {
-  name?: string;
-  specialClass?: string;
+  name: string;
   innerStaticInfluence?: InfluenceList;
   innerGradualInfluence?: InfluenceList;
   outerStaticInfluence?: InfluenceList;
@@ -23,26 +22,14 @@ interface InteractionConfig {
 }
 
 interface InteractionParameters {
+  name?: string;
   innerStaticInfluence?: InfluenceList;
   innerGradualInfluence?: InfluenceList;
   outerStaticInfluence?: InfluenceList;
   outerGradualInfluence?: InfluenceList;
 }
 
-type CustomsList = { [id: string]: typeof InteractionObject };
-
 class InteractionObject {
-  static customs: CustomsList;
-
-  static AddCustomClass(
-    id: string,
-    custom: typeof InteractionObject
-  ) {
-    if (!this.hasOwnProperty('customs')) {
-      this.customs = {};
-    }
-    this.customs[id] = custom;
-  }
 
   protected config: InteractionConfig;
   protected parameters: InteractionParameters;
@@ -50,6 +37,10 @@ class InteractionObject {
   protected inner_gradual_influence: GradualInfluence;
   protected outer_static_influence: Influence;
   protected outer_gradual_influence: GradualInfluence;
+
+  get name(): string {
+    return this.config.name;
+  }
 
   initialize(
     config: InteractionConfig,
@@ -103,6 +94,7 @@ class InteractionObject {
     innerImpact: Impact,
     result: InteractResult
   ) {}
+
 }
 
 export {

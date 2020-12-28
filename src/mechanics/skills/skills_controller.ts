@@ -3,17 +3,13 @@ import type {
   InteractResult
 } from '../interactions/index';
 
-import type {
+import {
   Skill,
   SkillParameters
 } from './skill';
 
-import {
-  SkillsUtils
-} from './skills_utils';
-
 class SkillsController {
-  list: { [id: string]: Skill };
+  list: Associative<Skill>;
   using: Skill;
   protected recoveries: Skill[];
 
@@ -23,7 +19,7 @@ class SkillsController {
     this.list = {};
     this.recoveries = [];
     for (const parameters of list) {
-      const skill = SkillsUtils.create(parameters);
+      const skill = Skill.create(parameters);
       this.add(skill);
     }
   }

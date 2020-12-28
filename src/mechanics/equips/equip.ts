@@ -12,7 +12,38 @@ import {
   EquipParameters
 } from './equip_types'
 
-class Equip extends InteractionObject {
+import {
+  equipsConfig
+} from '../configs/equips_config';
+
+interface EquipCustomize {
+  customs: Associative<typeof Equip>;
+  configs: Associative<Equip>;
+
+  AddCustomClass(
+    id: string,
+    custom: typeof Equip
+  ): void;
+
+  findConfig(
+    id: string
+  ): EquipConfig;
+
+  findSpecialClass(
+    specialId: string
+  ): typeof Equip;
+
+  create(
+    parameters: EquipParameters,
+    id: string | number
+  ): Equip;
+}
+
+type Customize = typeof InteractionObject & EquipCustomize;
+
+@UTILS.customize(equipsConfig)
+class Equip extends (InteractionObject as Customize) {
+
   protected config: EquipConfig;
   protected parameters: EquipParameters;
 
@@ -52,7 +83,7 @@ class Equip extends InteractionObject {
     config: EquipConfig,
     parameters: EquipParameters
   ) {
-    parameters.durability = parameters.durability || config.stats.durability;
+    parameters.durability = parameters.durability || config.stats?.durability;
   }
 
   added(
@@ -71,6 +102,7 @@ class Equip extends InteractionObject {
     innerImpact: Impact,
     outerImpact: Impact
   ) {}
+
 }
 
 export {

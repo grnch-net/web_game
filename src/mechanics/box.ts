@@ -6,7 +6,7 @@ import {
 import {
   InventoryObjectParameters,
   InventoryController
-} from './inventory/index';
+} from './inventories/index';
 
 interface BoxParameters extends WorldObjectParameters {
   inventory: InventoryObjectParameters[];

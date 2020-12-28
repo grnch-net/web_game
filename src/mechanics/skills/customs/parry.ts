@@ -16,6 +16,7 @@ import {
 } from '../../equips/index';
 
 class Parry extends Skill {
+
   protected usage_equips: Equip[] | null;
 
   get needs(): SkillNeeds {
@@ -100,6 +101,7 @@ class Parry extends Skill {
     }
     super.use(innerImpact, outerImpact);
   }
+
 }
 
 Skill.AddCustomClass('parry', Parry);
