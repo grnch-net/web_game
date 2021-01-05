@@ -5,56 +5,60 @@ import {
 } from '../../interactions/index';
 
 import {
-  Skill,
-  SkillNeeds,
-  SkillNeedsResult
+  Skill
 } from '../skill';
 
-import {
-  EquipSlot,
+import type {
   Equip
 } from '../../equips/index';
 
+@UTILS.modifiable
 class Block extends Skill {
 
   protected usage_equip: Equip | null;
 
-  get needs(): SkillNeeds {
-    return {
-      equips: [EquipSlot.Hold]
-    };
-  }
-
   onOuterImpact(
     innerImpact: Impact,
     result: InteractResult
-  ): InteractResult {
+  ) {
     super.onOuterImpact(innerImpact, result);
     if (!this.usageTime) return;
-    const { stun, side, penetration } = innerImpact.rules;
-    const damage = innerImpact.influenced.health < 0;
-    if (!damage && !stun) return;
+    const { stun, side } = innerImpact.rules;
+    const is_damage = innerImpact.influenced.health < 0;
+    if (!is_damage && !stun) return;
     if (side !== ImpactSide.Front) return;
-    let block = this.experience * Block.multiplyEfficiency;
-    let defense = 0;
-    if (this.usage_equip) {
-      block += this.usage_equip.stats.block;
-      defense += this.usage_equip.stats.defense;
-    }
-    const chance = this.randomize_chance(block);
-    result.avoid = chance > penetration;
+    result.avoid = this.check_block(innerImpact);
     if (result.avoid) {
-      this.stock.apply(innerImpact.influenced);
-      this.apply_block(innerImpact, defense);
-      if (this.usage_equip) {
-        this.usage_equip.durability -= 1;
-      }
+      this.avoid_block(innerImpact);
     } else {
-      this.parameters.experience += 1;
+      this.fail_block();
     }
     this.usageTime = 0;
-    return result;
   }
+
+  protected check_block(
+    innerImpact: Impact
+  ): boolean {
+    return true;
+  }
+
+  protected calculate_block_chance(): number {
+    return 0;
+  }
+
+  protected avoid_block(
+    innerImpact: Impact
+  ) {
+    let defense = this.calculate_defence();
+    this.stock.apply(innerImpact.influenced);
+    this.apply_block(innerImpact, defense);
+  }
+
+  protected calculate_defence(): number {
+    return 0;
+  }
+
+  protected fail_block() {}
 
   protected apply_block(
     impact: Impact,
@@ -71,30 +75,6 @@ class Block extends Skill {
     if (impact.rules.stun) {
       delete impact.rules.stun;
     }
-  }
-
-  checkNeeds(
-    result: SkillNeedsResult
-  ): boolean {
-    super.checkNeeds(result);
-    this.usage_equip = null;
-    for (const equip of result.equips) {
-      if (equip && equip.stats.block) {
-        this.usage_equip = equip
-        break;
-      }
-    }
-    return true;
-  }
-
-  use(
-    innerImpact: Impact,
-    outerImpact: Impact
-  ) {
-    if (this.usage_equip && this.usage_equip.stats.speed) {
-      this.castTime = this.usage_equip.stats.speed;
-    }
-    super.use(innerImpact, outerImpact);
   }
 
 }

@@ -1,4 +1,3 @@
-import './attack';
-import './shot';
-import './skill';
-import './character';
+import './log/index';
+import './experience/index';
+import './penetration/index';

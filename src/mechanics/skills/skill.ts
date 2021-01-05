@@ -39,11 +39,11 @@ interface SkillParameters extends InteractionParameters {
 }
 
 interface SkillNeeds {
-  equips: EquipSlot[];
+  equips?: EquipSlot[];
 }
 
 interface SkillNeedsResult {
-  equips: Equip[];
+  equips?: Equip[];
 }
 
 interface SkillCustomize {
@@ -74,6 +74,7 @@ type Customize = typeof InteractionObject & SkillCustomize;
 @UTILS.customize(skillsConfig)
 @UTILS.modifiable
 class Skill extends (InteractionObject as Customize) {
+
   static multiplyEfficiency = 0.001;
 
   castTime: number;
@@ -106,7 +107,7 @@ class Skill extends (InteractionObject as Customize) {
   }
 
   get needs(): SkillNeeds {
-    return this.config.needs;
+    return this.get_needs();
   }
 
   get reusable(): boolean {
@@ -133,6 +134,10 @@ class Skill extends (InteractionObject as Customize) {
     if (config.gradualCost) {
       this.gradualCost = new GradualInfluence(config.gradualCost);
     }
+  }
+
+  protected get_needs(): SkillNeeds {
+    return this.config.needs || {};
   }
 
   reset() {
@@ -245,9 +250,14 @@ class Skill extends (InteractionObject as Customize) {
     innerImpact: Impact,
     outerImpact: Impact
   ) {
+    this.update_cast_time();
     if (!this.castTime) {
       this.on_apply(innerImpact, outerImpact);
     }
+  }
+
+  protected update_cast_time() {
+    this.castTime = 0;
   }
 
   onCancel() {}
@@ -263,6 +273,7 @@ class Skill extends (InteractionObject as Customize) {
     const random = Math.random() * half;
     return half + random;
   }
+
 }
 
 export {

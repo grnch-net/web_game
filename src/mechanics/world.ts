@@ -21,6 +21,7 @@ import {
   Box
 } from './box';
 
+@UTILS.modifiable
 export class World {
   characters: Character[];
   boxes: Box[];
@@ -84,10 +85,7 @@ export class World {
   protected apply_range(
     distance: number,
     impact: Impact
-  ): boolean {
-    if (distance < 2) return true;
-    impact.rules.penetration -= distance;
-  }
+  ) {}
 
   protected calculate_impact_side(
     author: Character,
