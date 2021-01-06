@@ -63,6 +63,7 @@ interface InventoryCustomize {
 type Customize = typeof InteractionObject & InventoryCustomize;
 
 @UTILS.customize(inventoryConfig)
+@UTILS.modifiable
 class InventoryObject extends (InteractionObject as Customize) {
 
   // TODO:
@@ -82,27 +83,7 @@ class InventoryObject extends (InteractionObject as Customize) {
     parameters: InventoryObjectParameters
   ) {
     super.initialize(config, parameters);
-    this.initialize_equip(config.equip, parameters);
-    this.initialize_skill(config.skill, parameters);
     this.initialize_inventory(config.slots, parameters);
-  }
-
-  initialize_equip(
-    id: string | number,
-    parameters: InventoryObjectParameters
-  ) {
-    if (id === undefined) return;
-    if (!parameters.equip) parameters.equip = {};
-    this.equip = Equip.create(parameters.equip, id);
-  }
-
-  initialize_skill(
-    id: string | number,
-    parameters: InventoryObjectParameters
-  ) {
-    if (id === undefined) return;
-    if (!parameters.skill) parameters.skill = { id };
-    this.skill = Skill.create(parameters.skill, id);
   }
 
   initialize_inventory(
