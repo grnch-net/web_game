@@ -1,4 +1,4 @@
-console.info('modifications/log/character');
+console.info('characters/modifications/log/character');
 
 import {
   Character

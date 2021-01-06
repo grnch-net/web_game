@@ -1,6 +1,6 @@
 import './modifications/index';
 import { World } from './world';
-import { Character } from './character';
+import { Character } from './characters/character';
 import { charactersParameters } from './configs/characters_parameters';
 
 export function test_mechanics() {

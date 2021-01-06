@@ -14,7 +14,7 @@ import {
 
 import {
   Character
-} from './character';
+} from './characters/character';
 
 import {
   BoxParameters,
