@@ -7,9 +7,9 @@ export function test_mechanics() {
   const world = (window as any).world = new World();
   world.initialize();
 
-  const hero = (window as any).hero = new Character();
-  hero.initialize(charactersParameters[0]);
-  world.addCharacter(hero);
+  // const hero = (window as any).hero = new Character();
+  // hero.initialize(charactersParameters[0]);
+  // world.addCharacter(hero);
 
   const hero3 = (window as any).hero3 = new Character();
   hero3.initialize(charactersParameters[2]);

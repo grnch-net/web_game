@@ -1,6 +1,6 @@
-import {
+import type {
   CharacterConfig
-} from '../character';
+} from '../characters/character';
 
 const characterConfig: CharacterConfig = {
   attributes: {

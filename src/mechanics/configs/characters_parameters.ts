@@ -1,6 +1,6 @@
-import {
+import type {
   CharacterParameters
-} from '../character';
+} from '../characters/character';
 
 type CharactersParameters = { [id: string]: CharacterParameters };
 

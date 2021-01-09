@@ -1,4 +1,6 @@
-import type { EffectConfig } from '../effects/index';
+import type {
+  EffectConfig
+} from '../effects/index';
 
 type EffectsConfig = Associative<EffectConfig>;
 

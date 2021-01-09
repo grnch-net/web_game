@@ -71,13 +71,13 @@ class Character extends WorldObject {
     return this.parameters.name;
   }
 
-  get counters(): Counters {
-    return this.parameters.counters;
-  }
+  // get counters(): Counters {
+  //   return this.parameters.counters;
+  // }
 
   initialize(
     parameters: CharacterParameters,
-    config: CharacterConfig
+    config?: CharacterConfig
   ) {
     super.initialize(parameters);
     this.parameters = parameters;

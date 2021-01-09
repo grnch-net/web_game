@@ -120,8 +120,9 @@ class CharacterSkill extends (Character as Mod).Latest {
   protected check_skill_needs(
     skill: Skill
   ) {
-    if (skill.needs) {
-      const needs_result = this.get_skill_needs(skill.needs);
+    const needs = skill.needs;
+    if (needs) {
+      const needs_result = this.get_skill_needs(needs);
       const checked = skill.checkNeeds(needs_result);
       if (!checked) {
         return false;
