@@ -2,7 +2,7 @@ import type {
   Impact
 } from '../../interactions/index';
 
-import {
+import type {
   Equip
 } from '../../equips/index';
 

@@ -60,6 +60,28 @@ interface CharacterParameters extends CharacterConfig, WorldObjectParameters {
 
 @UTILS.modifiable
 class Character extends WorldObject {
+
+  static createParameters(
+    name: string
+  ) {
+    return {
+      name,
+      position: { x: 0, y: 0, z: 0 },
+      attributes: {
+        health: {
+          value: characterConfig.attributes.health.max
+        },
+        stamina: {
+          value: characterConfig.attributes.stamina.max
+        }
+      },
+      counters: {},
+      effects: [],
+      skills: [],
+      equips: []
+    }
+  }
+
   attributes: AttributesRange;
   effects: EffectsController;
   skills: SkillsController;
@@ -222,7 +244,7 @@ class Character extends WorldObject {
     for (key in influenced) {
       const inner_value = influenced[key];
       const current_value = this.attributes[key].value;
-      const result = current_value - inner_value;
+      const result = current_value + inner_value;
       if (result < 0) {
         return false;
       }

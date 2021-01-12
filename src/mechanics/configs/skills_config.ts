@@ -4,37 +4,24 @@ import type {
 
 type SkillsConfig = Associative<SkillConfig>;
 
+enum SkillName {
+  Recreation,
+  Eat,
+  Attack,
+  Block,
+  Parry,
+  Shot
+}
+
 const skillsConfig: SkillsConfig = {
-  0: {
+  [SkillName.Recreation]: {
     name: 'Recreation',
     usageTime: Infinity,
     innerGradualInfluence: {
       'health': 0.83
     }
   },
-  1: {
-    name: 'Attack',
-    specialClass: 'attack',
-    reusable: true,
-    castTime: 1,
-    usageTime: 1,
-    cost: {
-      'stamina': 25
-    },
-    outerStaticInfluence: {
-      'health': -10
-    }
-  },
-  2: {
-    name: 'Block',
-    specialClass: 'block',
-    castTime: 0.5,
-    usageTime: Infinity,
-    stock: {
-      'stamina': 10
-    }
-  },
-  3: {
+  [SkillName.Eat]: {
     name: 'Eat',
     useCount: 1,
     usageTime: 60,
@@ -42,25 +29,55 @@ const skillsConfig: SkillsConfig = {
       'health': 2
     }
   },
-  4: {
+  [SkillName.Attack]: {
+    name: 'Attack',
+    specialClass: 'attack',
+    reusable: true,
+    castTime: 1,
+    usageTime: 1,
+    cost: {
+      'stamina': -25
+    },
+    outerStaticInfluence: {
+      'health': -10
+    },
+    stats: {
+      penetration: 10
+    }
+  },
+  [SkillName.Block]: {
+    name: 'Block',
+    specialClass: 'block',
+    castTime: 0.5,
+    usageTime: Infinity,
+    stock: {
+      'stamina': -10
+    },
+    stats: {
+      penetration: 10,
+      defense: 10
+    }
+  },
+  [SkillName.Parry]: {
     name: 'Parry',
     specialClass: 'parry',
     castTime: 0.5,
     usageTime: Infinity,
     stock: {
-      'stamina': 20
+      'stamina': -20
     }
   },
-  5: {
+  [SkillName.Shot]: {
     name: 'Shot',
     specialClass: 'shot',
     stock: {
-      'stamina': 10
+      'stamina': -10
     }
   }
 };
 
 export {
   SkillsConfig,
-  skillsConfig
+  SkillName,
+  skillsConfig,
 }

@@ -4,8 +4,12 @@ import type {
 
 type EffectsConfig = Associative<EffectConfig>;
 
+enum EffectName {
+  InhStaminaRegen,
+}
+
 const effectsConfig: EffectsConfig = {
-  0: {
+  [EffectName.InhStaminaRegen]: {
     name: 'Inherent stamina regeneration',
     innerGradualInfluence: {
       stamina: 5
@@ -15,5 +19,6 @@ const effectsConfig: EffectsConfig = {
 
 export {
   EffectsConfig,
+  EffectName,
   effectsConfig
 }

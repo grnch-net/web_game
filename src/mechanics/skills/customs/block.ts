@@ -4,13 +4,13 @@ import {
   InteractResult
 } from '../../interactions/index';
 
-import {
-  Skill
-} from '../skill';
-
 import type {
   Equip
 } from '../../equips/index';
+
+import {
+  Skill
+} from '../skill';
 
 @UTILS.modifiable
 class Block extends Skill {
@@ -43,7 +43,7 @@ class Block extends Skill {
   }
 
   protected calculate_block_chance(): number {
-    return 0;
+    return this.config.stats?.penetration || 0;
   }
 
   protected avoid_block(
@@ -55,7 +55,7 @@ class Block extends Skill {
   }
 
   protected calculate_defence(): number {
-    return 0;
+    return this.config.stats?.defense || 0;
   }
 
   protected fail_block() {}

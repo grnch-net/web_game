@@ -65,7 +65,7 @@ class AttackEquip extends (Attack as Mod).Latest {
     outerImpact: Impact
   ) {
     super.on_apply(innerImpact, outerImpact);
-    outerImpact.influenced.health = -this.usage_equip?.stats?.meleeDamage || 0;
+    outerImpact.influenced.health += -this.usage_equip?.stats?.meleeDamage || 0;
   }
 
   protected calculate_penetration(

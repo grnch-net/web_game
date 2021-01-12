@@ -4,13 +4,13 @@ import {
   InteractResult
 } from '../../interactions/index';
 
+import type {
+  Equip
+} from '../../equips/index';
+
 import {
   Skill,
 } from '../skill';
-
-import {
-  Equip
-} from '../../equips/index';
 
 class Parry extends Skill {
 

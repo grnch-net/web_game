@@ -64,7 +64,7 @@ const charactersParameters: CharactersParameters = {
         ]
       }
     ]
-    },
+  },
   2: {
     name: 'hero3',
     position: { x: 0, y: 0, z: 0 },

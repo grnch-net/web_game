@@ -29,6 +29,7 @@ interface SkillConfig extends InteractionConfig {
   gradualCost?: InfluenceList,
   needs?: SkillNeeds;
   reusable?: boolean;
+  stats?: any;
 }
 
 interface SkillParameters extends InteractionParameters {
@@ -253,7 +254,7 @@ class Skill extends (InteractionObject as Customize) {
   }
 
   protected update_cast_time() {
-    this.castTime = 0;
+    this.castTime = this.config.castTime;
   }
 
   onCancel() {}

@@ -207,6 +207,9 @@ class EquipsController {
   getEquips(
     slots: EquipSlot[]
   ): Equip[] {
+    if (!slots) {
+      return null;
+    }
     const equips = [];
     for (const slot of slots) {
       if (!this.list[slot]) continue;

@@ -2,7 +2,7 @@ import type {
   Impact
 } from '../../interactions/index';
 
-import {
+import type {
   Equip
 } from '../../equips/index';
 
@@ -33,7 +33,7 @@ class Attack extends Skill {
   protected calculate_penetration(
     outerImpact: Impact
   ): number {
-    return 0;
+    return this.config.stats?.penetration || 0;
   }
 
 }
