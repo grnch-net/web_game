@@ -79,7 +79,10 @@ class AttackEquip extends (Attack as Mod).Latest {
 
   protected update_cast_time() {
     super.update_cast_time();
-    this.castTime += this.usage_equip?.stats?.speed || 0;
+    const equip_speed = this.usage_equip?.stats?.speed;
+    if (equip_speed) {
+      this.castTime = equip_speed;
+    }
   }
 
   interactResult(
