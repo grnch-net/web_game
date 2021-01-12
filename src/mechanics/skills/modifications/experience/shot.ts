@@ -17,7 +17,7 @@ class ShotExperience extends (Shot as Mod).Latest {
     outerImpact: Impact
   ): number {
     let result = super.calculate_penetration(outerImpact);
-    result += this.experience * Shot.multiplyEfficiency;
+    result += this.parameters.experience * Shot.multiplyEfficiency;
     return result;
   }
 

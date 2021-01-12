@@ -10,7 +10,7 @@ class ParryExperience extends (Parry as Mod).Latest {
 
   protected calculate_parry_chance(): number {
     let chance = super.calculate_parry_chance();
-    chance += this.experience * Parry.multiplyEfficiency;
+    chance += this.parameters.experience * Parry.multiplyEfficiency;
     return chance;
   }
 

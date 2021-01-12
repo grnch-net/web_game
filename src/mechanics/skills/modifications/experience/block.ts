@@ -10,7 +10,7 @@ class BlockExperience extends (Block as Mod).Latest {
 
   protected calculate_block_chance(): number {
     let chance = super.calculate_block_chance();
-    chance += this.experience * Block.multiplyEfficiency;
+    chance += this.parameters.experience * Block.multiplyEfficiency;
     return chance;
   }
 

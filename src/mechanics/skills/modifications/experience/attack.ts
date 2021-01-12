@@ -17,7 +17,7 @@ class AttackExperience extends (Attack as Mod).Latest {
     outerImpact: Impact
   ): number {
     let result = super.calculate_penetration(outerImpact);
-    result += this.experience * Attack.multiplyEfficiency;
+    result += this.parameters.experience * Attack.multiplyEfficiency;
     return result;
   }
 

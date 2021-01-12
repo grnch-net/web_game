@@ -34,8 +34,8 @@ interface SkillConfig extends InteractionConfig {
 interface SkillParameters extends InteractionParameters {
   id: string | number;
   useCount?: number;
-  experience?: number;
   recoveryTime?: number;
+  experience?: number;
 }
 
 interface SkillNeeds {
@@ -92,10 +92,6 @@ class Skill extends (InteractionObject as Customize) {
 
   get id(): string | number {
     return this.parameters.id;
-  }
-
-  get experience(): number {
-    return this.parameters.experience;
   }
 
   get recoveryTime(): number {
