@@ -1,4 +1,8 @@
 import {
+  TimePoint
+} from '../timeline';
+
+import {
   InteractionObject,
   InteractionConfig,
   InteractionParameters,
@@ -47,6 +51,14 @@ interface SkillNeedsResult {
   equips?: Equip[];
 }
 
+enum SkillState {
+  Ready,
+  Cast,
+  Usage,
+  Complete,
+  Recovery
+}
+
 interface SkillCustomize {
   customs: Associative<typeof Skill>;
   configs: Associative<Skill>;
@@ -78,18 +90,14 @@ class Skill extends (InteractionObject as Customize) {
 
   static multiplyEfficiency = 0.001;
 
-  castTime: number;
-  usageTime: number;
+  config: SkillConfig;
+  parameters: SkillParameters;
+  state: SkillState;
+  castTimer: TimePoint;
+  usageTimer: TimePoint;
   stock: Influence | null;
   cost: Influence | null;
   gradualCost: GradualInfluence | null;
-  protected config: SkillConfig;
-  protected parameters: SkillParameters;
-  protected _ended: boolean;
-
-  get ended(): boolean {
-    return this._ended;
-  }
 
   get id(): string | number {
     return this.parameters.id;
@@ -138,10 +146,29 @@ class Skill extends (InteractionObject as Customize) {
   }
 
   reset() {
-    this.castTime = this.config.castTime || 0;
-    this.usageTime = this.config.usageTime || 0;
-    this.parameters.recoveryTime = 0;
-    this._ended = false;
+    this.reset_cast_timer();
+    this.reset_usage_timer();
+    this.state = SkillState.Ready;
+  }
+
+  protected reset_cast_timer() {
+    if (this.castTimer) {
+      this.castTimer.disable();
+    }
+    const cast_time = this.get_cast_time();
+    if (cast_time) {
+      this.castTimer = new TimePoint(cast_time);
+    }
+  }
+
+  protected reset_usage_timer() {
+    if (this.usageTimer) {
+      this.usageTimer.disable();
+    }
+    const usage_time = this.get_usage_time();
+    if (usage_time) {
+      this.usageTimer = new TimePoint(usage_time);
+    }
   }
 
   tick(
@@ -149,46 +176,17 @@ class Skill extends (InteractionObject as Customize) {
     innerImpact: Impact,
     outerImpact: Impact
   ) {
-    if (this.castTime > 0) {
-      this.tick_cast(dt, innerImpact, outerImpact);
-    } else {
-      this.tick_usage(dt, innerImpact, outerImpact);
-    }
-  }
-
-  protected tick_cast(
-    dt: number,
-    innerImpact: Impact,
-    outerImpact: Impact
-  ) {
-    if (dt < this.castTime) {
-      this.castTime -= dt;
-      return null;
-    } else {
-      this.on_apply(innerImpact, outerImpact);
-      dt -= this.castTime;
-      this.castTime = 0;
-      return this.tick(dt, innerImpact, outerImpact);
-    }
-  }
-
-  protected tick_usage(
-    dt: number,
-    innerImpact: Impact,
-    outerImpact: Impact
-  ) {
-    if (dt < this.usageTime) {
-      this.usageTime -= dt;
-      this.tick_influences(dt, innerImpact, outerImpact);
-    } else {
-      if (this.usageTime) {
-        this.tick_influences(this.usageTime, innerImpact, outerImpact);
-        dt -= this.usageTime;
-        this.usageTime = 0;
+    if (this.state == SkillState.Cast) {
+      if (this.castTimer.complete) {
+        this.on_apply(innerImpact, outerImpact);
+        this.castTimer = null;
       }
-      this.on_complete(innerImpact, outerImpact);
-      this._ended = true;
-      this.tickRecovery(dt);
+    } else
+    if (this.state == SkillState.Usage) {
+      this.tick_influences(dt, innerImpact, outerImpact);
+      if (this.usageTimer.complete) {
+        this.on_complete(innerImpact, outerImpact);
+      }
     }
   }
 
@@ -209,12 +207,20 @@ class Skill extends (InteractionObject as Customize) {
     this.inner_static_influence.apply(innerImpact.influenced);
     this.outer_static_influence.apply(outerImpact.influenced);
     this.parameters.recoveryTime = this.config.recoveryTime || 0;
+    if (this.usageTimer) {
+      this.state = SkillState.Usage;
+      outerImpact.addTimePoint(this.usageTimer);
+    } else {
+      this.on_complete(innerImpact, outerImpact);
+    }
   }
 
   protected on_complete(
     innerImpact: Impact,
     outerImpact: Impact
-  ) {}
+  ) {
+    this.state = SkillState.Complete
+  }
 
   checkNeeds(
     result: SkillNeedsResult
@@ -247,17 +253,31 @@ class Skill extends (InteractionObject as Customize) {
     innerImpact: Impact,
     outerImpact: Impact
   ) {
-    this.update_cast_time();
-    if (!this.castTime) {
+    if (this.castTimer) {
+      this.state = SkillState.Cast;
+      outerImpact.addTimePoint(this.castTimer);
+    } else {
       this.on_apply(innerImpact, outerImpact);
     }
   }
 
-  protected update_cast_time() {
-    this.castTime = this.config.castTime;
+  protected get_cast_time(): number {
+    return this.config.castTime || 0;
   }
 
-  onCancel() {}
+  protected get_usage_time(): number {
+    return this.config.usageTime || 0;
+  }
+
+  onCancel() {
+    this.state = SkillState.Complete;
+    this.usageTimer.end();
+    this.usageTimer = null;
+  }
+
+  onRecovery() {
+    this.state = SkillState.Recovery;
+  }
 
   interactResult(
     result: InteractResult
@@ -278,5 +298,6 @@ export {
   SkillParameters,
   SkillNeeds,
   SkillNeedsResult,
+  SkillState,
   Skill
 }

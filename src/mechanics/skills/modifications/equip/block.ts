@@ -69,9 +69,14 @@ class BlockEquip extends (Block as Mod).Latest {
     return defense;
   }
 
-  protected update_cast_time() {
-    super.update_cast_time();
-    this.castTime += this.usage_equip?.stats?.speed || 0;
+  protected get_cast_time(): number {
+    const cast_time = super.get_cast_time();
+    const equip_speed = this.usage_equip?.stats?.speed;
+    if (equip_speed) {
+      // return Math.max(equip_speed, cast_time);
+      return equip_speed;
+    }
+    return cast_time;
   }
 
 }

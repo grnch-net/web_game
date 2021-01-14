@@ -10,6 +10,7 @@ import type {
 
 import {
   Skill,
+  SkillState
 } from '../skill';
 
 class Parry extends Skill {
@@ -21,7 +22,7 @@ class Parry extends Skill {
     result: InteractResult
   ) {
     super.onOuterImpact(innerImpact, result);
-    if (!this.usageTime) return;
+    if (this.state !== SkillState.Usage) return;
     const { stun, side } = innerImpact.rules;
     const is_damage = innerImpact.influenced.health < 0;
     if (!is_damage && !stun) return;
@@ -32,7 +33,7 @@ class Parry extends Skill {
     } else {
       this.fail_parry();
     }
-    this.usageTime = 0;
+    this.usageTimer.end();
   }
 
   protected check_parry(

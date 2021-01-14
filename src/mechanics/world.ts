@@ -7,6 +7,11 @@ import type {
 } from './inventories/index';
 
 import {
+  TimePoint,
+  Timeline
+} from './timeline';
+
+import {
   Impact,
   InteractResult,
   ImpactSide
@@ -25,10 +30,14 @@ import {
 export class World {
   characters: Character[];
   boxes: Box[];
+  protected timeline: Timeline;
+  protected interact_actions: Function[];
 
   initialize() {
     this.characters = [];
     this.boxes = [];
+    this.timeline = new Timeline;
+    this.interact_actions = [];
   }
 
   addCharacter(
@@ -41,16 +50,71 @@ export class World {
   tick(
     dt: number
   ) {
-    for (const character of this.characters) {
-      const impact = new Impact;
-      character.tick(dt, impact);
+    const time_point = this.timeline.tick(dt);
+    let next_dt: number;
+    if (time_point) {
+      next_dt = dt - time_point;
+      dt = time_point;
     }
+    this.tick_listeners(dt);
+    if (next_dt) {
+      this.tick(next_dt);
+    }
+  }
+
+  protected tick_listeners(
+    dt: number
+  ) {
+    this.tick_characters(dt);
+    this.apply_interacts();
+  }
+
+  protected tick_characters(
+    dt: number
+  ) {
+    for (const character of this.characters) {
+      character.tick(dt);
+    }
+  }
+
+  protected apply_interacts() {
+    for (const action of this.interact_actions) {
+      action();
+    }
+    this.interact_actions = [];
   }
 
   interact(
     author: Character,
     impact: Impact
-  ): InteractResult {
+  ) {
+    if (impact.timers) {
+      this.add_timers(impact.timers);
+    }
+    if (impact.rules.range) {
+      this.add_interact_action(author, impact);
+    }
+  }
+
+  protected add_timers(
+    timers: TimePoint[]
+  ) {
+    for (const timer of timers) {
+      this.timeline.addPoint(timer);
+    }
+  }
+
+  protected add_interact_action(
+    author: Character,
+    impact: Impact
+  ) {
+    this.interact_actions.push(() => this.interact_range(author, impact));
+  }
+
+  protected interact_range(
+    author: Character,
+    impact: Impact
+  ) {
     let result: InteractResult;
     for (const target of this.characters) {
       if (author == target) continue;
@@ -63,7 +127,7 @@ export class World {
       result = target.interact(impact);
       break;
     }
-    return result;
+    author.interactResult(result);
   }
 
   protected check_hit(

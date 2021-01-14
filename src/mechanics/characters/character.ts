@@ -62,17 +62,18 @@ interface CharacterParameters extends CharacterConfig, WorldObjectParameters {
 class Character extends WorldObject {
 
   static createParameters(
-    name: string
+    name: string,
+    config = characterConfig
   ) {
     return {
       name,
       position: { x: 0, y: 0, z: 0 },
       attributes: {
         health: {
-          value: characterConfig.attributes.health.max
+          value: config.attributes.health.max
         },
         stamina: {
-          value: characterConfig.attributes.stamina.max
+          value: config.attributes.stamina.max
         }
       },
       counters: {},
@@ -136,9 +137,9 @@ class Character extends WorldObject {
   ) {}
 
   tick(
-    dt: number,
-    innerImpact: Impact
+    dt: number
   ) {
+    const innerImpact = new Impact;
     const outerImpact = new Impact;
     this.tick_listeners(dt, innerImpact, outerImpact);
     this.apply_impact(innerImpact);
@@ -264,12 +265,16 @@ class Character extends WorldObject {
   protected apply_interaction(
     impact: Impact,
   ) {
-    if (!impact.rules.range) return;
-    const result = this.world.interact(this, impact);
-    result && this.interact_result_listener(result);
+    this.world.interact(this, impact);
   }
 
-  protected interact_result_listener(
+  interactResult(
+    result: InteractResult
+  ) {
+    this.interact_result_listeners(result);
+  }
+
+  protected interact_result_listeners(
     result: InteractResult
   ) {}
 

@@ -20,8 +20,10 @@ function test_stamina_regeneration() {
   parameters.attributes.stamina.value = 0;
   hero.initialize(parameters);
   world.addCharacter(hero);
+
   const maxValue = hero.attributes.stamina.max;
   const regen = effectsConfig[EffectName.InhStaminaRegen].innerGradualInfluence.stamina;
+
   world.tick(1);
   if (hero.attributes.stamina.value !== regen) {
     console.error('Failed', hero.attributes.stamina.value);

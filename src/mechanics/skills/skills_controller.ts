@@ -5,7 +5,8 @@ import type {
 
 import {
   Skill,
-  SkillParameters
+  SkillParameters,
+  SkillState
 } from './skill';
 
 class SkillsController {
@@ -74,7 +75,7 @@ class SkillsController {
   ) {
     if (!this.using) return;
     this.using.tick(dt, innerImpact, outerImpact);
-    if (this.using.ended) {
+    if (this.using.state == SkillState.Complete) {
       this.add_to_recovery(this.using);
       this.using = null;
     }
@@ -85,10 +86,12 @@ class SkillsController {
     result: InteractResult
   ) {
     if (!this.using) return;
-    if (this.using.castTime && innerImpact.rules.stun) {
+    if (this.using.state == SkillState.Cast
+      && innerImpact.rules.stun
+    ) {
       this.cancelUse();
     } else
-    if (this.using.usageTime) {
+    if (this.using.state == SkillState.Usage) {
       this.using.onOuterImpact(innerImpact, result);
       innerImpact.rules.stun && this.cancelUse();
     }
@@ -137,7 +140,7 @@ class SkillsController {
 
   cancelUse() {
     if (!this.using) return;
-    if (this.using.castTime > 0) {
+    if (this.using.state == SkillState.Cast) {
       this.using.reset();
     } else {
       this.using.onCancel();
@@ -150,6 +153,7 @@ class SkillsController {
     skill: Skill
   ) {
     if (skill.recoveryTime) {
+      skill.onRecovery();
       this.recoveries.push(skill);
     } else {
       skill.reset();

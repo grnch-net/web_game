@@ -61,13 +61,14 @@ class CharacterSkill extends (Character as Mod).Latest {
   ) {
     this.skills.tick(dt, innerImpact, outerImpact);
     const skill = this.skills.using;
-    if (skill && !skill.castTime) {
-      const costImpact = skill.getGradualCostImpact();
-      if (costImpact) {
-        const paid = this.apply_cost(costImpact);
-        if (!paid) this.skills.cancelUse();
-      }
-    }
+    // TODO: add delta time
+    // if (skill && !skill.castTime) {
+    //   const costImpact = skill.getGradualCostImpact();
+    //   if (costImpact) {
+    //     const paid = this.apply_cost(costImpact);
+    //     if (!paid) this.skills.cancelUse();
+    //   }
+    // }
   }
 
   protected interact_listeners(

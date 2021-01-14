@@ -71,8 +71,8 @@ class ParryEquip extends (Parry as Mod).Latest {
     return defense;
   }
 
-  protected update_cast_time() {
-    super.update_cast_time();
+  protected get_cast_time(): number {
+    let cast_time = super.get_cast_time();
     let equips_speed = 0;
     for (const equip of this.usage_equips) {
       if (equip.stats?.speed && equip.stats.speed > equips_speed) {
@@ -80,8 +80,9 @@ class ParryEquip extends (Parry as Mod).Latest {
       }
     }
     if (equips_speed) {
-      this.castTime += equips_speed;
+      cast_time += equips_speed;
     }
+    return cast_time;
   }
 
 }

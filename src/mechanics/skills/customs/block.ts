@@ -9,7 +9,8 @@ import type {
 } from '../../equips/index';
 
 import {
-  Skill
+  Skill,
+  SkillState
 } from '../skill';
 
 @UTILS.modifiable
@@ -22,7 +23,7 @@ class Block extends Skill {
     result: InteractResult
   ) {
     super.onOuterImpact(innerImpact, result);
-    if (!this.usageTime) return;
+    if (this.state !== SkillState.Usage) return;
     const { stun, side } = innerImpact.rules;
     const is_damage = innerImpact.influenced.health < 0;
     if (!is_damage && !stun) return;
@@ -33,7 +34,7 @@ class Block extends Skill {
     } else {
       this.fail_block();
     }
-    this.usageTime = 0;
+    this.usageTimer.end();
   }
 
   protected check_block(

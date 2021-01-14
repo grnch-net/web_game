@@ -57,7 +57,7 @@ function test_attack() {
   hero1.initialize(parameters1);
   world.addCharacter(hero1);
   const hero2 = new Character;
-  const parameters2 = Character.createParameters('hero1');
+  const parameters2 = Character.createParameters('hero2');
   hero2.initialize(parameters2);
   hero2.position.set(0, 0, 1);
   world.addCharacter(hero2);
@@ -99,7 +99,7 @@ function test_block() {
   hero1.initialize(parameters1);
   world.addCharacter(hero1);
   const hero2 = new Character;
-  const parameters2 = Character.createParameters('hero1');
+  const parameters2 = Character.createParameters('hero2');
   parameters2.skills.push({ id: SkillName.Block })
   hero2.initialize(parameters2);
   hero2.position.set(0, 0, 1);
