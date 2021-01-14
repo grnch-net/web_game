@@ -1,3 +1,4 @@
+import './array';
 import { modifiable } from './modifiable';
 import { customize } from './customize';
 
