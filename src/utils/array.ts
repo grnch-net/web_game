@@ -6,7 +6,19 @@ if (!Array.prototype.hasOwnProperty("last")) {
   });
 }
 
-export {}
+function toArray(
+  value: any
+): any[] {
+  return Array.isArray(value) ? value : [value];
+}
+
+const array = {
+  toArray
+}
+
+export {
+  array
+}
 
 declare global {
   interface Array<T> {

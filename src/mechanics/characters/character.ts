@@ -33,17 +33,11 @@ import {
 } from '../interactions/index';
 
 import {
-  Range,
-  RangeParameters
-} from '../utils';
-
-import {
   characterConfig
 } from '../configs/character_default_config';
 
-type Attributes = { [key in Attribute]?: RangeParameters };
+type Attributes = { [key in Attribute]?: RangeNumber };
 type Counters = { [key: string]: number };
-type AttributesRange = { [key in Attribute]?: Range };
 
 interface CharacterConfig {
   attributes: Attributes;
@@ -83,7 +77,7 @@ class Character extends WorldObject {
     }
   }
 
-  attributes: AttributesRange;
+  attributes: Attributes;
   effects: EffectsController;
   skills: SkillsController;
   equips: EquipsController;
@@ -117,7 +111,7 @@ class Character extends WorldObject {
     let key: Attribute;
     for (key in config) {
       parameters[key] = parameters[key] || {};
-      this.attributes[key] = new Range(config[key], parameters[key]);
+      this.attributes[key] = new UTILS.Range(config[key], parameters[key]);
     }
   }
 

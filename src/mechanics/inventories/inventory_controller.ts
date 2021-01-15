@@ -3,8 +3,6 @@ import {
   InventoryObject
 } from './inventory_object';
 
-import * as utils from '../utils';
-
 class InventoryController {
   slots: number;
   list: InventoryObject[];
@@ -34,7 +32,7 @@ class InventoryController {
   add(
     items: InventoryObject | InventoryObject[]
   ): boolean {
-    items = utils.toArray(items) as InventoryObject[];
+    items = UTILS.array.toArray(items) as InventoryObject[];
     const length = this.list.length + items.length;
     if (length > this.slots) return false;
     this.list.push(...items);
