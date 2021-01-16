@@ -34,7 +34,7 @@ class Block extends Skill {
     } else {
       this.fail_block();
     }
-    this.usageTimer.end();
+    this.onCancel();
   }
 
   protected check_block(

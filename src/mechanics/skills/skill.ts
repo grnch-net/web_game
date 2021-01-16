@@ -271,7 +271,7 @@ class Skill extends (InteractionObject as Customize) {
 
   onCancel() {
     this.state = SkillState.Complete;
-    this.usageTimer.end();
+    this.usageTimer.disable();
     this.usageTimer = null;
   }
 

@@ -75,6 +75,10 @@ class SkillsController {
   ) {
     if (!this.using) return;
     this.using.tick(dt, innerImpact, outerImpact);
+    this.check_usage();
+  }
+
+  protected check_usage() {
     if (this.using.state == SkillState.Complete) {
       this.add_to_recovery(this.using);
       this.using = null;
@@ -93,7 +97,11 @@ class SkillsController {
     } else
     if (this.using.state == SkillState.Usage) {
       this.using.onOuterImpact(innerImpact, result);
-      innerImpact.rules.stun && this.cancelUse();
+      if (innerImpact.rules.stun) {
+        this.cancelUse();
+      } else {  
+        this.check_usage();
+      }
     }
   }
 

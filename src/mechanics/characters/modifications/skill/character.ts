@@ -158,10 +158,10 @@ class CharacterSkill extends (Character as Mod).Latest {
     return true;
   }
 
-  protected interact_result_listener(
+  protected interact_result_listeners(
     result: InteractResult
   ) {
-    super.interact_result_listener(result);
+    super.interact_result_listeners(result);
     this.skills.interactResult(result);
   }
 

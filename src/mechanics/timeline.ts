@@ -1,4 +1,5 @@
 class TimePoint {
+  author: any;
   protected _enable: boolean = true;
   protected _complete: boolean = false;
   protected _value: number
@@ -30,6 +31,7 @@ class TimePoint {
   end() {
     this._value = 0;
     this._complete = true;
+    this._enable = false;
   }
 
   disable() {
@@ -42,32 +44,32 @@ class Timeline {
 
   tick(
     dt: number
-  ): number {
+  ): { dt?: number, authors?: any[] } {
     if (!this.points.length) {
-      return;
+      return {};
     }
-    let point: TimePoint;
-    while(!point && this.points.length) {
-      point = this.points.pop();
-      if (!point.enable || point.value <= 0) {
-        point = null;
+    const authors = [];
+    while (this.points.length) {
+      const point = this.points.last;
+      if (!point.enable) {
+        this.points.pop();
+        continue;
       }
-    }
-    if (point) {
-      if (dt < point.value) {
-        this.points.push(point);
-        point = null;
-      } else {
+      if (point.value <= dt) {
+        this.points.pop();
+        authors.push(point.author);
         dt = point.value;
         point.end();
       }
-      this._tick(dt);
+      this._tick(dt, authors);
+      break;
     }
-    return dt;
+    return { dt, authors };
   }
 
   protected _tick(
-    dt: number
+    dt: number,
+    authors: any[]
   ) {
     if (!this.points.length) {
       return;
@@ -75,8 +77,14 @@ class Timeline {
     let index = this.points.length -1;
     for (; index > -1; index--) {
       const point = this.points[index];
-      if (!point.enable || point.value <= 0) {
+      if (!point.enable) {
         this.points.splice(index, 1);
+        continue;
+      }
+      if (point.value <= dt) {
+        this.points.splice(index, 1);
+        authors.push(point.author);
+        point.end();
         continue;
       }
       point.tick(dt);

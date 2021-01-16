@@ -13,7 +13,6 @@ import {
 
 import {
   Impact,
-  InteractResult,
   ImpactSide
 } from './interactions/index';
 
@@ -31,13 +30,11 @@ export class World {
   characters: Character[];
   boxes: Box[];
   protected timeline: Timeline;
-  protected interact_actions: Function[];
 
   initialize() {
     this.characters = [];
     this.boxes = [];
     this.timeline = new Timeline;
-    this.interact_actions = [];
   }
 
   addCharacter(
@@ -50,84 +47,81 @@ export class World {
   tick(
     dt: number
   ) {
-    const time_point = this.timeline.tick(dt);
+    const point = this.timeline.tick(dt);
     let next_dt: number;
-    if (time_point) {
-      next_dt = dt - time_point;
-      dt = time_point;
+    if (point.dt) {
+      next_dt = dt - point.dt;
+      dt = point.dt;
     }
-    this.tick_listeners(dt);
+    this.tick_wait(dt);
+    this.tick_characters(point.authors);
     if (next_dt) {
       this.tick(next_dt);
     }
   }
 
-  protected tick_listeners(
-    dt: number
-  ) {
-    this.tick_characters(dt);
-    this.apply_interacts();
+  update() {
+    this.tick_characters(this.characters);
   }
 
-  protected tick_characters(
+  protected tick_wait(
     dt: number
   ) {
     for (const character of this.characters) {
-      character.tick(dt);
+      character.wait += dt;
     }
   }
 
-  protected apply_interacts() {
-    for (const action of this.interact_actions) {
-      action();
+  protected tick_characters(
+    characters: Character[]
+  ) {
+    if (!characters) {
+      return;
     }
-    this.interact_actions = [];
+    for (const character of characters) {
+      character.tick(0);
+    }
   }
 
-  interact(
-    author: Character,
+  action(
+    character: Character,
     impact: Impact
   ) {
     if (impact.timers) {
-      this.add_timers(impact.timers);
+      this.add_timers(character, impact.timers);
     }
     if (impact.rules.range) {
-      this.add_interact_action(author, impact);
+      this.interact_range(character, impact);
     }
   }
 
   protected add_timers(
+    character: Character,
     timers: TimePoint[]
   ) {
-    for (const timer of timers) {
+    while (timers.length) {
+      const timer = timers.pop();
+      timer.author = character;
       this.timeline.addPoint(timer);
     }
-  }
-
-  protected add_interact_action(
-    author: Character,
-    impact: Impact
-  ) {
-    this.interact_actions.push(() => this.interact_range(author, impact));
   }
 
   protected interact_range(
     author: Character,
     impact: Impact
   ) {
-    let result: InteractResult;
     for (const target of this.characters) {
       if (author == target) continue;
       const distance = author.position.lengthTo(target.position);
       if (distance > impact.rules.range) continue;
       const hit = this.check_hit(author, target, impact.rules.sector);
       if (!hit) continue;
-      this.apply_range(distance, impact);
-      impact.rules.side = this.calculate_impact_side(author, target);
-      result = target.interact(impact);
-      break;
+      const target_impact = impact.clone();
+      this.apply_range(distance, target_impact);
+      target_impact.rules.side = this.calculate_impact_side(author, target);
+      const result = target.interact(target_impact);
+      author.interactResult(result);
     }
-    author.interactResult(result);
   }
 
   protected check_hit(

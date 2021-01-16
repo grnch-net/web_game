@@ -12,8 +12,10 @@ interface WorldObjectParameters {
 }
 
 class WorldObject {
+
   world: World;
   position: Point;
+  wait: number;
   protected _rotation: number;
 
   get rotation(): number {
@@ -31,9 +33,19 @@ class WorldObject {
     parameters: WorldObjectParameters,
     ...args: any[]
   ) {
+    this.wait = 0;
     this.position = new Point(parameters.position);
     this._rotation = 0;
   }
+
+  tick(
+    dt: number
+  ): number {
+    dt += this.wait;
+    this.wait = 0;
+    return dt;
+  }
+
 }
 
 export {

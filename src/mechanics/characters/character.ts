@@ -132,12 +132,17 @@ class Character extends WorldObject {
 
   tick(
     dt: number
-  ) {
+  ): number {
+    dt = super.tick(dt);
+    if (!dt) {
+      return 0;
+    }
     const innerImpact = new Impact;
     const outerImpact = new Impact;
     this.tick_listeners(dt, innerImpact, outerImpact);
     this.apply_impact(innerImpact);
     this.apply_interaction(outerImpact);
+    return dt;
   }
 
   protected tick_listeners(
@@ -164,6 +169,7 @@ class Character extends WorldObject {
   interact(
     innerImpact: Impact
   ): InteractResult {
+    this.tick(0);
     const result: InteractResult = { hit: true };
     this.interact_listeners(innerImpact, result);
     this.apply_impact(innerImpact);
@@ -205,6 +211,7 @@ class Character extends WorldObject {
   useSkill(
     id: string | number
   ): boolean {
+    this.tick(0);
     const skill = this.get_skill(id);
     return !!skill && this.use_skill(skill);
   }
@@ -259,7 +266,7 @@ class Character extends WorldObject {
   protected apply_interaction(
     impact: Impact,
   ) {
-    this.world.interact(this, impact);
+    this.world.action(this, impact);
   }
 
   interactResult(

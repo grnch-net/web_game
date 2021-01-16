@@ -39,6 +39,14 @@ class Impact {
     }
     this.timers.push(timer);
   }
+
+  clone(): Impact {
+    const impact = new Impact();
+    impact.timers = [ ...this.timers ];
+    impact.influenced = { ...this.influenced };
+    impact.rules = { ...this.rules };
+    return impact;
+  }
 }
 
 export {
