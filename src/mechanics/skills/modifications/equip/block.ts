@@ -1,5 +1,3 @@
-console.info('skills/modifications/equip/block');
-
 import type {
   Impact
 } from '../../../interactions/index';

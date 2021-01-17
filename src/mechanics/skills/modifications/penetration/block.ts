@@ -1,5 +1,3 @@
-console.info('skills/modifications/penetration/block');
-
 import type {
   Impact
 } from '../../../interactions/index';

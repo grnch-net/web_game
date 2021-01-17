@@ -1,5 +1,3 @@
-console.info('skills/modifications/equip/shot');
-
 import type {
   Impact,
   InteractResult

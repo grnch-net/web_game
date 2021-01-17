@@ -1,5 +1,3 @@
-console.info('characters/modifications/effect/character');
-
 import {
   Impact,
   InteractResult

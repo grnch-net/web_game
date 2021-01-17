@@ -1,5 +1,3 @@
-console.info('skills/modifications/log/shot');
-
 import {
   Shot
 } from '../../customs/shot';

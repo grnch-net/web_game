@@ -1,5 +1,3 @@
-console.info('characters/modifications/log/character');
-
 import {
   Character
 } from '../../character';

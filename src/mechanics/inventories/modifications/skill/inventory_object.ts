@@ -1,5 +1,3 @@
-console.info('inventories/modifications/skill/inventory_object');
-
 import {
   InventoryObjectConfig,
   InventoryObjectParameters,
@@ -7,7 +5,6 @@ import {
 } from '../../inventory_object';
 
 import {
-  SkillParameters,
   Skill
 } from '../../../skills/index';
 

@@ -1,5 +1,3 @@
-console.info('skills/modifications/experience/block');
-
 import {
   Block
 } from '../../customs/block';

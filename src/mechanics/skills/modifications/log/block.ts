@@ -1,5 +1,3 @@
-console.info('skills/modifications/log/block');
-
 import type {
   Impact,
   InteractResult

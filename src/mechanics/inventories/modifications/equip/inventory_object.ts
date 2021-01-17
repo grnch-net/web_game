@@ -1,5 +1,3 @@
-console.info('inventories/modifications/equip/inventory_object');
-
 import {
   InventoryObjectConfig,
   InventoryObjectParameters,

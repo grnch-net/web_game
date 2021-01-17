@@ -1,5 +1,3 @@
-console.info('skills/modifications/log/skill');
-
 import {
   Skill
 } from '../../skill';

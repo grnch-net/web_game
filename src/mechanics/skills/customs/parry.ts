@@ -13,6 +13,7 @@ import {
   SkillState
 } from '../skill';
 
+@UTILS.modifiable
 class Parry extends Skill {
 
   protected usage_equips: Equip[] | null;

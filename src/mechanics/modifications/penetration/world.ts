@@ -1,5 +1,3 @@
-console.info('modifications/penetration/world');
-
 import type {
   Impact,
 } from '../../interactions/index';

@@ -1,5 +1,3 @@
-console.info('characters/modifications/skill/character');
-
 import {
   Impact,
   InteractResult

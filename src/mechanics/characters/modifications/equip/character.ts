@@ -1,5 +1,3 @@
-console.info('characters/modifications/equip/character');
-
 import type {
   InventoryObjectParameters,
   InventoryObject

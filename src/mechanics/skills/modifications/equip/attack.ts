@@ -1,5 +1,3 @@
-console.info('skills/modifications/equip/attack');
-
 import type {
   Impact,
   InteractResult

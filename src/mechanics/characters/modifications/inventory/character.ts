@@ -1,5 +1,3 @@
-console.info('characters/modifications/inventory/character');
-
 import type {
   InventoryObject
 } from '../../../inventories/index';

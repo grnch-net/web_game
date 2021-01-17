@@ -1,5 +1,3 @@
-console.info('skills/modifications/equip/parry');
-
 import type {
   Impact
 } from '../../../interactions/index';

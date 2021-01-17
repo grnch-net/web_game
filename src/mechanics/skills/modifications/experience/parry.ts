@@ -1,5 +1,3 @@
-console.info('skills/modifications/experience/parry');
-
 import {
   Parry
 } from '../../customs/parry';

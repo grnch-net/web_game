@@ -1,5 +1,3 @@
-console.info('skills/modifications/log/attack');
-
 import {
   Attack
 } from '../../customs/attack';
