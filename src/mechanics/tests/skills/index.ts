@@ -26,18 +26,21 @@ function test_recreation() {
 
   hero.useSkill(SkillName.Recreation);
   world.tick(1);
+  world.update();
   if (hero.attributes.health.value !== (1 + regen)) {
     console.error('Failed', hero.attributes.health.value);
     console.groupEnd();
     return
   }
   world.tick((maxValue - 1) / regen - 2);
+  world.update();
   if (hero.attributes.health.value !== (maxValue - regen)) {
     console.error('Failed', hero.attributes.health.value);
     console.groupEnd();
     return
   }
   world.tick(1);
+  world.update();
   if (hero.attributes.health.value !== maxValue) {
     console.error('Failed', hero.attributes.health.value);
     console.groupEnd();
@@ -80,6 +83,7 @@ function test_attack() {
     return
   }
   world.tick(attack.castTime);
+  world.update();
   if (hero2.attributes.health.value !== (maxHealth - damage)) {
     console.error('Failed', hero2.attributes.health.value, maxHealth, damage);
     console.groupEnd();
@@ -123,6 +127,7 @@ function test_block() {
   world.tick(block.castTime);
   hero1.useSkill(SkillName.Attack);
   world.tick(attack.castTime);
+  world.update();
   if (hero2.attributes.stamina.value !== (maxStamina - stock)) {
     console.error('Failed', hero2.attributes.stamina.value, maxStamina, stock);
     console.groupEnd();
