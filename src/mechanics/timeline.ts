@@ -1,5 +1,5 @@
-class TimePoint {
-  author: any;
+class TimePoint<T = any> {
+  data: T;
   protected _enable: boolean = true;
   protected _complete: boolean = false;
   protected _value: number
@@ -39,16 +39,17 @@ class TimePoint {
   }
 }
 
-class Timeline {
-  points: TimePoint[] = [];
+class Timeline<T = any> {
+  points: TimePoint<T>[] = [];
 
   tick(
     dt: number
-  ): { dt?: number, authors?: any[] } {
+  ): { dt: number, left?: number, data?: T[] } {
     if (!this.points.length) {
-      return {};
+      return { dt };
     }
-    const authors = [];
+    const data = [];
+    let left = 0;
     while (this.points.length) {
       const point = this.points.last;
       if (!point.enable) {
@@ -57,19 +58,20 @@ class Timeline {
       }
       if (point.value <= dt) {
         this.points.pop();
-        authors.push(point.author);
+        data.push(point.data);
+        left = dt - point.value;
         dt = point.value;
         point.end();
       }
-      this._tick(dt, authors);
+      this._tick(dt, data);
       break;
     }
-    return { dt, authors };
+    return { dt, left, data };
   }
 
   protected _tick(
     dt: number,
-    authors: any[]
+    data: T[]
   ) {
     if (!this.points.length) {
       return;
@@ -83,7 +85,7 @@ class Timeline {
       }
       if (point.value <= dt) {
         this.points.splice(index, 1);
-        authors.push(point.author);
+        data.push(point.data);
         point.end();
         continue;
       }
@@ -92,8 +94,10 @@ class Timeline {
   }
 
   addPoint(
-    point: TimePoint
+    point: TimePoint<T>,
+    data: T
   ) {
+    point.data = data;
     if (this.points.length == 0
       || this.points.last.value >= point.value
     ) {

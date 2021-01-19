@@ -1,6 +1,6 @@
 import type {
-  World
-} from './world';
+  InteractionController
+} from './interactions/index';
 
 import {
   PointParameters,
@@ -13,7 +13,7 @@ interface WorldObjectParameters {
 
 class WorldObject {
 
-  world: World;
+  world: InteractionController;
   position: Point;
   wait: number;
   protected _rotation: number;

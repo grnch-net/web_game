@@ -7,18 +7,16 @@ import type {
 } from './inventories/index';
 
 import {
-  TimePoint,
   Timeline
 } from './timeline';
 
 import {
-  Impact,
-  ImpactSide
-} from './interactions/index';
-
-import {
   Character
 } from './characters/character';
+
+import {
+  InteractionController
+} from './interactions/index';
 
 import {
   BoxParameters,
@@ -29,34 +27,32 @@ import {
 export class World {
   characters: Character[];
   boxes: Box[];
-  protected timeline: Timeline;
+  protected _timeline: Timeline<Character>;
+  protected interaction_controller: InteractionController;
 
   initialize() {
     this.characters = [];
     this.boxes = [];
-    this.timeline = new Timeline;
+    this._timeline = new Timeline;
+    this.interaction_controller = new InteractionController;
+    this.interaction_controller.initialize(this.characters, this._timeline);
   }
 
   addCharacter(
     character: Character
   ) {
     this.characters.push(character);
-    character.world = this;
+    character.world = this.interaction_controller;
   }
 
   tick(
     dt: number
   ) {
-    const point = this.timeline.tick(dt);
-    let next_dt: number;
-    if (point.dt) {
-      next_dt = dt - point.dt;
-      dt = point.dt;
-    }
-    this.tick_wait(dt);
-    this.tick_characters(point.authors);
-    if (next_dt) {
-      this.tick(next_dt);
+    const point = this._timeline.tick(dt);
+    this.tick_wait(point.dt);
+    this.tick_characters(point.data);
+    if (point.left) {
+      this.tick(point.left);
     }
   }
 
@@ -81,82 +77,6 @@ export class World {
     for (const character of characters) {
       character.tick(0);
     }
-  }
-
-  action(
-    character: Character,
-    impact: Impact
-  ) {
-    if (impact.timers) {
-      this.add_timers(character, impact.timers);
-    }
-    if (impact.rules.range) {
-      this.interact_range(character, impact);
-    }
-  }
-
-  protected add_timers(
-    character: Character,
-    timers: TimePoint[]
-  ) {
-    while (timers.length) {
-      const timer = timers.pop();
-      timer.author = character;
-      this.timeline.addPoint(timer);
-    }
-  }
-
-  protected interact_range(
-    author: Character,
-    impact: Impact
-  ) {
-    for (const target of this.characters) {
-      if (author == target) continue;
-      const distance = author.position.lengthTo(target.position);
-      if (distance > impact.rules.range) continue;
-      const hit = this.check_hit(author, target, impact.rules.sector);
-      if (!hit) continue;
-      const target_impact = impact.clone();
-      this.apply_range(distance, target_impact);
-      target_impact.rules.side = this.calculate_impact_side(author, target);
-      const result = target.interact(target_impact);
-      author.interactResult(result);
-    }
-  }
-
-  protected check_hit(
-    author: Character,
-    target: Character,
-    sector?: number
-  ): boolean {
-    const x = target.position.x - author.position.x;
-    const z = target.position.z - author.position.z;
-    const sinA = Math.sin(author.rotation);
-    const cosA = Math.cos(author.rotation);
-    const vx = x * cosA - z * sinA;
-    const vz = z * cosA + x * sinA;
-    const angle = Math.acos(vz / Math.sqrt(vx ** 2 + vz ** 2));
-    if (sector) return angle <= (sector / 2);
-    return angle <= (Math.PI * 0.25);
-  }
-
-  protected apply_range(
-    distance: number,
-    impact: Impact
-  ) {}
-
-  protected calculate_impact_side(
-    author: Character,
-    target: Character
-  ): ImpactSide {
-    let rotate = (target.rotation - author.rotation) % (Math.PI * 2);
-    if (rotate < 0) rotate += Math.PI * 2;
-    const unit = Math.PI * 0.25;
-    rotate += unit;
-    if (rotate < (unit * 2)) return ImpactSide.Back;
-    if (rotate < (unit * 4)) return ImpactSide.Right;
-    if (rotate < (unit * 6)) return ImpactSide.Front;
-    return ImpactSide.Left;
   }
 
   getItemsContainer(

@@ -104,12 +104,14 @@ class ShotEquip extends (Shot as Mod).Latest {
   }
 
   interactResult(
-    result: InteractResult
+    results: InteractResult[]
   ) {
-    super.interactResult(result);
-    if (!result.hit) return;
-    for (const equip of this.usage_equips) {
-      equip.durability -= 1;
+    super.interactResult(results);
+    for (const result of results) {
+      if (!result.hit) return;
+      for (const equip of this.usage_equips) {
+        equip.durability -= 1;
+      }
     }
   }
 

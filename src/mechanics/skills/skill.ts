@@ -280,7 +280,7 @@ class Skill extends (InteractionObject as Customize) {
   }
 
   interactResult(
-    result: InteractResult
+    results: InteractResult[]
   ) {}
 
   protected randomize_chance(

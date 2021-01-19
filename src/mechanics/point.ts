@@ -5,6 +5,7 @@ interface PointParameters {
 }
 
 class Point {
+
   constructor(
     protected parameters: PointParameters
   ) {};
@@ -51,6 +52,7 @@ class Point {
     const qZ = (point.z - this.z) ** 2;
     return Math.sqrt(qX + qY + qZ);
   }
+
 }
 
 export {

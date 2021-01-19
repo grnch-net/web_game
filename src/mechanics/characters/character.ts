@@ -270,13 +270,13 @@ class Character extends WorldObject {
   }
 
   interactResult(
-    result: InteractResult
+    results: InteractResult[]
   ) {
-    this.interact_result_listeners(result);
+    this.interact_result_listeners(results);
   }
 
   protected interact_result_listeners(
-    result: InteractResult
+    results: InteractResult[]
   ) {}
 
   addInventoryItem(
@@ -300,8 +300,8 @@ class Character extends WorldObject {
   throwItems(
     items: InventoryObject | InventoryObject[]
   ) {
-    const container = this.world.getItemsContainer(this);
-    container.add(items);
+    // const container = this.world.getItemsContainer(this);
+    // container.add(items);
   }
 
 }

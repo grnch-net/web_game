@@ -99,7 +99,7 @@ class SkillsController {
       this.using.onOuterImpact(innerImpact, result);
       if (innerImpact.rules.stun) {
         this.cancelUse();
-      } else {  
+      } else {
         this.check_usage();
       }
     }
@@ -175,9 +175,9 @@ class SkillsController {
   }
 
   interactResult(
-    result: InteractResult
+    results: InteractResult[]
   ) {
-    this.using && this.using.interactResult(result);
+    this.using && this.using.interactResult(results);
   }
 }
 

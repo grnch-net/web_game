@@ -50,7 +50,7 @@ function test_stamina_regeneration() {
 }
 
 function test_effects() {
-  console.group('effect');
+  console.group('Effect');
   test_stamina_regeneration();
   console.groupEnd();
 }

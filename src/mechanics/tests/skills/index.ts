@@ -143,7 +143,7 @@ function test_block() {
 }
 
 function test_skills() {
-  console.group('skill');
+  console.group('Skill');
   test_recreation();
   test_attack();
   test_block();
