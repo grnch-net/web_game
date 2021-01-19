@@ -1,6 +1,10 @@
 import '../modifications/test_index';
 
 import {
+  test_quadtree
+} from './quadtree/index';
+
+import {
   test_effects
 } from './effects/index';
 
@@ -9,6 +13,7 @@ import {
 } from './skills/index';
 
 console.group('test mechanics');
+test_quadtree();
 test_effects();
 test_skills();
 console.groupEnd();
