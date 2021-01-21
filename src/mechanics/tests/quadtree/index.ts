@@ -32,7 +32,10 @@ function test_quadtree() {
   const point = new Point({ x: 50, y: 50, z: 0 });
   const result = [];
 
-  tree.getObjects(point, 5, result);
+  const start = performance.now();
+  tree.findByRadius(point, 5, result);
+  const end = performance.now();
+  console.info(end - start);
 
   for (const target of result) {
     (target as any).__hit = true;
