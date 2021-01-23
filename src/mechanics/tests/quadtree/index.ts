@@ -12,17 +12,22 @@ import {
 
 function test_quadtree() {
   console.group('QuadTree');
-  const bound = { x1: 0, y1: 0, x2: 100, y2: 100 };
-  const tree = new QuadTree(bound);
+  const bound = { x1: 0, y1: 0, x2: 1000, y2: 1000 };
+  const tree = new QuadTree;
+  tree.initialize(bound);
+  tree.clear();
   const objects = [];
+  const count = 1000;
+  const ratioX = bound.x2 / count;
+  const ratioY = bound.y2 / count;
 
-  for (let i = 0; i < 1000; i++) {
+  for (let i = 0; i < count; i++) {
     const hero = new Character;
     const parameters = Character.createParameters('hero');
     hero.initialize(parameters);
     hero.position.set(
-      Math.floor(Math.random() * bound.x2),
-      Math.floor(Math.random() * bound.y2),
+      ratioX * i,
+      ratioY * i,
       0
     );
     tree.insert(hero);
@@ -30,23 +35,37 @@ function test_quadtree() {
   }
 
   const point = new Point({ x: 50, y: 50, z: 0 });
-  const result = [];
 
-  const start = performance.now();
-  tree.findByRadius(point, 5, result);
-  const end = performance.now();
-  console.info(end - start);
+  const radius = 13;
+  const result = tree.findByRadius(point, radius);
 
   for (const target of result) {
     (target as any).__hit = true;
   }
 
   for (const object of objects) {
-    if (object.position.lengthTo(point) <= 5 && !(object as any).__hit) {
-      console.error('Failed', object);
+    const lengthTo = object.position.lengthTo(point);
+    if (lengthTo <= radius && !(object as any).__hit) {
+      console.error('Failed', !!(object as any).__hit, object.position, lengthTo, radius);
       console.groupEnd();
-      return;    }
+      return;
+    }
   }
+
+  // let time = Infinity;
+  // for (let i = 0; i < 100; i++) {
+  //   const start = performance.now();
+  //   tree.clear();
+  //   for (const object of objects) {
+  //     tree.insert(object);
+  //   }
+  //   for (const object of objects) {
+  //     tree.findByRadius(object.position, radius);
+  //   }
+  //   time = Math.min(time, performance.now() - start);
+  // }
+  // console.info(time);
+
   console.info('Successful');
   console.groupEnd();
 }

@@ -19,63 +19,75 @@ interface Rect {
 
 class QuadTree {
 
-  nodes: QuadTree[];
+  bound: Rect;
+  level: number;
   count: number = 0;
+  protected _nodes: QuadTree[];
   protected _objects: WorldObject[];
 
-  constructor(
-    public bound: Rect,
-    public levels: number = 5,
-    public parent?: QuadTree
-  ) {
-    bound.xMid = (bound.x1 + bound.x2) * 0.5;
-    bound.yMid = (bound.y1 + bound.y2) * 0.5;
-    bound.halfWidth = (bound.x2 - bound.x1) * 0.5;
-    bound.halfHeight = (bound.y2 - bound.y1) * 0.5;
+  constructor() {}
 
-    if (this.levels) {
+  initialize(
+    bound: Rect,
+    level: number = 5,
+  ) {
+    this.bound = bound;
+    this.level = level;
+
+    bound.xMid = Math.ceil((bound.x1 + bound.x2) * 0.5);
+    bound.yMid = Math.ceil((bound.y1 + bound.y2) * 0.5);
+    const width = bound.x2 - bound.x1;
+    const height = bound.y2 - bound.y1;
+    bound.halfWidth = width * 0.5;
+    bound.halfHeight = height * 0.5;
+
+    if (width == 1 || height == 1) {
+      this.level = 0;
+    }
+
+    if (this.level) {
       this._split();
     } else {
       this._objects = [];
     }
+    return this;
+  }
+
+  protected _split() {
+    const level = this.level - 1;
+    const { x1, y1, x2, y2, xMid, yMid } = this.bound;
+
+    this._nodes = [
+      new QuadTree().initialize({ x1: x1, y1: y1, x2: xMid, y2: yMid }, level),
+      new QuadTree().initialize({ x1: xMid, y1: y1, x2: x2, y2: yMid }, level),
+      new QuadTree().initialize({ x1: x1, y1: yMid, x2: xMid, y2: y2 }, level),
+      new QuadTree().initialize({ x1: xMid, y1: yMid, x2: x2, y2: y2 }, level)
+    ];
   }
 
   insert(
     object: WorldObject
-  ): boolean {
+  ) {
     ++this.count;
 
-    if (!this.nodes) {
+    if (!this.level) {
       this._objects.push(object);
-      return true;
+      return;
     }
 
     if (object.position.x < this.bound.xMid) {
       if (object.position.y < this.bound.yMid) {
-        this.nodes[0].insert(object)
+        this._nodes[0].insert(object)
       } else {
-        this.nodes[2].insert(object)
+        this._nodes[2].insert(object)
       }
     } else {
       if (object.position.y < this.bound.yMid) {
-        this.nodes[1].insert(object)
+        this._nodes[1].insert(object)
       } else {
-        this.nodes[3].insert(object)
+        this._nodes[3].insert(object)
       }
     }
-    return true;
-  }
-
-  protected _split() {
-    const levels = this.levels - 1;
-    const { x1, y1, x2, y2, xMid, yMid } = this.bound;
-
-    this.nodes = [
-      new QuadTree({ x1: x1, y1: y1, x2: xMid, y2: yMid }, levels, this),
-      new QuadTree({ x1: xMid, y1: y1, x2: x2, y2: yMid }, levels, this),
-      new QuadTree({ x1: x1, y1: yMid, x2: xMid, y2: y2 }, levels, this),
-      new QuadTree({ x1: xMid, y1: yMid, x2: x2, y2: y2 }, levels, this)
-    ];
   }
 
   findByRadius(
@@ -96,7 +108,13 @@ class QuadTree {
       return;
     }
 
-    const { xMid, yMid, halfWidth, halfHeight } = this.bound;
+    const {
+      xMid,
+      yMid,
+      halfWidth,
+      halfHeight
+    } = this.bound;
+
     const lengthX = Math.abs(xMid - point.x);
     if (lengthX > halfWidth + radius) {
       return;
@@ -106,17 +124,11 @@ class QuadTree {
       return;
     }
 
-    if (lengthX < radius - halfWidth * 1.41
-      && lengthY < radius - halfHeight * 1.41
-    ) {
-      this.get_objects(result);
-      return;
-    }
-
-    if (this.nodes) {
-      for (const node of this.nodes) {
-        node.find_by_radius(point, radius, result);
-      }
+    if (this.level) {
+      this._nodes[0].find_by_radius(point, radius, result);
+      this._nodes[1].find_by_radius(point, radius, result);
+      this._nodes[2].find_by_radius(point, radius, result);
+      this._nodes[3].find_by_radius(point, radius, result);
       return;
     }
 
@@ -140,12 +152,26 @@ class QuadTree {
     if (!this.count) {
       return;
     }
-    if (this.nodes) {
-      for (const node of this.nodes) {
-        node.get_objects(result);
-      }
+    if (this.level) {
+      this._nodes[0].get_objects(result);
+      this._nodes[1].get_objects(result);
+      this._nodes[2].get_objects(result);
+      this._nodes[3].get_objects(result);
+      return;
     }
     result.push(...this._objects);
+  }
+
+  clear() {
+    this.count = 0;
+    if (this.level) {
+      this._nodes[0].clear();
+      this._nodes[1].clear();
+      this._nodes[2].clear();
+      this._nodes[3].clear();
+    } else {
+      this._objects = [];
+    }
   }
 
 }
