@@ -12,32 +12,29 @@ import {
 
 function test_quadtree() {
   console.group('QuadTree');
-  const bound = { x1: 0, y1: 0, x2: 1000, y2: 1000 };
-  const tree = new QuadTree;
-  tree.initialize(bound);
-  tree.clear();
-  const objects = [];
-  const count = 1000;
-  const ratioX = bound.x2 / count;
-  const ratioY = bound.y2 / count;
 
-  for (let i = 0; i < count; i++) {
+  const size = 1000;
+  const tree = new QuadTree;
+  tree.initialize(size);
+  tree.clear();
+
+  const objects = [];
+  for (let i = 0; i < size; i++) {
     const hero = new Character;
     const parameters = Character.createParameters('hero');
     hero.initialize(parameters);
-    hero.position.set(
-      ratioX * i,
-      ratioY * i,
-      0
-    );
+    hero.position.set(i, i, 0);
     tree.insert(hero);
     objects.push(hero);
   }
 
   const point = new Point({ x: 50, y: 50, z: 0 });
-
-  const radius = 13;
+  const radius = 3;
   const result = tree.findByRadius(point, radius);
+
+  if (result.length == 0) {
+    console.error('Failed', point, radius);
+  }
 
   for (const target of result) {
     (target as any).__hit = true;
@@ -45,7 +42,9 @@ function test_quadtree() {
 
   for (const object of objects) {
     const lengthTo = object.position.lengthTo(point);
-    if (lengthTo <= radius && !(object as any).__hit) {
+    const inner = lengthTo <= radius;
+    const hit = (object as any).__hit;
+    if ((inner && !hit) || (!inner && hit)) {
       console.error('Failed', !!(object as any).__hit, object.position, lengthTo, radius);
       console.groupEnd();
       return;
@@ -53,7 +52,7 @@ function test_quadtree() {
   }
 
   // let time = Infinity;
-  // for (let i = 0; i < 100; i++) {
+  // for (let i = 0; i < 1000; i++) {
   //   const start = performance.now();
   //   tree.clear();
   //   for (const object of objects) {
