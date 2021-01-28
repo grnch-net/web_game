@@ -27,15 +27,25 @@ import {
 export class World {
   characters: Character[];
   boxes: Box[];
+  protected _size: number;
   protected _timeline: Timeline<Character>;
   protected interaction_controller: InteractionController;
 
   initialize() {
+    this.initialize_variables();
+    this.initialize_interaction();
+  }
+
+  protected initialize_variables() {
     this.characters = [];
     this.boxes = [];
+    this._size = 500;
     this._timeline = new Timeline;
+  }
+
+  protected initialize_interaction() {
     this.interaction_controller = new InteractionController;
-    this.interaction_controller.initialize(this.characters, this._timeline);
+    this.interaction_controller.initialize(this.characters, this._timeline, this._size);
   }
 
   addCharacter(
@@ -50,6 +60,7 @@ export class World {
   ) {
     const point = this._timeline.tick(dt);
     this.tick_wait(point.dt);
+    this.interaction_controller.tick(dt);
     this.tick_characters(point.data);
     if (point.left) {
       this.tick(point.left);

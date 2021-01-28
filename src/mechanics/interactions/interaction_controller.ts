@@ -16,17 +16,46 @@ import {
   ImpactSide,
 } from './impact';
 
+import {
+  QuadTree
+} from '../quadtree';
+
 class InteractionController {
 
   protected _characters: Character[];
   protected _timeline: Timeline<Character>;
+  protected _tree: QuadTree<Character>;
 
   initialize(
     characters: Character[],
-    timeline: Timeline
+    timeline: Timeline,
+    size: number
   ) {
     this._characters = characters;
     this._timeline = timeline;
+    this.initialize_tree(size);
+  }
+
+  protected initialize_tree(
+    size: number
+  ) {
+    this._tree = new QuadTree;
+    this._tree.initialize(size);
+  }
+
+  tick(
+    dt: number
+  ) {
+    this._tree.clear();
+  }
+
+  protected update_tree() {
+    if (!this._tree.isClear) {
+      return;
+    }
+    for (const character of this._characters) {
+      this._tree.insert(character);
+    }
   }
 
   action(
@@ -55,15 +84,15 @@ class InteractionController {
     author: Character,
     impact: Impact
   ) {
+    this.update_tree();
+    const targets = this._tree.findByRadius(author.position, impact.rules.range);
     const results: InteractResult[] = [];
-    for (const target of this._characters) {
+    for (const target of targets) {
       if (author == target) continue;
-      const distance = author.position.lengthTo(target.position);
-      if (distance > impact.rules.range) continue;
       const hit = this.check_hit(author, target, impact.rules.sector);
       if (!hit) continue;
       const target_impact = impact.clone();
-      this.apply_range(distance, target_impact);
+      // this.apply_range(distance, target_impact);
       target_impact.rules.side = this.calculate_impact_side(author, target);
       const result = target.interact(target_impact);
       results.push(result);
@@ -87,10 +116,10 @@ class InteractionController {
     return angle <= (Math.PI * 0.25);
   }
 
-  protected apply_range(
-    distance: number,
-    impact: Impact
-  ) {}
+  // protected apply_range(
+  //   distance: number,
+  //   impact: Impact
+  // ) {}
 
   protected calculate_impact_side(
     author: Character,
