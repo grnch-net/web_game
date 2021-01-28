@@ -1,8 +1,4 @@
 import type {
-  WorldObject
-} from './world_object';
-
-import type {
   Point
 } from './Point';
 
@@ -16,18 +12,23 @@ interface Rect {
   half?: number;
 }
 
-class QuadTree {
+interface TreeObject {
+  position: Point
+}
 
+class QuadTree<T extends TreeObject> {
+
+  isClear: boolean;
   bound: Rect;
   count: number;
-  map: QuadTree[][];
-  parent: QuadTree;
+  map: QuadTree<T>[][];
+  parent: QuadTree<T>;
   protected _level: number;
-  protected _nodes: QuadTree[];
-  protected _objects: WorldObject[];
+  protected _nodes: QuadTree<T>[];
+  protected _objects: T[];
+  protected static_count: number;
+  protected static_objects: T[];
   protected _sector: number;
-
-  constructor() {}
 
   initialize(
     size: number,
@@ -48,10 +49,12 @@ class QuadTree {
   _initialize(
     bound: Rect,
     level: number,
-    map: QuadTree[][],
-    parent?: QuadTree
-  ): QuadTree {
+    map: QuadTree<T>[][],
+    parent?: QuadTree<T>
+  ): QuadTree<T> {
+    this.isClear = true;
     this.count = 0;
+    this.static_count = 0;
     this.bound = bound;
     this._level = level;
     this.parent = parent;
@@ -65,6 +68,7 @@ class QuadTree {
       this._split(map);
     } else {
       this._objects = [];
+      this.static_objects = [];
       const column = this.bound.x1 / size;
       const row = this.bound.y1 / size;
       map[column] = map[column] || [];
@@ -75,42 +79,62 @@ class QuadTree {
   }
 
   protected _split(
-    map: QuadTree[][]
+    map: QuadTree<T>[][]
   ) {
     const level = this._level - 1;
     const { x1, y1, x2, y2, xMid, yMid } = this.bound;
 
     this._nodes = [
-      new QuadTree()._initialize({ x1: x1, y1: y1, x2: xMid, y2: yMid }, level, map, this),
-      new QuadTree()._initialize({ x1: xMid, y1: y1, x2: x2, y2: yMid }, level, map, this),
-      new QuadTree()._initialize({ x1: x1, y1: yMid, x2: xMid, y2: y2 }, level, map, this),
-      new QuadTree()._initialize({ x1: xMid, y1: yMid, x2: x2, y2: y2 }, level, map, this)
+      new QuadTree<T>()._initialize({ x1: x1, y1: y1, x2: xMid, y2: yMid }, level, map, this),
+      new QuadTree<T>()._initialize({ x1: xMid, y1: y1, x2: x2, y2: yMid }, level, map, this),
+      new QuadTree<T>()._initialize({ x1: x1, y1: yMid, x2: xMid, y2: y2 }, level, map, this),
+      new QuadTree<T>()._initialize({ x1: xMid, y1: yMid, x2: x2, y2: y2 }, level, map, this)
     ];
   }
 
   insert(
-    object: WorldObject
+    object: T
   ) {
+    this.isClear = false;
     const column = Math.floor(object.position.x / this._sector);
     const row = Math.floor(object.position.y / this._sector);
     this.map[column][row].add(object);
   }
 
+  insertStatic(
+    object: T
+  ) {
+    const column = Math.floor(object.position.x / this._sector);
+    const row = Math.floor(object.position.y / this._sector);
+    this.map[column][row].addStatic(object);
+  }
+
   add(
-    object: WorldObject
+    object: T
   ) {
     this._objects.push(object);
-    let parent: QuadTree = this;
+    let parent: QuadTree<T> = this;
     do {
       ++parent.count;
+    } while (parent = parent.parent);
+  }
+
+  addStatic(
+    object: T
+  ) {
+    this.static_objects.push(object);
+    let parent: QuadTree<T> = this;
+    do {
+      ++parent.count;
+      ++parent.static_count;
     } while (parent = parent.parent);
   }
 
   findByRadius(
     point: Point,
     radius: number,
-    result: WorldObject[] = []
-  ): WorldObject[] {
+    result: T[] = []
+  ): T[] {
     this.find_by_radius(point, radius, result);
     return result;
   }
@@ -118,7 +142,7 @@ class QuadTree {
   find_by_radius(
     point: Point,
     radius: number,
-    result: WorldObject[]
+    result: T[]
   ) {
     if (!this.count) {
       return;
@@ -145,17 +169,23 @@ class QuadTree {
         result.push(object);
       }
     }
+
+    for (const object of this.static_objects) {
+      if (point.lengthTo(object.position) <= radius) {
+        result.push(object);
+      }
+    }
   }
 
   getObjects(
-    result: WorldObject[] = []
-  ): WorldObject[] {
+    result: T[] = []
+  ): T[] {
     this.get_objects(result);
     return result;
   }
 
   get_objects(
-    result: WorldObject[]
+    result: T[]
   ) {
     if (!this.count) {
       return;
@@ -167,11 +197,15 @@ class QuadTree {
       this._nodes[3].get_objects(result);
       return;
     }
-    result.push(...this._objects);
+    result.push(...this.static_objects, ...this._objects);
   }
 
   clear() {
-    this.count = 0;
+    if (this.isClear) {
+      return;
+    }
+    this.isClear = true;
+    this.count = this.static_count;
     if (this._level > 0) {
       this._nodes[0].clear();
       this._nodes[1].clear();
