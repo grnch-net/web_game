@@ -95,7 +95,6 @@ class QuadTree<T extends TreeObject> {
   insert(
     object: T
   ) {
-    this.isClear = false;
     const column = Math.floor(object.position.x / this._sector);
     const row = Math.floor(object.position.y / this._sector);
     this.map[column][row].add(object);
@@ -116,6 +115,7 @@ class QuadTree<T extends TreeObject> {
     let parent: QuadTree<T> = this;
     do {
       ++parent.count;
+      parent.isClear = false;
     } while (parent = parent.parent);
   }
 
