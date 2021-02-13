@@ -1,5 +1,17 @@
+type ModCall = (Latest) => AnyClass;
+
+type ComingMod = {
+  call: ModCall,
+  key?: string
+};
+
+type ComingMods = {
+  [key: string]: ComingMod
+};
+
 function modify(
-  Mod: any
+  Mod: any,
+  key?: string
 ) {
   console.info(`- modify ${this.Base.name}: ${Mod.name}`);
   Object.defineProperty(Mod, 'isMod', {
@@ -15,6 +27,26 @@ function modify(
   // delete static_properties.prototype;
   // Object.defineProperties(this, static_properties);
   // Object.setPrototypeOf(this, static_proto);
+
+  if (key) {
+    this.uses_mods.push(key);
+    const coming: ComingMod = this.coming_mods[key];
+    if (coming) {
+      const sub_mod = coming.call(Mod);
+      this.modify(sub_mod, coming.key);
+    }
+  }
+}
+
+function modifyAfter(
+  coming: string,
+  modCall: ModCall,
+  key?: string
+) {
+  if (this.uses_mods.includes(coming)) {
+    const sub_mod = modCall(this._Latest);
+    this.modify(sub_mod, key);
+  }
 }
 
 function modifiable<T extends AnyClass>(constructor: T) {
@@ -22,6 +54,8 @@ function modifiable<T extends AnyClass>(constructor: T) {
   const proto = Object.getPrototypeOf(constructor.prototype);
   class Mod extends constructor {
     static _Latest = constructor;
+    static coming_mods: ComingMods = {};
+    static uses_mods: string[] = [];
     static get Latest() {
       if (!this.hasOwnProperty('Latest')) {
         return;
@@ -40,6 +74,12 @@ function modifiable<T extends AnyClass>(constructor: T) {
       }
       return modify;
     }
+    static get modifyAfter() {
+      if (!this.hasOwnProperty('modifyAfter')) {
+        return;
+      }
+      return modifyAfter;
+    }
     // baseSuper = proto;
   }
   Object.defineProperties(Mod.prototype, properties);
@@ -55,5 +95,6 @@ declare global {
   type Modifiable<T> = T & {
     Latest: T;
     modify: typeof modify;
+    modifyAfter: typeof modifyAfter;
   };
 }
