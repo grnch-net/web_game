@@ -19,9 +19,17 @@ class ParryPenetration extends (Parry as Mod).Latest {
     }
     const chance = this.calculate_parry_chance();
     const { penetration } = innerImpact.rules;
-    return chance > penetration;
+    return chance >= penetration;
+  }
+
+  protected calculate_parry_chance(): number {
+    return 0;
   }
 
 }
 
-(Parry as Mod).modify(ParryPenetration);
+(Parry as Mod).modify(ParryPenetration, 'Penetration');
+
+export type {
+  ParryPenetration
+}

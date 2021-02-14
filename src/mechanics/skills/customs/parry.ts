@@ -43,10 +43,6 @@ class Parry extends Skill {
     return true;
   }
 
-  protected calculate_parry_chance(): number {
-    return 0;
-  }
-
   protected avoid_parry(
     innerImpact: Impact
   ) {

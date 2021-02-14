@@ -25,12 +25,6 @@ class Shot extends Skill {
     outerImpact.influenced.health = 0;
   }
 
-  protected calculate_penetration(
-    outerImpact: Impact
-  ): number {
-    return 0;
-  }
-
 }
 
 Skill.AddCustomClass('shot', Shot);

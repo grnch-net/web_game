@@ -15,6 +15,10 @@ import {
   Block
 } from '../../customs/block';
 
+import type {
+  BlockPenetration
+} from '../penetration/block';
+
 type Mod = Modifiable<typeof Block>;
 
 class BlockEquip extends (Block as Mod).Latest {
@@ -41,15 +45,6 @@ class BlockEquip extends (Block as Mod).Latest {
       }
     }
     return true;
-  }
-
-  protected calculate_block_chance(): number {
-    let chance = super.calculate_block_chance();
-    const equip_chance = this.usage_equip?.stats?.block;
-    if (equip_chance) {
-      chance += this.randomize_chance(equip_chance);
-    }
-    return chance;
   }
 
   protected avoid_block(
@@ -80,3 +75,30 @@ class BlockEquip extends (Block as Mod).Latest {
 }
 
 (Block as Mod).modify(BlockEquip);
+
+function ModCall(Latest: typeof BlockPenetration) {
+  class BlockEquip_Penetration extends Latest {
+
+    protected calculate_block_chance(): number {
+      let chance = super.calculate_block_chance();
+      const equip_chance = this.usage_equip?.stats?.block;
+      if (equip_chance) {
+        chance += equip_chance;
+        // TODO: Mod randomize
+        // chance += this.randomize_chance(equip_chance);
+      }
+      return chance;
+    }
+
+  }
+  return BlockEquip_Penetration;
+}
+
+(Block as Mod).modifyAfter('Penetration', ModCall, 'Equip_Penetration');
+
+interface BlockEquip_Penetration extends BlockPenetration {}
+
+export type {
+  BlockEquip,
+  BlockEquip_Penetration
+}

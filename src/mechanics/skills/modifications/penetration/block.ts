@@ -19,9 +19,17 @@ class BlockPenetration extends (Block as Mod).Latest {
     }
     const chance = this.calculate_block_chance();
     const { penetration } = innerImpact.rules;
-    return chance > penetration;
+    return chance >= penetration;
+  }
+
+  protected calculate_block_chance(): number {
+    return this.config.stats?.penetration || 0;
   }
 
 }
 
-(Block as Mod).modify(BlockPenetration);
+(Block as Mod).modify(BlockPenetration, 'Penetration');
+
+export type {
+  BlockPenetration
+}

@@ -18,6 +18,16 @@ class AttackPenetration extends (Attack as Mod).Latest {
     outerImpact.rules.penetration = this.calculate_penetration(outerImpact);
   }
 
+  protected calculate_penetration(
+    outerImpact: Impact
+  ): number {
+    return this.config.stats?.penetration || 0;
+  }
+
 }
 
-(Attack as Mod).modify(AttackPenetration);
+(Attack as Mod).modify(AttackPenetration, 'Penetration');
+
+export type {
+  AttackPenetration
+}

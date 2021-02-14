@@ -17,6 +17,10 @@ import {
   Attack
 } from '../../customs/attack';
 
+import type {
+  AttackPenetration
+} from '../penetration/attack';
+
 type Mod = Modifiable<typeof Attack>;
 
 class AttackEquip extends (Attack as Mod).Latest {
@@ -66,15 +70,6 @@ class AttackEquip extends (Attack as Mod).Latest {
     outerImpact.influenced.health += -this.usage_equip?.stats?.meleeDamage || 0;
   }
 
-  protected calculate_penetration(
-    outerImpact: Impact
-  ): number {
-    let result = super.calculate_penetration(outerImpact);
-    let penetration = this.usage_equip?.stats?.meleePenetration || 0;
-    result += this.randomize_chance(penetration);
-    return result;
-  }
-
   protected get_cast_time(): number {
     const cast_time = super.get_cast_time();
     const equip_speed = this.usage_equip?.stats?.speed;
@@ -99,4 +94,32 @@ class AttackEquip extends (Attack as Mod).Latest {
 
 }
 
-(Attack as Mod).modify(AttackEquip);
+(Attack as Mod).modify(AttackEquip, 'Equip');
+
+function ModCall(Latest: typeof AttackPenetration) {
+  class AttackEquip_Penetration extends Latest {
+
+    protected calculate_penetration(
+      outerImpact: Impact
+    ): number {
+      let result = super.calculate_penetration(outerImpact);
+      let penetration = this.usage_equip?.stats?.meleePenetration || 0;
+      result += penetration;
+      // TODO: Mod randomize
+      // result += this.randomize_chance(penetration);
+      return result;
+    }
+
+  }
+  return AttackEquip_Penetration;
+}
+
+
+(Attack as Mod).modifyAfter('Penetration', ModCall, 'Equip_Penetration');
+
+interface AttackEquip_Penetration extends AttackPenetration {}
+
+export type {
+  AttackEquip,
+  AttackEquip_Penetration
+}

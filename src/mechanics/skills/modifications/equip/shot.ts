@@ -18,6 +18,10 @@ import {
   Shot
 } from '../../customs/shot';
 
+import type {
+  ShotPenetration
+} from '../penetration/shot';
+
 type Mod = Modifiable<typeof Shot>;
 
 const rangeEquips = [
@@ -83,18 +87,6 @@ class ShotEquip extends (Shot as Mod).Latest {
     }
   }
 
-  protected calculate_penetration(
-    outerImpact: Impact
-  ): number {
-    let result = super.calculate_penetration(outerImpact);
-    let penetration = 0;
-    for (const equip of this.usage_equips) {
-      penetration += equip.stats?.rangePenetration || 0;
-    }
-    result += this.randomize_chance(penetration);
-    return result;
-  }
-
   protected get_cast_time(): number {
     let cast_time = super.get_cast_time();
     for (const equip of this.usage_equips) {
@@ -118,3 +110,33 @@ class ShotEquip extends (Shot as Mod).Latest {
 }
 
 (Shot as Mod).modify(ShotEquip);
+
+function ModCall(Latest: typeof ShotPenetration) {
+  class ShotEquip_Penetration extends Latest {
+
+    protected calculate_penetration(
+      outerImpact: Impact
+    ): number {
+      let result = super.calculate_penetration(outerImpact);
+      let penetration = 0;
+      for (const equip of this.usage_equips) {
+        penetration += equip.stats?.rangePenetration || 0;
+      }
+      result += penetration;
+      // TODO: Mod randomize
+      // result += this.randomize_chance(penetration);
+      return result;
+    }
+
+  }
+  return ShotEquip_Penetration;
+}
+
+(Shot as Mod).modifyAfter('Penetration', ModCall, 'Equip_Penetration');
+
+interface ShotEquip_Penetration extends ShotPenetration {}
+
+export type {
+  ShotEquip,
+  ShotEquip_Penetration
+}

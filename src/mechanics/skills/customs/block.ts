@@ -43,10 +43,6 @@ class Block extends Skill {
     return true;
   }
 
-  protected calculate_block_chance(): number {
-    return this.config.stats?.penetration || 0;
-  }
-
   protected avoid_block(
     innerImpact: Impact
   ) {

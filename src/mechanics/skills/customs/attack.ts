@@ -30,12 +30,6 @@ class Attack extends Skill {
     this.combination++;
   }
 
-  protected calculate_penetration(
-    outerImpact: Impact
-  ): number {
-    return this.config.stats?.penetration || 0;
-  }
-
 }
 
 Skill.AddCustomClass('attack', Attack);

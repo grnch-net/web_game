@@ -15,6 +15,10 @@ import {
   Parry
 } from '../../customs/parry';
 
+import type {
+  ParryPenetration
+} from '../penetration/parry';
+
 type Mod = Modifiable<typeof Parry>;
 
 class ParryEquip extends (Parry as Mod).Latest {
@@ -40,16 +44,6 @@ class ParryEquip extends (Parry as Mod).Latest {
       }
     }
     return true;
-  }
-
-  protected calculate_parry_chance(): number {
-    let chance = super.calculate_parry_chance();
-    let equip_chance = 0;
-    for (const equip of this.usage_equips) {
-      equip_chance += equip.stats?.parry || 0;
-    }
-    chance += this.randomize_chance(equip_chance);
-    return chance;
   }
 
   protected avoid_parry(
@@ -86,3 +80,31 @@ class ParryEquip extends (Parry as Mod).Latest {
 }
 
 (Parry as Mod).modify(ParryEquip);
+
+function ModCall(Latest: typeof ParryPenetration) {
+  class ParryEquip_Penetration extends Latest {
+
+    protected calculate_parry_chance(): number {
+      let chance = super.calculate_parry_chance();
+      let equip_chance = 0;
+      for (const equip of this.usage_equips) {
+        equip_chance += equip.stats?.parry || 0;
+      }
+      chance += equip_chance;
+      // TODO: Mod randomize
+      // chance += this.randomize_chance(equip_chance);
+      return chance;
+    }
+
+  }
+  return ParryEquip_Penetration;
+}
+
+(Parry as Mod).modifyAfter('Penetration', ModCall, 'Equip_Penetration');
+
+interface ParryEquip_Penetration extends ParryPenetration {}
+
+export type {
+  ParryEquip,
+  ParryEquip_Penetration
+}
