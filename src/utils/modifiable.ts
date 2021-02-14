@@ -6,7 +6,7 @@ type ComingMod = {
 };
 
 type ComingMods = {
-  [key: string]: ComingMod
+  [key: string]: ComingMod[]
 };
 
 function modify(
@@ -30,10 +30,12 @@ function modify(
 
   if (key) {
     this.uses_mods.push(key);
-    const coming: ComingMod = this.coming_mods[key];
-    if (coming) {
-      const sub_mod = coming.call(Mod);
-      this.modify(sub_mod, coming.key);
+    const comings: ComingMod[] = this.coming_mods[key];
+    if (comings) {
+      for (const coming_mod of comings) {
+        const sub_mod = coming_mod.call(Mod);
+        this.modify(sub_mod, coming_mod.key);
+      }
     }
   }
 }
@@ -46,7 +48,10 @@ function modifyAfter(
   if (this.uses_mods.includes(coming)) {
     const sub_mod = modCall(this._Latest);
     this.modify(sub_mod, key);
+    return;
   }
+  this.coming_mods[coming] = this.coming_mods[coming] || [];
+  this.coming_mods[coming].push({ call: modCall, key });
 }
 
 function modifiable<T extends AnyClass>(constructor: T) {

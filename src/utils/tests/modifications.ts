@@ -21,6 +21,15 @@ function test_modification() {
   }
 
   console.groupCollapsed('modifications');
+  function modCall_Baa(Latest: typeof B) {
+    class Baa extends Latest {
+      a() {
+        return 'Baa' + super.a();
+      }
+    }
+    return Baa;
+  }
+  (B as any).modifyAfter('Ba', modCall_Baa);
   class Ba extends (B as any).Latest {
     a() {
       return 'Ba' + super.a();
@@ -35,23 +44,23 @@ function test_modification() {
   }
   (B as any).modify(Bb);
 
-  function modCall(Latest: typeof B) {
-    class Baa extends Latest {
+  function modCall_Bab(Latest: typeof B) {
+    class Bab extends Latest {
       a() {
-        return 'Baa' + super.a();
+        return 'Bab' + super.a();
       }
     }
-    return Baa;
+    return Bab;
   }
-  (B as any).modifyAfter('Ba', modCall);
+  (B as any).modifyAfter('Ba', modCall_Bab);
   console.groupEnd();
 
   const result = (new B).a();
-  if (result !== 'BaaBbBaBA') {
+  if (result !== 'BabBbBaaBaBA') {
     console.error('Failed', result);
   }
   const result2 = (new C).a();
-  if (result2 !== 'CBaaBbBaBA') {
+  if (result2 !== 'CBabBbBaaBaBA') {
     console.error('Failed', result2);
   }
 
