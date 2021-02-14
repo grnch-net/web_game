@@ -1,6 +1,6 @@
 import {
   Impact,
-  InteractResult
+  TargetInteractResult
 } from '../../../interactions/index';
 
 import {
@@ -57,7 +57,7 @@ class CharacterEffect extends (Character as Mod).Latest {
 
   protected interact_listeners(
     innerImpact: Impact,
-    interactResult: InteractResult
+    interactResult: TargetInteractResult
   ) {
     super.interact_listeners(innerImpact, interactResult);
     this.effects.onOuterImpact(innerImpact, interactResult);

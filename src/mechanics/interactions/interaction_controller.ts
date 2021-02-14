@@ -86,7 +86,10 @@ class InteractionController {
   ) {
     this.update_tree();
     const targets = this._tree.findByRadius(author.position, impact.rules.range);
-    const results: InteractResult[] = [];
+    const results: InteractResult = {
+      skill: impact.rules.skill,
+      targets: []
+    };
     for (const target of targets) {
       if (author == target) continue;
       const hit = this.check_hit(author, target, impact.rules.sector);
@@ -95,7 +98,7 @@ class InteractionController {
       // this.apply_range(distance, target_impact);
       target_impact.rules.side = this.calculate_impact_side(author, target);
       const result = target.interact(target_impact);
-      results.push(result);
+      results.targets.push(result);
     }
     author.interactResult(results);
   }

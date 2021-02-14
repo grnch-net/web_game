@@ -1,6 +1,6 @@
 import type {
   Impact,
-  InteractResult
+  TargetInteractResult
 } from '../interactions/index';
 
 import {
@@ -86,7 +86,7 @@ class EffectsController {
 
   onOuterImpact(
     innerImpact: Impact,
-    result: InteractResult
+    result: TargetInteractResult
   ) {
     for (const effect of this.list) {
       if (!effect.active) continue;

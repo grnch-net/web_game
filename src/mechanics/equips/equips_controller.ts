@@ -1,6 +1,6 @@
 import type {
   Impact,
-  InteractResult
+  TargetInteractResult
 } from '../interactions/index';
 
 import {
@@ -319,7 +319,7 @@ class EquipsController {
 
   onOuterImpact(
     innerImpact: Impact,
-    result: InteractResult
+    result: TargetInteractResult
   ) {
     let damage = -innerImpact.influenced.health;
     if (!damage || damage < 0) return;

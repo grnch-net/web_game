@@ -1,5 +1,6 @@
 import type {
   Impact,
+  TargetInteractResult,
   InteractResult
 } from '../interactions/index';
 
@@ -87,7 +88,7 @@ class SkillsController {
 
   onOuterImpact(
     innerImpact: Impact,
-    result: InteractResult
+    result: TargetInteractResult
   ) {
     if (!this.using) return;
     if (this.using.state == SkillState.Cast
@@ -175,9 +176,12 @@ class SkillsController {
   }
 
   interactResult(
-    results: InteractResult[]
+    results: InteractResult
   ) {
-    this.using && this.using.interactResult(results);
+    if (!results.skill) {
+      return;
+    }
+    this.list[results.skill].interactResult(results);
   }
 }
 

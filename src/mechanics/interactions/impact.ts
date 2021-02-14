@@ -21,6 +21,7 @@ interface Rules {
   stun?: number;
   range?: number;
   sector?: number;
+  skill?: string | number;
 }
 
 type InfluenceList = { [key in Attribute]?: number };

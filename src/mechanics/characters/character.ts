@@ -29,6 +29,7 @@ import {
   Impact,
   Attribute,
   InfluenceList,
+  TargetInteractResult,
   InteractResult
 } from '../interactions/index';
 
@@ -168,9 +169,9 @@ class Character extends WorldObject {
 
   interact(
     innerImpact: Impact
-  ): InteractResult {
+  ): TargetInteractResult {
     this.tick(0);
-    const result: InteractResult = { hit: true };
+    const result: TargetInteractResult = { hit: true };
     this.interact_listeners(innerImpact, result);
     this.apply_impact(innerImpact);
     return result;
@@ -178,7 +179,7 @@ class Character extends WorldObject {
 
   protected interact_listeners(
     innerImpact: Impact,
-    interactResult: InteractResult
+    interactResult: TargetInteractResult
   ) {}
 
   useInventoryItem(
@@ -270,13 +271,13 @@ class Character extends WorldObject {
   }
 
   interactResult(
-    results: InteractResult[]
+    results: InteractResult
   ) {
     this.interact_result_listeners(results);
   }
 
   protected interact_result_listeners(
-    results: InteractResult[]
+    results: InteractResult
   ) {}
 
   addInventoryItem(

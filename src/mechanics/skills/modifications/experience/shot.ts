@@ -42,10 +42,10 @@ function ModCall(Latest: typeof ShotPenetration) {
     }
 
     interactResult(
-      results: InteractResult[]
+      results: InteractResult
     ) {
       super.interactResult(results);
-      for (const result of results) {
+      for (const result of results.targets) {
         if (!result.hit) return;
         if (result.avoid) {
           this.parameters.experience += 1;

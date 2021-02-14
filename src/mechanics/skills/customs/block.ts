@@ -1,7 +1,7 @@
 import {
   Impact,
   ImpactSide,
-  InteractResult
+  TargetInteractResult
 } from '../../interactions/index';
 
 import type {
@@ -20,7 +20,7 @@ class Block extends Skill {
 
   onOuterImpact(
     innerImpact: Impact,
-    result: InteractResult
+    result: TargetInteractResult
   ) {
     super.onOuterImpact(innerImpact, result);
     if (this.state !== SkillState.Usage) return;

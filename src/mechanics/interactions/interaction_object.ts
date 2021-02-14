@@ -8,9 +8,14 @@ import {
   GradualInfluence,
 } from './influences';
 
-interface InteractResult {
+interface TargetInteractResult {
   avoid?: boolean;
   hit?: boolean;
+}
+
+interface InteractResult {
+  skill: string | number;
+  targets: TargetInteractResult[];
 }
 
 interface InteractionConfig {
@@ -92,12 +97,13 @@ class InteractionObject {
 
   onOuterImpact(
     innerImpact: Impact,
-    result: InteractResult
+    result: TargetInteractResult
   ) {}
 
 }
 
 export {
+  TargetInteractResult,
   InteractResult,
   InteractionConfig,
   InteractionParameters,

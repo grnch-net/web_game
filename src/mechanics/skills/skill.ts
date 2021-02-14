@@ -183,6 +183,7 @@ class Skill extends (InteractionObject as Customize) {
       }
     } else
     if (this.state == SkillState.Usage) {
+      outerImpact.rules.skill = this.id;
       this.tick_influences(dt, innerImpact, outerImpact);
       if (this.usageTimer.complete) {
         this.on_complete(innerImpact, outerImpact);
@@ -204,6 +205,7 @@ class Skill extends (InteractionObject as Customize) {
     innerImpact: Impact,
     outerImpact: Impact
   ) {
+    outerImpact.rules.skill = this.id;
     this.inner_static_influence.apply(innerImpact.influenced);
     this.outer_static_influence.apply(outerImpact.influenced);
     this.parameters.recoveryTime = this.config.recoveryTime || 0;
@@ -280,7 +282,7 @@ class Skill extends (InteractionObject as Customize) {
   }
 
   interactResult(
-    results: InteractResult[]
+    results: InteractResult
   ) {}
 
   protected randomize_chance(

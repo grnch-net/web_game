@@ -1,5 +1,6 @@
 import {
   Impact,
+  TargetInteractResult,
   InteractResult
 } from '../../../interactions/index';
 
@@ -71,7 +72,7 @@ class CharacterSkill extends (Character as Mod).Latest {
 
   protected interact_listeners(
     innerImpact: Impact,
-    interactResult: InteractResult
+    interactResult: TargetInteractResult
   ) {
     super.interact_listeners(innerImpact, interactResult);
     this.skills.onOuterImpact(innerImpact, interactResult);
@@ -157,7 +158,7 @@ class CharacterSkill extends (Character as Mod).Latest {
   }
 
   protected interact_result_listeners(
-    results: InteractResult[]
+    results: InteractResult
   ) {
     super.interact_result_listeners(results);
     this.skills.interactResult(results);

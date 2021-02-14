@@ -10,7 +10,7 @@ import type {
 
 import {
   Impact,
-  InteractResult
+  TargetInteractResult
 } from '../../../interactions/index';
 
 import {
@@ -53,7 +53,7 @@ class CharacterEquip extends (Character as Mod).Latest {
 
   protected interact_listeners(
     innerImpact: Impact,
-    interactResult: InteractResult
+    interactResult: TargetInteractResult
   ) {
     super.interact_listeners(innerImpact, interactResult);
     this.equips.onOuterImpact(innerImpact, interactResult);

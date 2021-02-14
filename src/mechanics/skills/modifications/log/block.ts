@@ -1,6 +1,6 @@
 import type {
   Impact,
-  InteractResult
+  TargetInteractResult
 } from '../../../interactions/index';
 
 import {
@@ -13,7 +13,7 @@ class BlockLog extends (Block as Mod).Latest {
 
   onOuterImpact(
     innerImpact: Impact,
-    result: InteractResult
+    result: TargetInteractResult
   ) {
     super.onOuterImpact(innerImpact, result);
     console.info('Block', result.avoid);
