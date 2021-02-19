@@ -21,7 +21,7 @@ class Shot extends Skill {
   ) {
     super.on_apply(innerImpact, outerImpact);
     outerImpact.rules.range = 0;
-    outerImpact.rules.sector = Math.PI * 0.125;
+    outerImpact.rules.sector = 0;
     outerImpact.influenced.health = 0;
   }
 

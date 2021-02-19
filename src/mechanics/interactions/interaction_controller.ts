@@ -66,7 +66,11 @@ class InteractionController {
       this.add_timers(character, impact.timers);
     }
     if (impact.rules.range) {
-      this.interact_range(character, impact);
+      if (impact.rules.sector) {
+        this.interact_sector(character, impact);
+      } else {
+        this.interact_distance(character, impact);
+      }
     }
   }
 
@@ -80,7 +84,7 @@ class InteractionController {
     }
   }
 
-  protected interact_range(
+  protected interact_sector(
     author: Character,
     impact: Impact
   ) {
@@ -92,8 +96,10 @@ class InteractionController {
     };
     for (const target of targets) {
       if (author == target) continue;
-      const hit = this.check_hit(author, target, impact.rules.sector);
-      if (!hit) continue;
+      if (impact.rules.sector < 6.3) {
+        const hit = this.check_sector_hit(author, target, impact.rules.sector);
+        if (!hit) continue;
+      }
       const target_impact = impact.clone();
       // this.apply_range(distance, target_impact);
       target_impact.rules.side = this.calculate_impact_side(author, target);
@@ -103,20 +109,19 @@ class InteractionController {
     author.interactResult(results);
   }
 
-  protected check_hit(
+  protected check_sector_hit(
     author: Character,
     target: Character,
-    sector?: number
+    sector: number
   ): boolean {
     const x = target.position.x - author.position.x;
     const z = target.position.z - author.position.z;
-    const sinA = Math.sin(author.rotation);
-    const cosA = Math.cos(author.rotation);
-    const vx = x * cosA - z * sinA;
-    const vz = z * cosA + x * sinA;
+    const sin = author.direction.x;
+    const cos = author.direction.z;
+    const vx = x * cos - z * sin;
+    const vz = z * cos + x * sin;
     const angle = Math.acos(vz / Math.sqrt(vx ** 2 + vz ** 2));
-    if (sector) return angle <= (sector / 2);
-    return angle <= (Math.PI * 0.25);
+    return angle <= (sector / 2);
   }
 
   // protected apply_range(
@@ -136,6 +141,15 @@ class InteractionController {
     if (rotate < (unit * 4)) return ImpactSide.Right;
     if (rotate < (unit * 6)) return ImpactSide.Front;
     return ImpactSide.Left;
+  }
+
+  protected interact_distance(
+    author: Character,
+    impact: Impact
+  ) {
+    this.update_tree();
+    // TODO:
+    // this._tree.findByDirection
   }
 
 }

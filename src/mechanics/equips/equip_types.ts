@@ -31,6 +31,7 @@ interface EquipStats {
   meleePenetration?: number;
   meleeDamage?: number;
   range?: number;
+  sector?: number;
   defense?: number;
   parry?: number;
   speed?: number;

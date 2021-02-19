@@ -10,13 +10,14 @@ type Mod = Modifiable<typeof World>;
 
 class WorldPenetration extends (World as Mod).Latest {
 
-  protected apply_range(
-    distance: number,
-    impact: Impact
-  ) {
-    if (distance < 2) return;
-    impact.rules.penetration -= distance;
-  }
+  // TODO: move to InteractionController
+  // protected apply_range(
+  //   distance: number,
+  //   impact: Impact
+  // ) {
+  //   if (distance < 2) return;
+  //   impact.rules.penetration -= distance;
+  // }
 
 }
 

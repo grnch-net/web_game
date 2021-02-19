@@ -83,6 +83,7 @@ class ShotEquip extends (Shot as Mod).Latest {
     super.on_apply(innerImpact, outerImpact);
     for (const equip of this.usage_equips) {
       outerImpact.rules.range += equip.stats?.range || 0;
+      outerImpact.rules.sector += equip.stats?.sector || 0;
       outerImpact.influenced.health += -equip.stats?.rangeDamage || 0;
     }
   }

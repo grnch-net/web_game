@@ -26,6 +26,7 @@ class Attack extends Skill {
     outerImpact: Impact
   ) {
     super.on_apply(innerImpact, outerImpact);
+    outerImpact.rules.sector = Math.PI * 0.25;
     outerImpact.rules.range = 2;
     this.combination++;
   }
