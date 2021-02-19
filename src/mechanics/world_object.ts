@@ -15,6 +15,7 @@ class WorldObject {
 
   world: InteractionController;
   position: Point;
+  direction: Point;
   wait: number;
   protected _rotation: number;
 
@@ -27,6 +28,9 @@ class WorldObject {
   ) {
     this._rotation = value % (Math.PI * 2);
     if (this._rotation < 0) this._rotation += Math.PI * 2;
+    const x = -Math.sin(-this._rotation);
+    const z = Math.cos(-this._rotation);
+    this.direction.set(x, 0, z);
   }
 
   initialize(
@@ -35,7 +39,8 @@ class WorldObject {
   ) {
     this.wait = 0;
     this.position = new Point(parameters.position);
-    this._rotation = 0;
+    this.direction = new Point({ x: 0, y: 0, z: 0 });
+    this.rotation = 0;
   }
 
   tick(
