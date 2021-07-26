@@ -10,6 +10,7 @@ enum SkillName {
   Attack,
   Block,
   Parry,
+  Throw,
   Shot
 }
 
@@ -62,6 +63,13 @@ const skillsConfig: SkillsConfig = {
     specialClass: 'parry',
     castTime: 0.5,
     usageTime: Infinity,
+    stock: {
+      'stamina': -20
+    }
+  },
+  [SkillName.Throw]: {
+    name: 'Throw',
+    // specialClass: 'throw', // TODO
     stock: {
       'stamina': -20
     }

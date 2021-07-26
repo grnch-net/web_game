@@ -19,7 +19,7 @@ interface InteractResult {
 }
 
 interface InteractionConfig {
-  name: string;
+  name?: string;
   innerStaticInfluence?: InfluenceList;
   innerGradualInfluence?: InfluenceList;
   outerStaticInfluence?: InfluenceList;

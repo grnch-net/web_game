@@ -22,7 +22,7 @@ function test_stamina_regeneration() {
   world.addCharacter(hero);
 
   const maxValue = hero.attributes.stamina.max;
-  const regen = effectsConfig[EffectName.InhStaminaRegen].innerGradualInfluence.stamina;
+  const regen = effectsConfig[EffectName.InherentStaminaRegen].innerGradualInfluence.stamina;
 
   world.tick(1);
   world.update();

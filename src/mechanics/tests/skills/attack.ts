@@ -18,7 +18,6 @@ function test_attack() {
 
   const hero = new Character;
   const hero_parameters = Character.createParameters('hero');
-  hero_parameters.skills.push({ id: SkillName.Attack })
   hero.initialize(hero_parameters);
   world.addCharacter(hero);
 

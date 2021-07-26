@@ -5,12 +5,22 @@ import {
   EquipConfig
 } from '../equips/equip_types';
 
-
 type EquipsConfig = Associative<EquipConfig>;
 
+enum EquipName {
+  ShortSword,
+  SmallShield,
+  WoodenStaff,
+  IronHelmet,
+  LeatherArmor,
+  SmallBag,
+  Bow,
+  Arrow,
+  ThrowingSpears
+};
+
 const equipsConfig: EquipsConfig = {
-  0: {
-    name: 'Short sword',
+  [EquipName.ShortSword]: {
     slot: EquipSlot.Hold,
     type: EquipType.OneHand,
     subType: EquipSubType.Sword,
@@ -23,8 +33,7 @@ const equipsConfig: EquipsConfig = {
       defense: 10
     }
   },
-  1: {
-    name: 'Small shield',
+  [EquipName.SmallShield]: {
     slot: EquipSlot.Hold,
     type: EquipType.OneHand,
     subType: EquipSubType.Shield,
@@ -35,8 +44,7 @@ const equipsConfig: EquipsConfig = {
       defense: 50
     }
   },
-  2: {
-    name: 'Wooden staff',
+  [EquipName.WoodenStaff]: {
     slot: EquipSlot.Hold,
     type: EquipType.TwoHand,
     subType: EquipSubType.Polearm,
@@ -49,28 +57,24 @@ const equipsConfig: EquipsConfig = {
       defense: 25
     }
   },
-  3: {
-    name: 'Iron helmet',
+  [EquipName.IronHelmet]: {
     slot: EquipSlot.Head,
     stats: {
       durability: 10,
       armor: 1
     }
   },
-  4: {
-    name: 'Leather armor',
+  [EquipName.LeatherArmor]: {
     slot: EquipSlot.Body,
     stats: {
       durability: 20,
       armor: 1
     }
   },
-  5: {
-    name: 'Small bag',
+  [EquipName.SmallBag]: {
     slot: EquipSlot.Bag
   },
-  6: {
-    name: 'Bow',
+  [EquipName.Bow]: {
     slot: EquipSlot.Hold,
     type: EquipType.OneHand,
     subType: EquipSubType.Bow,
@@ -82,8 +86,7 @@ const equipsConfig: EquipsConfig = {
       range: 10
     }
   },
-  7: {
-    name: 'Arrow',
+  [EquipName.Arrow]: {
     slot: EquipSlot.Hold,
     type: EquipType.OneHand,
     subType: EquipSubType.Arrow,
@@ -93,8 +96,7 @@ const equipsConfig: EquipsConfig = {
       range: 10
     }
   },
-  8: {
-    name: 'Throwing spears',
+  [EquipName.ThrowingSpears]: {
     slot: EquipSlot.Hold,
     type: EquipType.OneHand,
     subType: EquipSubType.Thrown,
@@ -109,5 +111,6 @@ const equipsConfig: EquipsConfig = {
 
 export {
   EquipsConfig,
+  EquipName,
   equipsConfig
 }

@@ -90,8 +90,10 @@ class ShotEquip extends (Shot as Mod).Latest {
 
   protected get_cast_time(): number {
     let cast_time = super.get_cast_time();
-    for (const equip of this.usage_equips) {
-      cast_time += equip.stats?.speed || 0;
+    if (this.usage_equips) {
+      for (const equip of this.usage_equips) {
+        cast_time += equip.stats?.speed || 0;
+      }
     }
     return cast_time;
   }

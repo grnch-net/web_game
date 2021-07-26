@@ -18,7 +18,6 @@ function test_block() {
 
   const hero = new Character;
   const hero_parameters = Character.createParameters('hero');
-  hero_parameters.skills.push({ id: SkillName.Attack })
   hero.initialize(hero_parameters);
   world.addCharacter(hero);
 
@@ -26,7 +25,6 @@ function test_block() {
   for (let i = 0; i < 4; i++) {
     const enemy = new Character;
     const enemy_parameters = Character.createParameters('enemy');
-    enemy_parameters.skills.push({ id: SkillName.Block })
     enemy.initialize(enemy_parameters);
     world.addCharacter(enemy);
     enemies.push(enemy);

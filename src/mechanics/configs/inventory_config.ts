@@ -2,53 +2,75 @@ import type {
   InventoryObjectConfig
 } from '../inventories/index';
 
+import {
+  SkillName
+} from './skills_config';
+
+import {
+  EquipName
+} from './equips_config';
+
 type InventoryConfig = Associative<InventoryObjectConfig>;
 
+enum InventoryItemName {
+  ShortSword,
+  SmallShield,
+  WoodenStaff,
+  IronHelmet,
+  LeatherArmor,
+  SmallBag,
+  Bow,
+  Arrow,
+  ThrowingSpears,
+  Pie
+};
+
 const inventoryConfig: InventoryConfig = {
-  0: {
+  [InventoryItemName.ShortSword]: {
     name: 'Short sword',
-    equip: 0,
+    equip: EquipName.ShortSword,
   },
-  1: {
+  [InventoryItemName.SmallShield]: {
     name: 'Small shield',
-    equip: 1
+    equip: EquipName.SmallShield
   },
-  2: {
+  [InventoryItemName.WoodenStaff]: {
     name: 'Wooden staff',
-    equip: 2
+    equip: EquipName.WoodenStaff
   },
-  3: {
+  [InventoryItemName.IronHelmet]: {
     name: 'Iron helmet',
-    equip: 3
+    equip: EquipName.IronHelmet
   },
-  4: {
+  [InventoryItemName.LeatherArmor]: {
     name: 'Leather armor',
-    equip: 4
+    equip: EquipName.LeatherArmor
   },
-  5: {
+  [InventoryItemName.SmallBag]: {
     name: 'Small bag',
     slots: 6,
-    equip: 5
+    equip: EquipName.SmallBag
   },
-  6: {
-    name: 'Pie',
-    skill: 3
-  },
-  7: {
+  [InventoryItemName.Bow]: {
     name: 'Bow',
-    equip: 6
+    equip: EquipName.Bow
   },
-  8: {
+  [InventoryItemName.Arrow]: {
     name: 'Arrow',
-    equip: 7
+    equip: EquipName.Arrow
   },
-  9: {
+  [InventoryItemName.ThrowingSpears]: {
     name: 'Throwing spears',
-    equip: 8
+    equip: EquipName.ThrowingSpears
+  },
+  [InventoryItemName.Pie]: {
+    name: 'Pie',
+    skill: SkillName.Eat
   }
 }
 
 export {
   InventoryConfig,
+  InventoryItemName,
   inventoryConfig
 }
