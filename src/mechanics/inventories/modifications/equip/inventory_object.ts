@@ -5,6 +5,7 @@ import {
 } from '../../inventory_object';
 
 import {
+  EquipConfig,
   Equip
 } from '../../../equips/index';
 
@@ -21,12 +22,12 @@ class InventoryObjectEquip extends (InventoryObject as Mod).Latest {
   }
 
   initialize_equip(
-    id: string | number,
+    config: string | number | EquipConfig,
     parameters: InventoryObjectParameters
   ) {
-    if (id === undefined) return;
+    if (config === undefined) return;
     if (!parameters.equip) parameters.equip = {};
-    this.equip = Equip.create(parameters.equip, id);
+    this.equip = Equip.create(parameters.equip, config);
   }
 
 }

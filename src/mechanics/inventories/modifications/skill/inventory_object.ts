@@ -5,6 +5,7 @@ import {
 } from '../../inventory_object';
 
 import {
+  SkillConfig,
   Skill
 } from '../../../skills/index';
 
@@ -21,12 +22,12 @@ class InventoryObjectSkill extends (InventoryObject as Mod).Latest {
   }
 
   initialize_skill(
-    id: string | number,
+    config: string | number | SkillConfig,
     parameters: InventoryObjectParameters
   ) {
-    if (id === undefined) return;
-    if (!parameters.skill) parameters.skill = { id };
-    this.skill = Skill.create(parameters.skill, id);
+    if (config === undefined) return;
+    if (!parameters.skill) parameters.skill = {};
+    this.skill = Skill.create(parameters.skill, config);
   }
 
 }

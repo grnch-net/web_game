@@ -8,18 +8,21 @@ import {
 type EquipsConfig = Associative<EquipConfig>;
 
 enum EquipName {
+  Bag,
   ShortSword,
   SmallShield,
   WoodenStaff,
   IronHelmet,
   LeatherArmor,
-  SmallBag,
   Bow,
   Arrow,
   ThrowingSpears
 };
 
 const equipsConfig: EquipsConfig = {
+  [EquipName.Bag]: {
+    slot: EquipSlot.Bag
+  },
   [EquipName.ShortSword]: {
     slot: EquipSlot.Hold,
     type: EquipType.OneHand,
@@ -70,9 +73,6 @@ const equipsConfig: EquipsConfig = {
       durability: 20,
       armor: 1
     }
-  },
-  [EquipName.SmallBag]: {
-    slot: EquipSlot.Bag
   },
   [EquipName.Bow]: {
     slot: EquipSlot.Hold,

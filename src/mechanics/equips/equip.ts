@@ -35,7 +35,7 @@ interface EquipCustomize {
 
   create(
     parameters: EquipParameters,
-    id: string | number
+    config: string | number | EquipConfig
   ): Equip;
 }
 

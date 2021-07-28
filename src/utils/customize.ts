@@ -28,17 +28,21 @@ class CustomizeObject {
 
   static create(
     parameters: any,
-    id?: string | number
+    config?: string | number | any
   ): CustomizeObject {
-    if (!id && id !== 0) {
-      id = parameters.id;
+    if (!UTILS.types.isObject(config)) {
+      let id = config;
+      if (!id && id !== 0) {
+        id = parameters.id;
+      }
+  
+      config = this.findConfig(id as string);
+      if (!config) {
+        console.error('Can not find config', parameters, config);
+        return null;
+      }
     }
 
-    const config = this.findConfig(id as string);
-    if (!config) {
-      console.error('Can not find config', parameters, config);
-      return null;
-    }
     let ObjectClass = this;
     if (config.specialClass) {
       ObjectClass = this.findSpecialClass(config.specialClass);;

@@ -49,7 +49,7 @@ const inventoryConfig: InventoryConfig = {
   [InventoryItemName.SmallBag]: {
     name: 'Small bag',
     slots: 6,
-    equip: EquipName.SmallBag
+    equip: EquipName.Bag
   },
   [InventoryItemName.Bow]: {
     name: 'Bow',
@@ -65,7 +65,14 @@ const inventoryConfig: InventoryConfig = {
   },
   [InventoryItemName.Pie]: {
     name: 'Pie',
-    skill: SkillName.Eat
+    skill: {
+      name: 'Eat',
+      useCount: 1,
+      usageTime: 60,
+      innerGradualInfluence: {
+        'health': 2
+      }
+    }
   }
 }
 

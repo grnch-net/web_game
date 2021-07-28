@@ -37,7 +37,7 @@ interface SkillConfig extends InteractionConfig {
 }
 
 interface SkillParameters extends InteractionParameters {
-  id: string | number;
+  id?: string | number;
   useCount?: number;
   recoveryTime?: number;
   experience?: number;
@@ -78,7 +78,7 @@ interface SkillCustomize {
 
   create(
     parameters: SkillParameters,
-    id?: string | number
+    config?: string | number | SkillConfig
   ): Skill;
 }
 

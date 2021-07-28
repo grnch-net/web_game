@@ -9,13 +9,15 @@ import {
 } from './inventory_controller';
 
 import {
+  SkillConfig,
   SkillParameters,
   Skill
 } from '../skills/index';
 
 import {
+  EquipConfig,
   EquipParameters,
-  Equip
+  Equip,
 } from '../equips/index';
 
 import {
@@ -25,8 +27,8 @@ import {
 interface InventoryObjectConfig extends InteractionConfig {
   specialClass?: string;
   slots?: number;
-  skill?: string | number;
-  equip?: string | number;
+  skill?: string | number | SkillConfig;
+  equip?: string | number | EquipConfig;
 }
 
 interface InventoryObjectParameters extends InteractionParameters {

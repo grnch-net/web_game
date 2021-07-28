@@ -6,7 +6,6 @@ type SkillsConfig = Associative<SkillConfig>;
 
 enum SkillName {
   Recreation,
-  Eat,
   Attack,
   Block,
   Parry,
@@ -20,14 +19,6 @@ const skillsConfig: SkillsConfig = {
     usageTime: Infinity,
     innerGradualInfluence: {
       'health': 0.83
-    }
-  },
-  [SkillName.Eat]: {
-    name: 'Eat',
-    useCount: 1,
-    usageTime: 60,
-    innerGradualInfluence: {
-      'health': 2
     }
   },
   [SkillName.Attack]: {
