@@ -256,6 +256,7 @@ class Skill extends (InteractionObject as Customize) {
     outerImpact: Impact
   ) {
     if (this.castTimer) {
+      this.reset(); // update timers with skill needs
       this.state = SkillState.Cast;
       outerImpact.addTimePoint(this.castTimer);
     } else {

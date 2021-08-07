@@ -25,7 +25,7 @@ const skillsConfig: SkillsConfig = {
     name: 'Attack',
     specialClass: 'attack',
     reusable: true,
-    castTime: 1,
+    castTime: 0.5,
     cost: {
       'stamina': -25
     },

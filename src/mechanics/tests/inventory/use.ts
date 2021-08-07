@@ -4,7 +4,7 @@ import type {
 
 import type {
   SkillConfig
-} from '../../skills'
+} from '../../skills/index';
 
 import {
   World
@@ -17,16 +17,11 @@ import {
 import {
   InventoryItemName,
   inventoryConfig
-} from '../../configs/inventory_config'
-
-function test_inventory_items() {
-  console.group('Inventory Items');
-  test_use_item();
-  console.info('Successful');
-  console.groupEnd();
-}
+} from '../../configs/inventory_config';
 
 function test_use_item() {
+  console.group('Use');
+
   const world = new World;
   world.initialize();
 
@@ -70,8 +65,11 @@ function test_use_item() {
     console.groupEnd();
     return;
   }
+
+  console.info('Successful');
+  console.groupEnd();
 }
 
 export {
-  test_inventory_items
-}
+  test_use_item
+};
