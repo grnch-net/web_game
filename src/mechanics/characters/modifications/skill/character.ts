@@ -20,11 +20,11 @@ type Mod = Modifiable<typeof Character>;
 
 class CharacterSkill extends (Character as Mod).Latest {
 
-  initialize(
+  protected _initialize(
     parameters: CharacterParameters,
     config: CharacterConfig
   ) {
-    super.initialize(parameters, config);
+    super._initialize(parameters, config);
     this.initialize_skills(this.parameters.skills, this.config.skills);
   }
 

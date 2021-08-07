@@ -17,11 +17,11 @@ interface BoxParameters extends WorldObjectParameters {
 class Box extends WorldObject {
   inventory: InventoryController;
 
-  initialize(
+  protected _initialize(
     parameters: BoxParameters,
     slots: number = Infinity
   ) {
-    super.initialize(parameters);
+    super._initialize(parameters);
     this.initialize_inventory(slots, parameters);
   }
 

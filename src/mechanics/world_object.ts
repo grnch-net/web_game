@@ -8,6 +8,7 @@ import {
 } from './point';
 
 interface WorldObjectParameters {
+  initialized?: boolean;
   position: PointParameters
 }
 
@@ -17,6 +18,7 @@ class WorldObject {
   position: Point;
   direction: Point;
   wait: number;
+  protected parameters: WorldObjectParameters;
   protected _rotation: number;
 
   get rotation(): number {
@@ -37,6 +39,23 @@ class WorldObject {
     parameters: WorldObjectParameters,
     ...args: any[]
   ) {
+    if (parameters.initialized) {
+      console.error('World object parameters is initialized');
+      return;
+    }
+    if (this.parameters) {
+      console.error('World object is initialized.');
+      return;
+    }
+    this._initialize(parameters, ...args);
+  }
+
+  protected _initialize(
+    parameters: WorldObjectParameters,
+    ...args: any[]
+  ) {
+    parameters.initialized = true;
+    this.parameters = parameters;
     this.wait = 0;
     this.position = new Point(parameters.position);
     this.direction = new Point({ x: 0, y: 0, z: 0 });

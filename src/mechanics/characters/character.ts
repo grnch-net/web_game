@@ -93,12 +93,11 @@ class Character extends WorldObject {
   //   return this.parameters.counters;
   // }
 
-  initialize(
+  protected _initialize(
     parameters: CharacterParameters,
     config?: CharacterConfig
   ) {
-    super.initialize(parameters);
-    this.parameters = parameters;
+    super._initialize(parameters);
     this.config = config || characterConfig;
     this.initialize_attributes(this.parameters.attributes, this.config.attributes);
     // this.initialize_counters(this.parameters.counters, this.config.counters);

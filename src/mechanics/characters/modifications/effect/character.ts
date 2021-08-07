@@ -18,11 +18,11 @@ type Mod = Modifiable<typeof Character>;
 
 class CharacterEffect extends (Character as Mod).Latest {
 
-  initialize(
+  protected _initialize(
     parameters: CharacterParameters,
     config: CharacterConfig
   ) {
-    super.initialize(parameters, config);
+    super._initialize(parameters, config);
     this.initialize_effects(this.parameters.effects, this.config.effects);
   }
 

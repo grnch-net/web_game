@@ -27,11 +27,11 @@ type Mod = Modifiable<typeof Character>;
 
 class CharacterEquip extends (Character as Mod).Latest {
 
-  initialize(
+  protected _initialize(
     parameters: CharacterParameters,
     config: CharacterConfig
   ) {
-    super.initialize(parameters, config);
+    super._initialize(parameters, config);
     const armorProtect = this.parameters.armorProtect || this.config.armorProtect;
     this.initialize_equipments(this.parameters.equips, armorProtect);
   }
