@@ -1,4 +1,4 @@
-import '../modifications/test_index';
+import './modifications';
 
 import {
   test_quadtree

@@ -1,6 +1,6 @@
 import type {
-  InventoryObjectParameters
-} from '../../inventories/index';
+  ItemParameters
+} from '../../item/index';
 
 import {
   World
@@ -12,7 +12,7 @@ import {
 
 import {
   InventoryItemName,
-} from '../../configs/inventory_config';
+} from '../../configs/item_config';
 
 import {
   EquipName,
@@ -34,7 +34,7 @@ function test_equip_item() {
 
   const hero = new Character;
   const hero_parameters = Character.createParameters('hero');
-  const sword: InventoryObjectParameters = {
+  const sword: ItemParameters = {
     id: InventoryItemName.ShortSword
   };
   hero_parameters.equips.push(sword);

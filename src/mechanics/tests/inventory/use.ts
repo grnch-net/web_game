@@ -1,6 +1,6 @@
 import type {
-  InventoryObjectParameters
-} from '../../inventories/index';
+  ItemParameters
+} from '../../item/index';
 
 import type {
   SkillConfig
@@ -17,7 +17,7 @@ import {
 import {
   InventoryItemName,
   inventoryConfig
-} from '../../configs/inventory_config';
+} from '../../configs/item_config';
 
 function test_use_item() {
   console.group('Use');
@@ -28,10 +28,10 @@ function test_use_item() {
   const hero = new Character;
   const hero_parameters = Character.createParameters('hero');
   hero_parameters.attributes.health.value = 1;
-  const pie: InventoryObjectParameters = {
+  const pie: ItemParameters = {
     id: InventoryItemName.Pie
   };
-  const bag: InventoryObjectParameters = {
+  const bag: ItemParameters = {
     id: InventoryItemName.SmallBag,
     inventory: [pie]
   };

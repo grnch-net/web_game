@@ -3,8 +3,8 @@ import type {
 } from './point';
 
 import type {
-  InventoryController
-} from './inventories/index';
+  Inventory
+} from './inventory/index';
 
 import {
   Timeline
@@ -92,7 +92,7 @@ export class World {
 
   getItemsContainer(
     author: Character
-  ): InventoryController {
+  ): Inventory {
     let box: Box;
     for (const _box of this.boxes) {
       const distance = _box.position.lengthTo(author.position);

@@ -4,162 +4,136 @@ import type {
 } from '../interactions/index';
 
 import {
-  EquipSlot,
-  EquipType,
   Equip
 } from './equip';
 
 import {
-  InventoryObjectParameters,
-  InventoryObject
-} from '../inventories/index';
+  ItemParameters,
+  Item
+} from '../item/index';
 
 interface Stats {
   armor: number;
   slots: number;
-  freeCells: number;
+  freeSlots: number;
 }
 
-const slotCells = {
-  [EquipSlot.Hold]: 2,
-  [EquipSlot.Head]: 1,
-  [EquipSlot.Body]: 1,
-  [EquipSlot.Bag]: 1,
-}
-
-type EquipList = { [key in EquipSlot]?: InventoryObject[] };
+type EquipSlot = number | string;
+type EquipList = { [key: string]: Item[] };
+type Slots = { [key: string]: number };
 
 class EquipsController {
 
+  slots: Slots;
   list: EquipList;
-  armorProtect: number;
   stats: Stats;
-  protected inventory_equips: InventoryObject[] = [];
+  protected inventory_equips: Item[] = [];
 
   initialize(
     innerImpact: Impact,
-    list: InventoryObjectParameters[],
-    armorProtect: number
+    list: ItemParameters[],
+    slots: Slots
   ) {
-    this.initialize_vars(armorProtect);
+    this.initialize_vars(slots);
     this.initialize_list(innerImpact, list);
   }
 
   protected initialize_vars(
-    armorProtect: number
+    slots: Slots
   ) {
-    this.armorProtect = armorProtect;
     this.stats = {
       armor: 0,
       slots: 0,
-      freeCells: 0
+      freeSlots: 0
     };
+    this.slots = slots;
+    this.list = {};
   }
 
   protected initialize_list(
     innerImpact: Impact,
-    list: InventoryObjectParameters[]
+    list: ItemParameters[],
   ) {
-    this.list = {};
-    for (const key in slotCells) {
-      let slot: EquipSlot = key as any;
+    for (const slot in this.slots) {
       this.list[slot] = [];
     }
-    for (const parameters of list) {
-      const item = InventoryObject.create(parameters);
-      this.add([], innerImpact, item);
+    if (list) {
+      for (const parameters of list) {
+        const item = Item.create(parameters);
+        this.add([], innerImpact, item);
+      }
     }
   }
 
   add(
-    removedItems: InventoryObject[],
+    removedItems: Item[],
     innerImpact: Impact,
-    item: InventoryObject,
-    cell: number = -1
+    item: Item
   ) {
     const equip = item.equip;
     if (!equip) {
       removedItems.push(item);
       return;
     }
-    if (equip.slot == EquipSlot.Hold) {
-      this.replace_hold_item(removedItems, innerImpact, item, cell);
-    } else {
-      this.replace_equip(removedItems, innerImpact, item, cell);
-    }
-    equip.added(innerImpact);
-    this.update_stats(item);
+    this.replace_equip(removedItems, innerImpact, item);
   }
 
   protected replace_equip(
-    removedItems: InventoryObject[],
+    removedItems: Item[],
     innerImpact: Impact,
-    item: InventoryObject,
-    cell: number
-  ) {
-    const equip = item.equip;
-    const slot = equip.slot;
-    if (cell > -1 && cell < slotCells[slot]) {
-      this.remove_equipped_item(removedItems, innerImpact, slot, cell);
-      this.list[slot][cell] = item;
-      return;
-    }
-    const free_cell = this.get_free_cell(slot);
-    if (free_cell > -1) {
-      this.list[slot][free_cell] = item;
-      return;
-    }
-    this.replace_equip(removedItems, innerImpact, item, 0);
-  }
-
-  protected replace_hold_item(
-    removedItems: InventoryObject[],
-    innerImpact: Impact,
-    item: InventoryObject,
-    cell: number
+    item: Item,
+    // cell: number
   ) {
     const slot = item.equip.slot;
-    const mainHandItem = this.list[slot][0];
-    if (this.isTwoHand(mainHandItem) || this.isTwoHand(item)) {
-      this.remove_equipped_item(removedItems, innerImpact, slot, 0);
-      this.remove_equipped_item(removedItems, innerImpact, slot, 1);
-      this.list[slot][0] = item;
+    if (item.equip.size > this.slots[slot]) {
+      removedItems.push(item);
       return;
     }
-    this.replace_equip(removedItems, innerImpact, item, cell);
+  
+    if (item.equip.size === this.slots[slot]) {
+      for (const item of this.list[slot]) {
+        this.remove_equipped_item(removedItems, innerImpact, slot);
+      }
+    } else {
+      let free_cells = this.get_free_slot_cells_count(slot);
+      while (free_cells < item.equip.size) {
+        this.remove_equipped_item(removedItems, innerImpact, slot);
+      }
+    }
+    
+    this.list[slot].push(item);
+    item.equip.added(innerImpact);
+    this.update_stats(item);
   }
 
-  isTwoHand(
-    item: InventoryObject
-  ): boolean {
-    return item && item.equip && item.equip.type === EquipType.TwoHand;
-  }
-
-  protected get_free_cell(
+  protected get_free_slot_cells_count(
     slot: EquipSlot
   ): number {
-    for (let i = 0; i < slotCells[slot]; i++) {
-      if (!this.list[slot][i]) return i;
+    const list = this.list[slot];
+    const slot_cells_clount = this.slots[slot];
+    let free_cells_count = slot_cells_clount;
+    for (const item of list) {
+      free_cells_count -= item.equip.size
     }
-    return -1;
+    return free_cells_count;
   }
 
   removeToInventory(
-    removedItems: InventoryObject[],
+    removedItems: Item[],
     innerImpact: Impact,
-    item: InventoryObject
+    item: Item
   ) {
     this.remove(removedItems, innerImpact, item);
-    while (removedItems.length && this.stats.freeCells > 0) {
+    while (removedItems.length && this.stats.freeSlots > 0) {
       const removed_item = removedItems.pop();
       this.add_to_inventory(removed_item);
     }
   }
 
   remove(
-    removedItems: InventoryObject[],
+    removedItems: Item[],
     innerImpact: Impact,
-    item: InventoryObject
+    item: Item
   ): boolean {
     let cell = this.get_item_cell(item);
     if (cell == -1) {
@@ -172,21 +146,31 @@ class EquipsController {
   }
 
   protected remove_equipped_item(
-    removedItems: InventoryObject[],
+    removedItems: Item[],
     innerImpact: Impact,
     slot: EquipSlot,
-    cell: number
+    cell: number = null
   ) {
-    const item = this.list[slot][cell];
-    if (!item) return;
-    this.list[slot][cell] = null;
+    const list = this.list[slot];
+    if (list.length === 0) {
+      return;
+    }
+    let item: Item;
+    if (cell === null) {
+      item = this.list[slot].pop();
+    } else {
+      if (this.list[slot][cell]) {
+        return;
+      }
+      item = this.list[slot].splice(cell, 1)[0];
+    }
     this.update_stats(item, true);
     item.equip.removed(innerImpact);
     removedItems.push(item);
   }
 
   protected update_stats(
-    item: InventoryObject,
+    item: Item,
     isRemove = false
   ) {
     const operation = isRemove ? -1 : 1;
@@ -194,7 +178,7 @@ class EquipsController {
       this.stats.armor += item.equip.stats.armor * operation;
     }
     if (item.inventory) {
-      this.stats.freeCells += item.inventory.freeCells * operation;
+      this.stats.freeSlots += item.inventory.freeSlots * operation;
       if (isRemove) {
         const index = this.inventory_equips.indexOf(item);
         this.inventory_equips.splice(index, 1);
@@ -221,23 +205,23 @@ class EquipsController {
   }
 
   protected get_item_cell(
-    item: InventoryObject
+    item: Item
   ): number {
     const equip = item.equip;
     if (!equip) return -1;
-    for (let i = 0; i < slotCells[equip.slot]; i++) {
+    for (let i = 0; i < this.slots[equip.slot]; i++) {
       if (this.list[equip.slot][i] == item) return i;
     }
     return -1;
   }
 
   hasItem(
-    item: InventoryObject
+    item: Item
   ): boolean {
     return this.get_item_cell(item) != -1;
   }
 
-  getAll(): InventoryObject[] {
+  getAll(): Item[] {
     const list = [];
     const slots = Object.values(this.list);
     for (const slot of slots) {
@@ -249,48 +233,47 @@ class EquipsController {
   }
 
   addToInventory(
-    item: InventoryObject
+    item: Item
   ): boolean {
-    if (this.stats.freeCells <= 0) return false;
+    if (this.stats.freeSlots <= 0) return false;
     this.add_to_inventory(item);
     return true;
   }
 
   add_to_inventory(
-    item: InventoryObject
+    item: Item
   ) {
     for (const equip_item of this.inventory_equips) {
-      if (equip_item.inventory.freeCells <= 0) continue;
+      if (equip_item.inventory.freeSlots <= 0) continue;
       equip_item.inventory.add(item);
       break;
     }
-    this.stats.freeCells--;
+    this.stats.freeSlots--;
   }
 
   addToInventoryIndex(
-    item: InventoryObject,
+    item: Item,
     inventoryIndex: number
   ): boolean {
     const equip_item = this.inventory_equips[inventoryIndex];
     if (!equip_item) return false;
     const added = equip_item.inventory.add(item);
     if (added) {
-      this.stats.freeCells--;
+      this.stats.freeSlots--;
       return true;
     }
     return false;
   }
 
   equipInventoryItem(
-    removedItems: InventoryObject[],
+    removedItems: Item[],
     innerImpact: Impact,
     inventoryIndex: number,
     itemIndex: number,
-    cell?: number
   ) {
     const item = this.removeInventoryItem(inventoryIndex, itemIndex);
-    this.add(removedItems, innerImpact, item, cell);
-    while (removedItems.length && this.stats.freeCells > 0) {
+    this.add(removedItems, innerImpact, item);
+    while (removedItems.length && this.stats.freeSlots > 0) {
       const removed_item = removedItems.pop();
       this.add_to_inventory(removed_item);
     }
@@ -299,19 +282,19 @@ class EquipsController {
   removeInventoryItem(
     inventoryIndex: number,
     itemIndex: number
-  ): InventoryObject {
+  ): Item {
     const equip = this.inventory_equips[inventoryIndex];
     if (!equip) return null;
     const item = equip.inventory.removeIndex(itemIndex);
     if (!item) return null;
-    this.stats.freeCells++;
+    this.stats.freeSlots++;
     return item;
   }
 
   getInventoryItem(
     inventoryIndex: number,
     itemIndex: number
-  ): InventoryObject {
+  ): Item {
     const equip = this.inventory_equips[inventoryIndex];
     if (!equip) return null;
     return equip.inventory.getItem(itemIndex);
@@ -323,11 +306,8 @@ class EquipsController {
   ) {
     let damage = -innerImpact.influenced.health;
     if (!damage || damage < 0) return;
-    if (damage > this.stats.armor) {
-      damage -= this.stats.armor * this.armorProtect;
-    } else {
-      damage *= 1 - this.armorProtect;
-    }
+    damage -= this.stats.armor;
+    damage = Math.max(damage, 0);
     innerImpact.influenced.health = -damage;
   }
 

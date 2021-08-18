@@ -16,9 +16,9 @@ import type {
 } from '../equips/index';
 
 import type {
-  InventoryObjectParameters,
-  InventoryObject
-} from '../inventories/index';
+  ItemParameters,
+  Item
+} from '../item/index';
 
 import {
   WorldObjectParameters,
@@ -35,18 +35,20 @@ import {
 
 import {
   characterConfig
-} from '../configs/character_default_config';
+} from '../configs/character_config';
 
-type Attributes = { [key in Attribute]?: RangeNumber };
-type Counters = { [key: string]: number };
+type Attributes = { [key: string]: RangeNumber };
+// type Counters = { [key: string]: number };
 
 interface CharacterConfig {
+  slots: {
+    [key: string]: number
+  };
   attributes: Attributes;
-  counters: Counters;
+  // counters: Counters;
   effects: EffectParameters[];
   skills: SkillParameters[];
-  equips: InventoryObjectParameters[];
-  armorProtect?: number;
+  equips: ItemParameters[];
 }
 
 interface CharacterParameters extends CharacterConfig, WorldObjectParameters {
@@ -56,6 +58,7 @@ interface CharacterParameters extends CharacterConfig, WorldObjectParameters {
 @UTILS.modifiable
 class Character extends WorldObject {
 
+  // TODO: move attributes to modifications
   static createParameters(
     name: string,
     config = characterConfig
@@ -108,8 +111,7 @@ class Character extends WorldObject {
     config: Attributes
   ) {
     this.attributes = {};
-    let key: Attribute;
-    for (key in config) {
+    for (let key in config) {
       parameters[key] = parameters[key] || {};
       this.attributes[key] = new UTILS.Range(config[key], parameters[key]);
     }
@@ -121,14 +123,6 @@ class Character extends WorldObject {
   // ) {
   //   parameters = { ...config, ...parameters };
   // }
-
-  protected add_outer_inventory(
-    item: InventoryObject
-  ) {}
-
-  protected add_outer_skill(
-    skill: Skill
-  ) {}
 
   tick(
     dt: number
@@ -192,12 +186,12 @@ class Character extends WorldObject {
   protected get_inventory_item(
     inventoryIndex: number,
     itemIndex: number
-  ): InventoryObject {
+  ): Item {
     return null;
   }
 
   protected use_inventory_item(
-    item: InventoryObject
+    item: Item
   ): boolean {
     return false;
   }
@@ -280,13 +274,13 @@ class Character extends WorldObject {
   ) {}
 
   addInventoryItem(
-    item: InventoryObject
+    item: Item
   ): boolean {
     return this.add_inventory_item(item);
   }
 
   protected add_inventory_item(
-    item: InventoryObject
+    item: Item
   ): boolean {
     return false;
   }
@@ -298,10 +292,27 @@ class Character extends WorldObject {
   ) {}
 
   throwItems(
-    items: InventoryObject | InventoryObject[]
+    items: Item | Item[]
   ) {
     // const container = this.world.getItemsContainer(this);
     // container.add(items);
+  }
+
+
+
+
+
+
+  protected track_inventory(
+    item: Item
+  ) {
+    // Inventory Mod
+  }
+
+  protected track_skill(
+    skill: Skill
+  ) {
+    // Skill Mod
   }
 
 }

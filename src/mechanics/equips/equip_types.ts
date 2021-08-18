@@ -3,26 +3,9 @@ import type {
   InteractionParameters
 } from '../interactions/index';
 
-enum EquipSlot {
-  Hold,
-  Head,
-  Body,
-  Bag
-}
-
-enum EquipType {
-  OneHand,
-  TwoHand
-}
-
-enum EquipSubType {
-  Polearm,
-  Sword,
-  Shield,
-  Bow,
-  Arrow,
-  Thrown
-}
+import {
+  EquipSubType
+} from '../configs/equips_config';
 
 interface EquipStats {
   durability?: number;
@@ -41,8 +24,8 @@ interface EquipStats {
 
 interface EquipConfig extends InteractionConfig {
   specialClass?: string;
-  slot: EquipSlot;
-  type?: EquipType;
+  slot: number | string;
+  size?: number;
   subType?: EquipSubType;
   stats?: EquipStats;
 }
@@ -52,9 +35,6 @@ interface EquipParameters extends InteractionParameters {
 }
 
 export {
-  EquipSlot,
-  EquipType,
-  EquipSubType,
   EquipStats,
   EquipConfig,
   EquipParameters

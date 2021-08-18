@@ -4,18 +4,21 @@ import {
 } from './world_object';
 
 import {
-  InventoryObjectParameters,
-  InventoryController
-} from './inventories/index';
+  Inventory
+} from './inventory/index';
+
+import {
+  ItemParameters,
+} from './item/index';
 
 interface BoxParameters extends WorldObjectParameters {
-  inventory: InventoryObjectParameters[];
+  inventory: ItemParameters[];
   slots?: number;
 }
 
 @UTILS.modifiable
 class Box extends WorldObject {
-  inventory: InventoryController;
+  inventory: Inventory;
 
   protected _initialize(
     parameters: BoxParameters,
@@ -29,8 +32,8 @@ class Box extends WorldObject {
     slots: number,
     parameters: BoxParameters
   ) {
-    this.inventory = new InventoryController;
-    this.inventory.initialize(slots, parameters.inventory);
+    this.inventory = new Inventory;
+    this.inventory.initialize({ slots }, parameters.inventory);
   }
 }
 

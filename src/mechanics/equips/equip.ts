@@ -4,16 +4,14 @@ import {
 } from '../interactions/index';
 
 import {
-  EquipSlot,
-  EquipType,
-  EquipSubType,
   EquipStats,
   EquipConfig,
   EquipParameters
 } from './equip_types'
 
 import {
-  equipsConfig
+  equipsConfig,
+  EquipSubType
 } from '../configs/equips_config';
 
 interface EquipCustomize {
@@ -47,12 +45,12 @@ class Equip extends (InteractionObject as Customize) {
   protected config: EquipConfig;
   protected parameters: EquipParameters;
 
-  get slot(): EquipSlot {
+  get slot(): number | string {
     return this.config.slot;
   }
 
-  get type(): EquipType {
-    return this.config.type;
+  get size(): number {
+    return this.config.size || 1;
   }
 
   get subType(): EquipSubType {
@@ -106,11 +104,8 @@ class Equip extends (InteractionObject as Customize) {
 }
 
 export {
-  EquipSlot,
-  EquipType,
-  EquipSubType,
   EquipStats,
   EquipConfig,
   EquipParameters,
   Equip
-}
+};

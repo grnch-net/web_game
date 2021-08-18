@@ -14,9 +14,12 @@ import {
 } from '../interactions/index';
 
 import type {
-  Equip,
-  EquipSlot
+  Equip
 } from '../equips/index';
+
+import {
+  EquipSlot
+} from '../configs/equips_config';
 
 import {
   skillsConfig

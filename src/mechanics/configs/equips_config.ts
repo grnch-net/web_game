@@ -1,11 +1,24 @@
 import {
-  EquipSlot,
-  EquipType,
-  EquipSubType,
   EquipConfig
 } from '../equips/equip_types';
 
 type EquipsConfig = Associative<EquipConfig>;
+
+enum EquipSlot {
+  Hold,
+  Head,
+  Body,
+  Bag
+}
+
+enum EquipSubType {
+  Polearm,
+  Sword,
+  Shield,
+  Bow,
+  Arrow,
+  Thrown
+}
 
 enum EquipName {
   Bag,
@@ -17,7 +30,7 @@ enum EquipName {
   Bow,
   Arrow,
   ThrowingSpears
-};
+}
 
 const equipsConfig: EquipsConfig = {
   [EquipName.Bag]: {
@@ -25,7 +38,6 @@ const equipsConfig: EquipsConfig = {
   },
   [EquipName.ShortSword]: {
     slot: EquipSlot.Hold,
-    type: EquipType.OneHand,
     subType: EquipSubType.Sword,
     stats: {
       durability: 100,
@@ -38,7 +50,6 @@ const equipsConfig: EquipsConfig = {
   },
   [EquipName.SmallShield]: {
     slot: EquipSlot.Hold,
-    type: EquipType.OneHand,
     subType: EquipSubType.Shield,
     stats: {
       durability: 30,
@@ -49,7 +60,7 @@ const equipsConfig: EquipsConfig = {
   },
   [EquipName.WoodenStaff]: {
     slot: EquipSlot.Hold,
-    type: EquipType.TwoHand,
+    size: 2,
     subType: EquipSubType.Polearm,
     stats: {
       durability: 70,
@@ -76,7 +87,6 @@ const equipsConfig: EquipsConfig = {
   },
   [EquipName.Bow]: {
     slot: EquipSlot.Hold,
-    type: EquipType.OneHand,
     subType: EquipSubType.Bow,
     stats: {
       durability: 100,
@@ -88,7 +98,6 @@ const equipsConfig: EquipsConfig = {
   },
   [EquipName.Arrow]: {
     slot: EquipSlot.Hold,
-    type: EquipType.OneHand,
     subType: EquipSubType.Arrow,
     stats: {
       rangePenetration: 5,
@@ -98,7 +107,6 @@ const equipsConfig: EquipsConfig = {
   },
   [EquipName.ThrowingSpears]: {
     slot: EquipSlot.Hold,
-    type: EquipType.OneHand,
     subType: EquipSubType.Thrown,
     stats: {
       speed: 1.5,
@@ -111,6 +119,8 @@ const equipsConfig: EquipsConfig = {
 
 export {
   EquipsConfig,
+  EquipSlot,
+  EquipSubType,
   EquipName,
   equipsConfig
 }
