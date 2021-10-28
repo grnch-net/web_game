@@ -1,3 +1,5 @@
+import * as UTILS from '../modifiable';
+
 function test_modification() {
   console.group('Modifications');
 

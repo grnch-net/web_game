@@ -1,3 +1,5 @@
+import * as UTILS from '../../../../utils/index';
+
 import type {
   Impact
 } from '../../../interactions/index';

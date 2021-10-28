@@ -1,3 +1,5 @@
+import { types } from './types';
+
 interface CustomObjectConfig {
   specialClass?: string;
 }
@@ -30,7 +32,7 @@ class CustomizeObject {
     parameters: any,
     config?: string | number | any
   ): CustomizeObject {
-    if (!UTILS.types.isObject(config)) {
+    if (!types.isObject(config)) {
       let id = config;
       if (!id && id !== 0) {
         id = parameters.id;

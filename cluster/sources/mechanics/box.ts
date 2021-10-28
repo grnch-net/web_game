@@ -1,3 +1,5 @@
+import * as UTILS from '../utils/index';
+
 import {
   WorldObjectParameters,
   WorldObject
