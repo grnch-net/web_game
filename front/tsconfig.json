@@ -1,0 +1,11 @@
+{
+	"files": [
+		"front/sources/main.ts"
+	],
+	"compilerOptions": {
+		"target":                 "ES5",
+    "downlevelIteration":     true,
+    "experimentalDecorators": true,
+    "lib":                    ["ESNEXT", "DOM"]
+	}
+}
