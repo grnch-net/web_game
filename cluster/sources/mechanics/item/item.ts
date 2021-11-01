@@ -1,5 +1,3 @@
-import * as UTILS from '../../utils/index';
-
 import {
   InteractionConfig,
   InteractionParameters,

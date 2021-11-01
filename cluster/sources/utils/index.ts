@@ -6,6 +6,19 @@ import { object } from './object';
 import { array } from './array';
 import { Range } from './range';
 
+const utils = (global as any).UTILS = {
+  modifiable,
+  customize,
+  types,
+  object,
+  array,
+  Range
+};
+
+declare global {
+  const UTILS: typeof utils
+}
+
 export {
   modifiable,
   customize,
