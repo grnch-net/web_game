@@ -2,14 +2,14 @@
   "name": "web_game",
   "version": "1.0.0",
   "scripts": {
-    "start": "tsc && node build/main.js"
+    "start": "tsc -p tsconfig.json && node build/main.js"
   },
   "devDependencies": {
     "@types/node": "^16.11.6",
     "fastify": "^3.22.1",
+    "fastify-socket.io": "^2.0.1",
+    "fastify-static": "^4.5.0",
     "typescript": "^4.4.4"
   },
-  "dependencies": {
-    "fastify-cli": "^2.13.0"
-  }
+  "dependencies": {}
 }

@@ -62,7 +62,7 @@ class Character extends WorldObject {
   static createParameters(
     name: string,
     config = characterConfig
-  ) {
+  ): CharacterParameters {
     return {
       name,
       position: { x: 0, y: 0, z: 0 },
@@ -74,10 +74,11 @@ class Character extends WorldObject {
           value: config.attributes.stamina.max
         }
       },
-      counters: {},
+      // counters: {},
       effects: [],
       skills: [],
-      equips: []
+      equips: [],
+      slots: {}
     }
   }
 

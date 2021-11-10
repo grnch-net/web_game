@@ -1,4 +1,8 @@
 import type {
+  List
+} from 'sources/utils/array';
+
+import type {
   TimePoint,
   Timeline
 } from '../timeline';
@@ -22,12 +26,12 @@ import {
 
 class InteractionController {
 
-  protected _characters: Character[];
+  protected _characters: List<Character>;
   protected _timeline: Timeline<Character>;
   protected _tree: QuadTree<Character>;
 
   initialize(
-    characters: Character[],
+    characters: List<Character>,
     timeline: Timeline,
     size: number
   ) {
@@ -53,7 +57,10 @@ class InteractionController {
     if (!this._tree.isClear) {
       return;
     }
-    for (const character of this._characters) {
+    for (const character of this._characters.elements) {
+      if (!character) {
+        continue;
+      }
       this._tree.insert(character);
     }
   }

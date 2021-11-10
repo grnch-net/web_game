@@ -3,7 +3,8 @@ import { modifiable } from './modifiable';
 import { customize } from './customize';
 import { types } from './types';
 import { object } from './object';
-import { array } from './array';
+import * as array from './array';
+import { wait } from './function';
 import { Range } from './range';
 
 const utils = (global as any).UTILS = {
@@ -12,7 +13,8 @@ const utils = (global as any).UTILS = {
   types,
   object,
   array,
-  Range
+  Range,
+  wait
 };
 
 declare global {

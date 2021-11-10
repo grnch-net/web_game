@@ -1,4 +1,8 @@
 import type {
+  List
+} from 'sources/utils/array';
+
+import type {
   PointParameters
 } from './point';
 
@@ -23,9 +27,12 @@ import {
   Box
 } from './box';
 
+type CharacterList = List<Character>;
+
 @UTILS.modifiable
 export class World {
-  characters: Character[];
+
+  characters: CharacterList;
   boxes: Box[];
   protected _size: number;
   protected _timeline: Timeline<Character>;
@@ -37,7 +44,7 @@ export class World {
   }
 
   protected initialize_variables() {
-    this.characters = [];
+    this.characters = new UTILS.array.List;
     this.boxes = [];
     this._size = 500;
     this._timeline = new Timeline;
@@ -50,9 +57,27 @@ export class World {
 
   addCharacter(
     character: Character
-  ) {
-    this.characters.push(character);
+  ): number {
+    const index = this.characters.add(character);
     character.world = this.interaction_controller;
+    return index;
+  }
+
+  removeCharacter(
+    index: number
+  ): boolean {
+    const character = this.characters.remove(index);
+    if (!character) {
+      return false;
+    }
+    character.destroy();
+    return true;
+  }
+
+  getCharacter(
+    index: number
+  ): Character {
+    return this.characters.elements[index];
   }
 
   tick(
@@ -68,13 +93,16 @@ export class World {
   }
 
   update() {
-    this.tick_characters(this.characters);
+    this.tick_characters(this.characters.elements);
   }
 
   protected tick_wait(
     dt: number
   ) {
-    for (const character of this.characters) {
+    for (const character of this.characters.elements) {
+      if (!character) {
+        continue;
+      }
       character.wait += dt;
     }
   }
@@ -86,6 +114,9 @@ export class World {
       return;
     }
     for (const character of characters) {
+      if (!character) {
+        continue;
+      }
       character.tick(0);
     }
   }

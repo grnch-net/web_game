@@ -5,6 +5,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "module": "commonjs",
+    "esModuleInterop": true,
     "declaration": false,
     "noImplicitAny": false,
     "noUnusedLocals": false,
