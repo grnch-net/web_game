@@ -79,6 +79,10 @@ class Mechanic {
     character.useSkill(skillId);
   }
 
+  destroy(): void {
+    // TODO: Destroy world
+  }
+
 }
 
 export {
