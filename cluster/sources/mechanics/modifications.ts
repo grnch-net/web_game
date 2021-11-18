@@ -1,4 +1,4 @@
-console.groupCollapsed('modifications');
+console.groupCollapsed('mechanic modifications');
 import './effects/index';
 import './skills/index';
 import './equips/index';
