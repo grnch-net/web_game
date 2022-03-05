@@ -1,8 +1,10 @@
 {
   "name": "web_game",
   "version": "1.0.0",
+  "main": "sources/main.ts",
   "scripts": {
-    "start": "tsc -p tsconfig.json && node build/main.js"
+    "start": "tsc -p tsconfig_main.json && node build/main.js",
+    "test_mechanics": "tsc -p tsconfig_test.json && node build/test_mechanics.js"
   },
   "devDependencies": {
     "@types/node": "^16.11.6",

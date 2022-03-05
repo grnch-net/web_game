@@ -13,6 +13,7 @@ import {
 
 function test_attack() {
   console.group('Attack');
+
   const world = new World;
   world.initialize();
 
@@ -46,30 +47,31 @@ function test_attack() {
 
   hero.useSkill(SkillName.Attack);
   if (hero.attributes.stamina.value !== (max_stamina - cost)) {
-    console.error('Failed', hero.attributes.stamina.value, max_stamina, cost);
+    console.error('- Failed', hero.attributes.stamina.value, max_stamina, cost);
     console.groupEnd();
     return
   }
   if (target.attributes.health.value !== max_health) {
-    console.error('Failed', target.attributes.health.value, max_health, damage);
+    console.error('- Failed', target.attributes.health.value, max_health, damage);
     console.groupEnd();
     return
   }
   world.tick(attack_config.castTime);
   world.update();
   if (target.attributes.health.value !== (max_health - damage)) {
-    console.error('Failed', target.attributes.health.value, max_health, damage);
+    console.error('- Failed', target.attributes.health.value, max_health, damage);
     console.groupEnd();
     return
   }
   for (let i = 1; i < 6; i++) {
     if (enemies[i].attributes.health.value !== max_health) {
-      console.error('Failed', i, enemies[i].attributes.health.value, max_health);
+      console.error('- Failed', i, enemies[i].attributes.health.value, max_health);
       console.groupEnd();
       return
     }
   }
-  console.info('Successful');
+
+  console.info('- Successful');
   console.groupEnd();
 }
 

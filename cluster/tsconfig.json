@@ -1,6 +1,9 @@
 {
+  "title": "JSON schema for the TypeScript compiler's configuration file",
+  "$schema": "http://json-schema.org/draft-04/schema#",
   "files": [
-    "sources/main.ts"
+    "sources/main.ts",
+    "sources/test_mechanics.ts"
   ],
   "compilerOptions": {
     "baseUrl": "./",

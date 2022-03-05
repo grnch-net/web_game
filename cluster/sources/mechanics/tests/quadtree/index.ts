@@ -33,7 +33,7 @@ function test_quadtree() {
   const result = tree.findByRadius(point, radius);
 
   if (result.length == 0) {
-    console.error('Failed', point, radius);
+    console.error('- Failed', point, radius);
   }
 
   for (const target of result) {
@@ -45,7 +45,7 @@ function test_quadtree() {
     const inner = lengthTo <= radius;
     const hit = (object as any).__hit;
     if ((inner && !hit) || (!inner && hit)) {
-      console.error('Failed', !!(object as any).__hit, object.position, lengthTo, radius);
+      console.error('- Failed', !!(object as any).__hit, object.position, lengthTo, radius);
       console.groupEnd();
       return;
     }
@@ -65,7 +65,7 @@ function test_quadtree() {
   // }
   // console.info(time);
 
-  console.info('Successful');
+  console.info('- Successful');
   console.groupEnd();
 }
 

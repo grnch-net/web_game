@@ -27,25 +27,25 @@ function test_stamina_regeneration() {
   world.tick(1);
   world.update();
   if (hero.attributes.stamina.value !== regen) {
-    console.error('Failed', hero.attributes.stamina.value);
+    console.error('- Failed', hero.attributes.stamina.value);
     console.groupEnd();
     return
   }
   world.tick(maxValue / regen - 2);
   world.update();
   if (hero.attributes.stamina.value !== (maxValue - regen)) {
-    console.error('Failed', hero.attributes.stamina.value);
+    console.error('- Failed', hero.attributes.stamina.value);
     console.groupEnd();
     return
   }
   world.tick(1);
   world.update();
   if (hero.attributes.stamina.value !== maxValue) {
-    console.error('Failed', hero.attributes.stamina.value);
+    console.error('- Failed', hero.attributes.stamina.value);
     console.groupEnd();
     return;
   }
-  console.info('Successful');
+  console.info('- Successful');
   console.groupEnd();
 }
 

@@ -64,7 +64,7 @@ function test_modification() {
     console.error('Failed', result2);
   }
 
-  console.info('Successful');
+  console.info('- Successful');
   console.groupEnd();
 }
 

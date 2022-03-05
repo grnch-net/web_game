@@ -47,26 +47,26 @@ function test_use_item() {
   world.tick(1);
   world.update();
   if (hero.attributes.health.value !== (1 + regen)) {
-    console.error('Failed', hero.attributes.health.value);
+    console.error('- Failed', hero.attributes.health.value);
     console.groupEnd();
     return
   }
   world.tick((max_value - 1) / regen - 2);
   world.update();
   if (hero.attributes.health.value !== (max_value - regen)) {
-    console.error('Failed', hero.attributes.health.value);
+    console.error('- Failed', hero.attributes.health.value);
     console.groupEnd();
     return
   }
   world.tick(1);
   world.update();
   if (hero.attributes.health.value !== max_value) {
-    console.error('Failed', hero.attributes.health.value);
+    console.error('- Failed', hero.attributes.health.value);
     console.groupEnd();
     return;
   }
 
-  console.info('Successful');
+  console.info('- Successful');
   console.groupEnd();
 }
 

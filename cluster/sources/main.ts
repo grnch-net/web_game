@@ -1,8 +1,5 @@
 import './utils/index';
 
-// import './utils/tests/index';
-// import './mechanics/tests/index';
-
 import type { GamePlugin } from './services/game_plugin';
 
 import fastify, { FastifyInstance } from 'fastify';

@@ -49,7 +49,7 @@ function test_block() {
 
   target.useSkill(SkillName.Block);
   if (target.attributes.stamina.value !== max_stamina) {
-    console.error('Failed', hero.attributes.stamina.value, max_stamina);
+    console.error('- Failed', hero.attributes.stamina.value, max_stamina);
     console.groupEnd();
     return
   }
@@ -58,12 +58,12 @@ function test_block() {
   world.tick(attack_config.castTime);
   world.update();
   if (target.attributes.stamina.value !== (max_stamina - stock)) {
-    console.error('Failed', target.attributes.stamina.value, max_stamina, stock);
+    console.error('- Failed', target.attributes.stamina.value, max_stamina, stock);
     console.groupEnd();
     return
   }
   if (target.attributes.health.value !== (max_health - damage + defense)) {
-    console.error('Failed', target.attributes.health.value, max_health, damage);
+    console.error('- Failed', target.attributes.health.value, max_health, damage);
     console.groupEnd();
     return
   }
@@ -75,12 +75,12 @@ function test_block() {
     world.tick(attack_config.castTime);
     world.update();
     if (enemies[i].attributes.health.value !== (max_health - damage)) {
-      console.error('Failed', i, enemies[i].attributes.health.value, max_health, damage);
+      console.error('- Failed', i, enemies[i].attributes.health.value, max_health, damage);
       console.groupEnd();
       return
     }
   }
-  console.info('Successful');
+  console.info('- Successful');
   console.groupEnd();
 }
 

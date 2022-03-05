@@ -1,0 +1,8 @@
+{
+  "title": "JSON schema for the TypeScript compiler's configuration file",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "extends": "./tsconfig.json",
+  "files": [
+    "sources/test_mechanics.ts"
+  ]
+}
