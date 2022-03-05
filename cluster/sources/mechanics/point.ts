@@ -53,6 +53,10 @@ class Point {
     return Math.sqrt(qX + qY + qZ);
   }
 
+  toString(): string {
+    return `{ x: ${this.x}, y: ${this.y}, z: ${this.z} }`;
+  }
+
 }
 
 export {
