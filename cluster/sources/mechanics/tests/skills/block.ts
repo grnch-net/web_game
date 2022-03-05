@@ -35,8 +35,8 @@ function test_block() {
   enemies[1].position.set(11, 0, 10);
   enemies[2].position.set(10, 0, 9);
   enemies[3].position.set(9, 0, 10);
-  enemies[0].rotation = Math.PI * 1;
-  enemies[2].rotation = Math.PI * 1;
+  enemies[0].rotate(Math.PI * 1);
+  enemies[2].rotate(Math.PI * 1);
 
   const target = enemies[0];
   const max_health = target.attributes.health.max;
@@ -70,7 +70,7 @@ function test_block() {
   for (let i = 1; i < 4; i++) {
     enemies[i].useSkill(SkillName.Block);
     world.tick(block_config.castTime);
-    hero.rotation = Math.PI * 0.5 * i;
+    hero.rotate(Math.PI * 0.5 * i);
     hero.useSkill(SkillName.Attack);
     world.tick(attack_config.castTime);
     world.update();

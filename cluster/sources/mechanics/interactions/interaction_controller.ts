@@ -140,7 +140,7 @@ class InteractionController {
     author: Character,
     target: Character
   ): ImpactSide {
-    let rotate = (target.rotation - author.rotation) % (Math.PI * 2);
+    let rotate = (target.getRotation() - author.getRotation()) % (Math.PI * 2);
     if (rotate < 0) rotate += Math.PI * 2;
     const unit = Math.PI * 0.25;
     rotate += unit;

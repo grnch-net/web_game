@@ -41,6 +41,7 @@ type Attributes = { [key: string]: RangeNumber };
 // type Counters = { [key: string]: number };
 
 interface CharacterConfig {
+  moveForce?: number;
   slots: {
     [key: string]: number
   };
@@ -65,6 +66,7 @@ class Character extends WorldObject {
   ): CharacterParameters {
     return {
       name,
+      moveForce: config.moveForce,
       position: { x: 0, y: 0, z: 0 },
       attributes: {
         health: {

@@ -11,6 +11,7 @@ interface WorldObjectParameters {
   initialized?: boolean;
   position: PointParameters;
   rotation?: number;
+  moveForce?: number;
 }
 
 class WorldObject {
@@ -21,22 +22,8 @@ class WorldObject {
   direction: Point;
   wait: number;
   protected parameters: WorldObjectParameters;
-  protected _rotation: number;
-
-  get rotation(): number {
-    return this._rotation;
-  }
-
-  set rotation(
-    radian: number
-  ) {
-    this.parameters.rotation = radian;
-    this._rotation = radian % (Math.PI * 2);
-    if (this._rotation < 0) this._rotation += Math.PI * 2;
-    const x = -Math.sin(-this._rotation);
-    const z = Math.cos(-this._rotation);
-    this.direction.set(x, 0, z);
-  }
+  protected move_rotate: number;
+  protected move_force: number;
 
   initialize(
     parameters: WorldObjectParameters,
@@ -62,7 +49,9 @@ class WorldObject {
     this.wait = 0;
     this.position = new Point(parameters.position);
     this.direction = new Point({ x: 0, y: 0, z: 0 });
-    this.rotation = parameters.rotation || 0;
+    this.move_rotate = 0;
+    this.move_force = 0;
+    this.rotate(parameters.rotation || 0);
   }
 
   destroy(): void {
@@ -75,19 +64,55 @@ class WorldObject {
   ): number {
     dt += this.wait;
     this.wait = 0;
+    this.apply_move(dt);
     return dt;
   }
 
-  destroy(): void {
-    this.parameters.initialized = false;
-    this.world = null;
+  protected apply_move(
+    dt: number
+  ): void {
+    if (!this.move_force) {
+      return;
+    }
+    this.position.x += this.direction.x * this.move_force * dt;
+    this.position.y += this.direction.y * this.move_force * dt;
+    this.position.z += this.direction.z * this.move_force * dt;
+  }
+
+  getRotation(): number {
+    return this.parameters.rotation;
+  }
+
+  rotate(
+    radian: number
+  ) {
+    radian = radian % (Math.PI * 2);
+    if (radian < 0) radian += Math.PI * 2;
+    this.parameters.rotation = radian;
+    this.update_direction(radian);
+  }
+
+  protected update_direction(
+    radian: number
+  ): void {
+    radian += this.move_rotate;
+    radian = radian % (Math.PI * 2);
+    if (radian < 0) radian += Math.PI * 2;
+    const x = -Math.sin(-radian);
+    const z = Math.cos(-radian);
+    this.direction.set(x, 0, z);
+  }
 
   moveStart(
     radian: number
   ): void {
+    this.move_rotate = radian;
+    this.move_force = this.parameters.moveForce;
   }
 
   moveStop(): void {
+    this.move_rotate = 0;
+    this.move_force = 0;
   }
 
 }

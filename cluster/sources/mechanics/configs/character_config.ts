@@ -19,6 +19,7 @@ import {
 } from './equips_config';
 
 const characterConfig: CharacterConfig = {
+  moveForce: 1,
   slots: {
     [EquipSlot.Hold]: 2,
     [EquipSlot.Head]: 1,
