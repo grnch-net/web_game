@@ -16,6 +16,7 @@ interface WorldObjectParameters {
 class WorldObject {
 
   world: InteractionController;
+  worldIndex: number;
   position: Point;
   direction: Point;
   wait: number;
@@ -64,6 +65,11 @@ class WorldObject {
     this.rotation = parameters.rotation || 0;
   }
 
+  destroy(): void {
+    this.parameters.initialized = false;
+    this.world = null;
+  }
+
   tick(
     dt: number
   ): number {
@@ -75,6 +81,13 @@ class WorldObject {
   destroy(): void {
     this.parameters.initialized = false;
     this.world = null;
+
+  moveStart(
+    radian: number
+  ): void {
+  }
+
+  moveStop(): void {
   }
 
 }

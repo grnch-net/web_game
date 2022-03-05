@@ -26,6 +26,10 @@ class Mechanic {
     this.world.initialize();
   }
 
+  destroy(): void {
+    // TODO: Destroy world
+  }
+
   createCharacter(
     characterName: string
   ): CharacterParameters {
@@ -35,11 +39,11 @@ class Mechanic {
 
   enterToWorld(
     parameters: CharacterParameters
-  ): number {
+  ): Character {
     const character = new Character;
     character.initialize(parameters);
-    const index = this.world.addCharacter(character);
-    return index;
+    this.world.addCharacter(character);
+    return character;
   }
 
   leaveFromWorld(
@@ -59,28 +63,31 @@ class Mechanic {
     this.last_time = Date.now();
   }
 
-  characterMove(
-    index: number,
-    x: number,
-    y: number,
-    z: number,
-    rotatioin: number
+  characterRotate(
+    character: Character,
+    rotation: number
   ): void {
-    const character = this.world.getCharacter(index);
-    character.position.set(x, y, z);
-    character.rotation = rotatioin;
+    character.rotate(rotation);
+  }
+
+  characterMoveStart(
+    character: Character,
+    direction: number
+  ): void {
+    character.moveStart(direction);
+  }
+
+  characterMoveStop(
+    character: Character
+  ): void {
+    character.moveStop();
   }
 
   characterUseSkill(
-    index: number,
+    character: Character,
     skillId: number | string
   ): void {
-    const character = this.world.getCharacter(index);
     character.useSkill(skillId);
-  }
-
-  destroy(): void {
-    // TODO: Destroy world
   }
 
 }

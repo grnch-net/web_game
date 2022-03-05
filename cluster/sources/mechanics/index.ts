@@ -4,11 +4,13 @@ import {
   Mechanic
 } from './mechanic';
 
-import type {
+import {
+  Character,
   CharacterParameters
 } from './characters/character';
 
 export {
   Mechanic,
+  Character,
   CharacterParameters
 };

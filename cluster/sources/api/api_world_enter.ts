@@ -81,10 +81,11 @@ class WorldEnter_API extends APIPlugin {
       return;
     }
   
-    const worldIndex = mechanic.enterToWorld(character_parameters);
+    const character = mechanic.enterToWorld(character_parameters);
+    const worldIndex = character.worldIndex;
     store.addCharacterInWorld(worldIndex, character_name);
   
-    const secret = store.createSecret(worldIndex);
+    const secret = store.createSecretCharacter(character);
   
     let response_body: WorldEnter_ResponseBody = {
       secret,

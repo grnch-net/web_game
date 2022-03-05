@@ -1,4 +1,7 @@
-import type { CharacterParameters } from './mechanics/index';
+import type {
+  Character,
+  CharacterParameters
+} from './mechanics/index';
 
 import * as crypto from 'crypto';
 
@@ -27,7 +30,7 @@ class Store {
   protected worldData: WorldData
   protected socketsId: string[]
   protected charactersInWorld: string[]
-  protected charactersSecret: { [secret: string]: number }
+  protected charactersSecret: { [secret: string]: Character }
 
   initialize() {
     this.charactersCollect = {};
@@ -69,19 +72,16 @@ class Store {
     return crypto.randomBytes(10).toString('hex');
   }
 
-  createSecret(index: number): string {
+  createSecretCharacter(data: Character): string {
     const secret = this.generateSecretKey();
-    this.charactersSecret[secret] = index;
+    this.charactersSecret[secret] = data;
     return secret;
   }
 
-  getSecretIndex(secret: string): number {
-    const index = this.charactersSecret[secret];
-    if (index == undefined) {
-      return null;
-    }
+  getSecretCharacter(secret: string): Character {
+    const character = this.charactersSecret[secret];
     delete this.charactersSecret[secret];
-    return index
+    return character;
   }
 
 
@@ -117,5 +117,6 @@ class Store {
 export {
   Store,
   WorldData,
-  CharacterWorldData
+  CharacterWorldData,
+  Position
 };

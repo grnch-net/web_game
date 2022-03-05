@@ -60,6 +60,7 @@ export class World {
   ): number {
     const index = this.characters.add(character);
     character.world = this.interaction_controller;
+    character.worldIndex = index;
     return index;
   }
 
