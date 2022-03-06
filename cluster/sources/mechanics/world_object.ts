@@ -22,7 +22,7 @@ class WorldObject {
   direction: Point;
   wait: number;
   protected parameters: WorldObjectParameters;
-  protected move_rotate: number;
+  protected move_direction: number;
   protected move_force: number;
 
   initialize(
@@ -49,7 +49,7 @@ class WorldObject {
     this.wait = 0;
     this.position = new Point(parameters.position);
     this.direction = new Point({ x: 0, y: 0, z: 0 });
-    this.move_rotate = 0;
+    this.move_direction = 0;
     this.move_force = 0;
     this.rotate(parameters.rotation || 0);
   }
@@ -89,29 +89,42 @@ class WorldObject {
     radian = radian % (Math.PI * 2);
     if (radian < 0) radian += Math.PI * 2;
     this.parameters.rotation = radian;
-    this.update_direction(radian);
+    this.update_direction();
   }
 
-  protected update_direction(
-    radian: number
-  ): void {
-    radian += this.move_rotate;
+  protected update_direction(): void {
+    let radian = this.parameters.rotation + this.move_direction;
     radian = radian % (Math.PI * 2);
-    if (radian < 0) radian += Math.PI * 2;
+    if (radian < 0) {
+      radian += Math.PI * 2;
+    }
     const x = -Math.sin(-radian);
     const z = Math.cos(-radian);
     this.direction.set(x, 0, z);
   }
 
-  moveStart(
-    radian: number
+  moveProgress(
+    forcePercent?: number,
+    direction?: number,
+    position?: PointParameters
   ): void {
-    this.move_rotate = radian;
-    this.move_force = this.parameters.moveForce;
+    if (position) {
+      this.position.copy(position);
+    }
+    if (direction) {
+      this.move_direction = direction;
+      this.update_direction();
+    }
+    if (forcePercent) {
+      this.move_force = this.parameters.moveForce * forcePercent;
+    }
   }
 
-  moveStop(): void {
-    this.move_rotate = 0;
+  moveStop(
+    position: PointParameters
+  ): void {
+    this.position.copy(position);
+    this.move_direction = 0;
     this.move_force = 0;
   }
 

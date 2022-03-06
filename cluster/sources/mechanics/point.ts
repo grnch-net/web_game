@@ -38,7 +38,15 @@ class Point {
     x: number,
     y: number,
     z: number
-  ) {
+  ): void {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+  }
+
+  copy(
+    { x, y, z}: PointParameters
+  ): void {
     this.x = x;
     this.y = y;
     this.z = z;
@@ -55,6 +63,10 @@ class Point {
 
   toString(): string {
     return `{ x: ${this.x}, y: ${this.y}, z: ${this.z} }`;
+  }
+
+  toArray(): [number, number, number] {
+    return [this.x, this.y, this.z];
   }
 
 }

@@ -1,3 +1,7 @@
+import type {
+  PointParameters
+} from './point';
+
 import {
   World
 } from './world';
@@ -70,17 +74,20 @@ class Mechanic {
     character.rotate(rotation);
   }
 
-  characterMoveStart(
+  characterMoveProgress(
     character: Character,
-    direction: number
+    position?: PointParameters,
+    direction?: number,
+    forcePercent?: number
   ): void {
-    character.moveStart(direction);
+    character.moveProgress(forcePercent, direction, position);
   }
 
   characterMoveStop(
-    character: Character
+    character: Character,
+    position: PointParameters
   ): void {
-    character.moveStop();
+    character.moveStop(position);
   }
 
   characterUseSkill(
