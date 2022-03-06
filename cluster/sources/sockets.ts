@@ -1,6 +1,9 @@
 import type {
+  PointParameters
+} from './mechanics/point';
+
+import type {
   CharacterWorldData,
-  Position
 } from './store';
 
 import {
@@ -56,20 +59,19 @@ interface CharRotate_OutEventData {
   rotation: number;
 }
 
-interface CharMoveStart_InEventData {
-  direction: number;
+interface CharMove_InEventData {
+  direction?: number;
+  rotation?: number;
+  position?: [number, number, number];
+  force?: number;
 }
 
-interface CharMoveStart_OutEventData {
+interface CharMove_OutEventData {
   worldIndex: number;
-  direction: number;
-  // position: Position;
-}
-
-interface CharMoveStop_InEventData {}
-
-interface CharMoveStop_OutEventData {
-  worldIndex: number;
+  direction?: number;
+  rotation?: number;
+  position?: [number, number, number];
+  force?: number;
 }
 
 enum SEvent {
@@ -159,6 +161,8 @@ class Sockets extends GamePlugin {
     socket.on(SEvent.Disconnect, () => this.char_wait_leave(socket));
     socket.on(SEvent.Reconnect, () => this.char_reconnect(socket));
     socket.on(SEvent.CharSay, data => this.character_say_event(socket, data));
+    socket.on(SEvent.CharRotate, data => this.character_rotate_event(socket, data));
+    socket.on(SEvent.CharMove, data => this.character_move(socket, data));
   }
 
   protected char_reconnect(
@@ -231,31 +235,47 @@ class Sockets extends GamePlugin {
     socket.emit(SEvent.CharRotate, eventData);
   }
 
-  protected character_move_start_event(
+  protected character_move(
     socket: Socket,
-    data: CharMoveStart_InEventData
+    data: CharMove_InEventData
   ): void {
     const character = socket.data.character;
-    this.server.mechanic.characterMoveStart(character, data.direction);
-
-    const eventData: CharMoveStart_OutEventData = {
-      worldIndex: socket.data.character.worldIndex,
-      direction: data.direction,
+    const {
+      rotation,
+      position,
+      direction,
+      force
+    } = data;
+    if (rotation) {
+      this.server.mechanic.characterRotate(character, rotation);
+      socket.data.characterWorldData.rotation = rotation;
+    }
+    if (force === 0) {
+      this.server.mechanic.characterMoveStop(character, this.parse_position(position));
+    } else {
+      this.server.mechanic.characterMoveProgress(character, this.parse_position(position), direction, force);    
+    }
+    const eventData: CharMove_OutEventData = {
+      worldIndex: character.worldIndex,
+      rotation: rotation,
+      position: position,
+      direction: direction,
+      force: force
     };
     socket.emit(SEvent.CharMove, eventData);
   }
 
-  protected character_move_stop_event(
-    socket: Socket,
-    data: CharMoveStop_InEventData
-  ): void {
-    const character = socket.data.character;
-    this.server.mechanic.characterMoveStop(character);
-
-    const eventData: CharMoveStop_OutEventData = {
-      worldIndex: socket.data.character.worldIndex,
+  protected parse_position(
+    input?: [number, number, number]
+  ): PointParameters {
+    if (!input) {
+      return null;
+    }
+    return {
+      x: input[0],
+      y: input[1],
+      z: input[2]
     };
-    socket.emit(SEvent.CharMove, eventData);
   }
 
 }
