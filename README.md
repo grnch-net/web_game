@@ -7,9 +7,7 @@ gulp-cli 2.2.0
 
 
 ## Run
-cd cluster
 npm start
 
 ## Test
-cd cluster
 npm run test_mechanics
