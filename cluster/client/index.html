@@ -14,5 +14,22 @@
   </head>
   <body>
     <h1>Live</h1>
+
+    <div>
+      <h2>Main</h2>
+      <div>Character</div>
+      <input id="character-name" placeholder="Name" />
+      <button id="character-create">Create</button>
+      <button id="character-get">Get</button>
+      <button id="character-enter">Enter to world</button>
+    </div>
+
+    <div id="world" style="visibility: hidden;">
+      <h2>World</h2>
+      <div>Your character</div>
+      <input id="character-your" placeholder="Name" readonly />
+      <button id="character-leave">Leave from world</button>
+      <button id="character-cancel-leave" style="visibility: hidden;">Cancel leave</button>
+    </div>
   </body>
 </html>

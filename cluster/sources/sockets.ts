@@ -19,6 +19,7 @@ import {
 
 interface Socket extends ioSocket {
   data: {
+    logout: NodeJS.Timeout;
     character: Character;
     characterWorldData: CharacterWorldData;
   }
@@ -74,9 +75,11 @@ interface CharMoveStop_OutEventData {
 enum SEvent {
   Connection = 'connection',
   Disconnect = 'disconnect',
+  Reconnect = 'reconnect',
   ServerError = 'server:error',
   CharEnter = 'char:enter',
   CharLeave = 'char:leave',
+  CharCancelLeave = 'char:cancel-leave',
   CharSay = 'char:say',
   CharRotate = 'char:rotate',
   CharMove = 'char:move',
@@ -114,7 +117,7 @@ class Sockets extends GamePlugin {
   protected connection_handler(
     socket: Socket
   ): void {
-    console.info('New player connection', socket.id);
+    console.info('Connection', socket.id);
     socket.once(SEvent.CharEnter, (data: CharEnter_InEventData) => this.character_enter_event(socket, data));
   }
 
@@ -125,6 +128,8 @@ class Sockets extends GamePlugin {
     const { store } = this.server;
     const character = store.getSecretCharacter(data.secret);
     const worldIndex = character.worldIndex;
+
+    console.info('- Char enter to world', character.name);
 
     if (worldIndex == undefined) {
       socket.disconnect();
@@ -149,17 +154,35 @@ class Sockets extends GamePlugin {
   protected add_socket_listeners(
     socket: Socket
   ): void {
-    socket.on(SEvent.CharLeave, () => this.char_leave(socket));
-    socket.on(SEvent.Disconnect, () => this.char_leave(socket));
+    socket.on(SEvent.CharLeave, () => this.char_wait_leave(socket));
+    socket.on(SEvent.CharCancelLeave, () => this.char_reconnect(socket));
+    socket.on(SEvent.Disconnect, () => this.char_wait_leave(socket));
+    socket.on(SEvent.Reconnect, () => this.char_reconnect(socket));
     socket.on(SEvent.CharSay, data => this.character_say_event(socket, data));
   }
 
-  protected async char_leave(
+  protected char_reconnect(
+    socket: Socket
+  ): void {
+    clearTimeout(socket.data.logout);
+    socket.data.logout = null;
+    console.log('Char cancel leave', socket.data.character.name);
+  }
+
+  protected async char_wait_leave(
     socket: Socket
   ): Promise<void> {
-    const { mechanic, store } = this.server;
+    if (socket.data.logout) {
+      return;
+    }
+    console.log('Char ready to leave', socket.data.character.name);
+    socket.data.logout = setTimeout(() => this.char_leave(socket), 5000);
+  }
 
-    await UTILS.wait(10);
+  protected char_leave(
+    socket: Socket
+  ): void {
+    const { mechanic, store } = this.server;
 
     const worldIndex = socket.data.character.worldIndex;
     const success = mechanic.leaveFromWorld(worldIndex);
@@ -175,7 +198,10 @@ class Sockets extends GamePlugin {
     const eventData: CharLeave_OutEventData = {
       worldIndex
     };
+
     socket.emit(SEvent.CharLeave, eventData);
+    socket.disconnect();
+    console.log('Char leave', socket.data.character.name);
   }
 
   protected character_say_event(

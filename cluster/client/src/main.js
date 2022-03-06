@@ -3,6 +3,7 @@
   const WSEvent = {
     CharEnter: 'char:enter',
     CharLeave: 'char:leave',
+    CharCancelLeave: 'char:cancel-leave',
     CharSay: 'char:say',
     CharMove: 'char:move',
     CharUseSkill: 'char:use-skill'
@@ -65,6 +66,12 @@
       return;
     }
 
+    document.getElementById('character-enter').style.visibility = 'hidden';
+    document.getElementById('world').style.visibility = '';
+    document.getElementById('character-your').value = characterName;
+    document.getElementById('character-leave').style.visibility = '';
+    document.getElementById('character-cancel-leave').style.visibility = 'hidden';
+
     const {
       secret,
       worldIndex: personalWorldIndex,
@@ -90,25 +97,60 @@
       worldData.characters[worldIndex] = characterData;
     });
     socket.on(WSEvent.CharLeave, data => {
-      const { worldIndex, characterData } = data;
-      console.log('Char leave from world', data);
-      worldData.characters[worldIndex] = characterData;
+      const { worldIndex } = data;
+      if (personalWorldIndex == worldIndex) {
+        console.warn('Your char leave from world');
+        socket.disconnect();
+        document.getElementById('character-enter').style.visibility = '';
+        document.getElementById('world').style.visibility = 'hidden';
+        document.getElementById('character-your').value = '';
+        return;
+      }
+      const characterData = worldData.characters[worldIndex];
+      console.log('Char leave from world', characterData?.name);
+      delete worldData.characters[worldIndex];
+      // TODO: remove another char
     });
-
+    
     socket.emit(WSEvent.CharEnter, { secret });
   };
-
-  const leaveFromWorld = async (worldIndex) => {
-    const data = await sendRequest(APIEvent.WorldLeave, { index: worldIndex });
-    console.warn('leave from world', data);
-    // socket.disconnect(); // TODO;
+  
+  const leaveFromWorld = async () => {
+    document.getElementById('character-leave').style.visibility = 'hidden';
+    document.getElementById('character-cancel-leave').style.visibility = '';
+    socket.emit(WSEvent.CharLeave);
+  };
+  
+  const cancelLeaveFromWorld = async () => {
+    document.getElementById('character-leave').style.visibility = '';
+    document.getElementById('character-cancel-leave').style.visibility = 'hidden';
+    socket.emit(WSEvent.CharCancelLeave);
   };
 
-  const name = 'Hero2';
-  console.warn(name);
-  createCharacter(name);
-  getCharacter(name);
-  enterToWorld(name);
-  // leaveFromWorld(0);
+  const getName = () => {
+    const name = document.getElementById('character-name').value;
+    console.warn(name);
+    return name;
+  }
+
+  document.getElementById('character-create').addEventListener('click' , () => {
+    createCharacter(getName());
+  });
+
+  document.getElementById('character-get').addEventListener('click' , () => {
+    getCharacter(getName());
+  });
+
+  document.getElementById('character-enter').addEventListener('click' , () => {
+    enterToWorld(getName());
+  });
+
+  document.getElementById('character-leave').addEventListener('click' , () => {
+    leaveFromWorld();
+  });
+
+  document.getElementById('character-cancel-leave').addEventListener('click' , () => {
+    cancelLeaveFromWorld();
+  });
 })();
 
