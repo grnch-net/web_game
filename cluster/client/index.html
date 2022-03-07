@@ -8,6 +8,9 @@
         background: #10161f;
         color: white;
       }
+      p {
+        margin-bottom: 0;
+      }
     </style>
     <script defer src="/src/socket.io.js"></script>
     <script defer src="/src/main.js"></script>
@@ -15,7 +18,7 @@
   <body>
     <h1>Live</h1>
 
-    <div>
+    <div id="main-screen">
       <h2>Main</h2>
       <div>Character</div>
       <input id="character-name" placeholder="Name" />
@@ -24,12 +27,30 @@
       <button id="character-enter">Enter to world</button>
     </div>
 
-    <div id="world" style="visibility: hidden;">
+    <div id="world-screen" style="display: none;">
       <h2>World</h2>
-      <div>Your character</div>
-      <input id="character-your" placeholder="Name" readonly />
-      <button id="character-leave">Leave from world</button>
-      <button id="character-cancel-leave" style="visibility: hidden;">Cancel leave</button>
+
+      <div>
+        <p>Your character</p>
+        <input id="character-your" placeholder="Name" readonly />
+        <button id="character-leave">Leave from world</button>
+        <button id="character-cancel-leave" style="display: none;">Cancel leave</button>
+      </div>
+
+      <div>
+        <p>Other character</p>
+        <textarea id="world-characters" readonly></textarea>
+      </div>
+
+      <div>
+        <p>Chat</p>
+        <textarea id="world-chat" readonly></textarea>
+        <div>
+          <input id="character-say-text" />
+          <button id="character-say">Say</button>
+        </div>
+      </div>
+
     </div>
   </body>
 </html>

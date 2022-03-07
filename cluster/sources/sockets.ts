@@ -203,7 +203,7 @@ class Sockets extends GamePlugin {
       worldIndex
     };
 
-    socket.emit(SEvent.CharLeave, eventData);
+    this.io.sockets.emit(SEvent.CharLeave, eventData);
     socket.disconnect();
     console.log('Char leave', socket.data.character.name);
   }
@@ -217,7 +217,7 @@ class Sockets extends GamePlugin {
       worldIndex: socket.data.character.worldIndex,
       message: data.message
     };
-    socket.emit(SEvent.CharSay, eventData);
+    this.io.sockets.emit(SEvent.CharSay, eventData);
   }
 
   protected character_rotate_event(
