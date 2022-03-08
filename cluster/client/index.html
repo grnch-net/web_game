@@ -11,6 +11,9 @@
       p {
         margin-bottom: 0;
       }
+      svg {
+        background: #ffffff;
+      }
     </style>
     <script defer src="/src/socket.io.js"></script>
     <script defer src="/src/main.js"></script>
@@ -32,7 +35,7 @@
 
       <div>
         <p>Your character</p>
-        <input id="character-your" placeholder="Name" readonly />
+        <input id="user-character-name" placeholder="Name" readonly />
         <button id="character-leave">Leave from world</button>
         <button id="character-cancel-leave" style="display: none;">Cancel leave</button>
       </div>
@@ -49,6 +52,33 @@
           <input id="character-say-text" />
           <button id="character-say">Say</button>
         </div>
+      </div>
+
+      <div>
+        <p>Map</p>
+        <svg width="500" height="500" viewBox="0 0 200 200">
+          <defs>
+            <pattern id="background-pattern" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+              <g fill="#0000001a">
+                <rect x="0" y="9" width="10" height="1" />
+                <rect x="9" y="0" width="1" height="9" />
+              </g>
+            </pattern>
+            <g id="character-prefab">
+              <circle cx="0" cy="0" r="4" stroke="#000000" fill="#0000ff" stroke-width="1" />
+              <rect x="-0.5" y="-5" width="1" height="5" fill="#ffffff80"/>
+            </g>
+            <g id="user-character-prefab">
+              <circle cx="0" cy="0" r="4" stroke="#000000" fill="#00ff00" stroke-width="1" />
+              <rect x="-0.5" y="-5" width="1" height="5" fill="#ffffff80"/>
+            </g>
+          </defs>
+
+          <g transform="translate(10, 10)">
+            <rect fill="url(#background-pattern)" width="180" height="180"/>
+            <g id="world-scene"></g>
+          </g>
+        </svg>
       </div>
 
     </div>
