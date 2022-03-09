@@ -63,7 +63,7 @@ interface CharMove_InEventData {
   direction?: number;
   rotation?: number;
   position?: [number, number, number];
-  force?: number;
+  forcePercent?: number;
 }
 
 interface CharMove_OutEventData {
@@ -71,7 +71,7 @@ interface CharMove_OutEventData {
   direction?: number;
   rotation?: number;
   position?: [number, number, number];
-  force?: number;
+  forcePercent?: number;
 }
 
 enum SEvent {
@@ -244,25 +244,25 @@ class Sockets extends GamePlugin {
       rotation,
       position,
       direction,
-      force
+      forcePercent
     } = data;
     if (rotation) {
       this.server.mechanic.characterRotate(character, rotation);
       socket.data.characterWorldData.rotation = rotation;
     }
-    if (force === 0) {
+    if (forcePercent === 0) {
       this.server.mechanic.characterMoveStop(character, this.parse_position(position));
     } else {
-      this.server.mechanic.characterMoveProgress(character, this.parse_position(position), direction, force);    
+      this.server.mechanic.characterMoveProgress(character, this.parse_position(position), direction, forcePercent);    
     }
     const eventData: CharMove_OutEventData = {
       worldIndex: character.worldIndex,
       rotation: rotation,
       position: position,
       direction: direction,
-      force: force
+      forcePercent
     };
-    socket.emit(SEvent.CharMove, eventData);
+    socket.broadcast.emit(SEvent.CharMove, eventData);
   }
 
   protected parse_position(

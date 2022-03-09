@@ -55,6 +55,11 @@ class CharacretCreate_API extends APIPlugin {
       name: character_name
     } = request.body as CharacterCreate_RequestBody;
 
+    if (!character_name) {
+      this.sendError(reply, 'wrong_name');
+      return
+    }
+
     if (store.hasCharacter(character_name)) {
       this.sendError(reply, 'name_is_taken');
       return;

@@ -67,6 +67,7 @@ class Character extends WorldObject {
     return {
       name,
       moveForce: config.moveForce,
+      rotation: 0,
       position: { x: 0, y: 0, z: 0 },
       attributes: {
         health: {

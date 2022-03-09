@@ -30,8 +30,8 @@
   const character_say_text_node = document.querySelector('#character-say-text');
   const world_scene_node = document.querySelector('#world-scene');
 
-  const world_width = 180;
-  const world_height = 180;
+  const world_latitude = 180;
+  const world_longitude = 180;
 
   class Game {
 
@@ -41,6 +41,7 @@
       this.worldIndex = null;
       this.socket = null;
       this.sceneCharacters = null;
+      this.userCharacterListeners = null;
     }
 
     initialize() {
@@ -128,7 +129,7 @@
   
       this.worldData = enter_data.world;
       this.worldIndex = enter_data.worldIndex;
-      this.initWorld(characterName);
+      this.initWorld();
   
       this.socket = io();
   
@@ -148,7 +149,30 @@
       });
 
       this.socket.on(WSEvent.CharMove, data => {
-        console.log('Char move', data);
+        const {
+          worldIndex,
+          rotation,
+          position,
+          direction,
+          forcePercent
+        } = data;
+
+        const [x, y, z] = position;
+        const rotate = rotation * 360 / (Math.PI * 2);
+        const character = this.worldData.characters[worldIndex];
+        const character_node = this.sceneCharacters[worldIndex];
+
+        character.position.x = x;
+        character.position.y = y;
+        character.position.z = z;
+        character_node.setAttribute('transform', `translate(${x}, ${world_longitude - z}) rotate(${rotate})`);
+
+        character.rotation = rotation;
+        character.forcePercent = forcePercent;
+
+        if (forcePercent !== 0) {
+          this.characterMoveStart(character, direction);
+        }
       });
 
       this.socket.on(WSEvent.CharUseSkill, data => {
@@ -198,6 +222,7 @@
       user_character_name_node.value = this.character.name;
       character_leave_node.style.display = '';
       character_cancel_leave_node.style.display = 'none';
+
       this.updateWorldCharactersList();
       this.initWorldScene();
     }
@@ -206,24 +231,30 @@
       this.sceneCharacters = [];
 
       this.addUserCharacter();
+      this.initUserListeners();
 
       for (const worldIndex in this.worldData.characters) {
         const character = this.worldData.characters[worldIndex];
         if (!character) {
-          return;
+          continue;
         }
         this.addCharacter(worldIndex, character);
       }
     }
 
     addUserCharacter() {
-      const character_node = this.createPlayer(this.character, '#user-character-prefab');
-      this.sceneCharacters[this.worldIndex] = character_node;
+      this.initCharacter(this.character);
+      this.createSceneCharacter(this.worldIndex, this.character, '#user-character-prefab');
     }
 
     addCharacter(worldIndex, character) {
-      const character_node = this.createPlayer(character);
-      this.sceneCharacters[worldIndex] = character_node;
+      this.initCharacter(character);
+      this.createSceneCharacter(worldIndex, character);
+    }
+
+    initCharacter(character) {
+      character.directionPoint = { x: 0, y: 0, z: 0 };
+      character.forcePercent = 0;
     }
 
     removeCharacter(worldIndex) {
@@ -238,15 +269,136 @@
       world_scene_node.removeChild(character_node);
     }
 
-    createPlayer(character, prefab = '#character-prefab') {
-      const player_node = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-      player_node.setAttributeNS('http://www.w3.org/1999/xlink', 'href', prefab);
-      // const { x, y, z } = character.position;
-      const x = Math.random() * world_width;
-      const z = Math.random() * world_height;
-      player_node.setAttribute('transform', `translate(${x}, ${world_height - z})`);
-      world_scene_node.appendChild(player_node);
-      return player_node;
+    initUserListeners() {
+      this.userCharacterListeners = [];
+
+      const keyDownHandler = event => {
+        if (event.repeat) {
+          return;
+        }
+        if (event.keyCode === 87) {
+          const moveDirection = 0;
+          this.userCharacterMoveStart(moveDirection);
+        } else
+        if (event.keyCode === 68) {
+          const moveDirection = Math.PI * 0.5;
+          this.userCharacterMoveStart(moveDirection);
+        } else
+        if (event.keyCode === 83) {
+          const moveDirection = Math.PI * 1;
+          this.userCharacterMoveStart(moveDirection);
+        } else
+        if (event.keyCode === 65) {
+          const moveDirection = Math.PI * 1.5;
+          this.userCharacterMoveStart(moveDirection);
+        }
+      };
+      document.addEventListener('keydown', keyDownHandler);
+      this.userCharacterListeners.push(['keydown', keyDownHandler]);
+
+      const keyUpHandler = event => {
+        if (
+          event.keyCode === 87
+          || event.keyCode === 68
+          || event.keyCode === 83
+          || event.keyCode === 65
+        ) {
+          this.userCharacterMoveStop();
+        }
+      };
+      document.addEventListener('keyup', keyUpHandler);
+      this.userCharacterListeners.push(['keyup', keyUpHandler]);
+    }
+
+    userCharacterMoveStart(moveDirection) {
+      this.character.forcePercent = 1;
+      const { x, y, z } = this.character.position;
+
+      this.socket.emit(WSEvent.CharMove, {
+        rotation: this.character.rotation,
+        position: [x, y, z],
+        direction: moveDirection,
+        forcePercent: this.character.forcePercent
+      });
+
+      this.characterMoveStart(this.character, moveDirection)
+    }
+
+    userCharacterMoveStop() {
+      this.character.forcePercent = 0;
+      const { x, y, z } = this.character.position;
+
+      this.socket.emit(WSEvent.CharMove, {
+        rotation: this.character.rotation,
+        position: [x, y, z],
+        direction: 0,
+        forcePercent: this.character.forcePercent
+      });
+    }
+
+    characterMoveStart(character, moveDirection) {
+      if (character.forcePercent !== 0) {
+        requestAnimationFrame(() => this.characterMoveProgress(character));
+      }
+      character.updatePositionTime = performance.now();
+      this.updateDirection(character, moveDirection);
+    }
+
+    updateDirection(character, moveDirection) {
+      let radian = character.rotation + moveDirection;
+      radian = radian % (Math.PI * 2);
+      if (radian < 0) {
+        radian += Math.PI * 2;
+      }
+      character.directionPoint.x = -Math.sin(-radian);
+      character.directionPoint.y = 0;
+      character.directionPoint.z = Math.cos(-radian);
+    }
+
+    characterMoveProgress(character) {
+      if (character.forcePercent === 0) {
+        return;
+      }
+
+      const lastTime = character.updatePositionTime;
+      const nowTime = character.updatePositionTime = performance.now();
+      const character_node = this.sceneCharacters[this.worldIndex];
+      
+      const dt = (nowTime - lastTime) / 100;
+      const moveForce = character.moveForce * character.forcePercent;
+
+      let x = character.directionPoint.x * moveForce * dt;
+      // let y = character.directionPoint.y * moveForce * dt;
+      let z = character.directionPoint.z * moveForce * dt;
+
+      x += character.position.x;
+      // y += character.position.y;
+      z += character.position.z;
+
+      x = Math.min(world_latitude, x);
+      x = Math.max(0, x);
+      // y = Math.min(0, x);
+      // y = Math.max(0, y);
+      z = Math.min(world_longitude, z);
+      z = Math.max(0, z);
+
+      character.position.x = x;
+      // character.position.y = y;
+      character.position.z = z;
+      character_node.setAttribute('transform', `translate(${x}, ${world_longitude - z})`);
+
+      requestAnimationFrame(() => this.characterMoveProgress(character));
+    }
+
+    createSceneCharacter(worldIndex, character, prefab = '#character-prefab') {
+      const character_node = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+      character_node.setAttributeNS('http://www.w3.org/1999/xlink', 'href', prefab);
+
+      const { x, y, z } = character.position;
+      character_node.setAttribute('transform', `translate(${x}, ${world_longitude - z})`);
+
+      this.sceneCharacters[worldIndex] = character_node;
+      world_scene_node.appendChild(character_node);
     }
 
     leaveFromWorld() {
@@ -265,9 +417,15 @@
       main_screen_node.style.display = '';
       world_screen_node.style.display = 'none';
       user_character_name_node.value = '';
+
       while (world_scene_node.firstChild) {
         world_scene_node.removeChild(world_scene_node.lastChild);
       }
+
+      for (const [event, handler] of this.userCharacterListeners) {
+        document.removeEventListener(event, handler);
+      }
+      this.userCharacterListeners = [];
     }
 
     characterSay() {

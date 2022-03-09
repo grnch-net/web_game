@@ -15,6 +15,7 @@ interface CharacterWorldData {
   name: string;
   position: Position;
   rotation: number;
+  moveForce: number;
   attributes: Associative<number>;
   effects: number[];
   equips: number[];

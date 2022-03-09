@@ -114,6 +114,7 @@ class WorldEnter_API extends APIPlugin {
       name: character_parameters.name,
       position: character_parameters.position,
       rotation: character_parameters.rotation,
+      moveForce: character_parameters.moveForce,
       attributes: character_attributes,
       effects: character_effects,
       equips: character_equips

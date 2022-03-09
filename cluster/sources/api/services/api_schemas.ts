@@ -16,6 +16,7 @@ const characterWorldData_SchemaProperties: ObjectProperties = {
     }
   },
   rotation: { type: 'number' },
+  moveForce: { type: 'number' },
   attributes: {
     type: 'object',
     additionalProperties: {
