@@ -179,6 +179,17 @@ class Sockets extends GamePlugin {
     if (socket.data.logout) {
       return;
     }
+
+    const character = socket.data.character;
+    character.moveStop();
+
+    const eventData: CharMove_OutEventData = {
+      worldIndex: character.worldIndex,
+      position: character.position.toArray(),
+      forcePercent: 0
+    };
+    this.io.sockets.emit(SEvent.CharMove, eventData);
+
     console.log('Char ready to leave', socket.data.character.name);
     socket.data.logout = setTimeout(() => this.char_leave(socket), 5000);
   }
@@ -225,7 +236,7 @@ class Sockets extends GamePlugin {
     data: CharRotate_InEventData
   ): void {
     const character = socket.data.character;
-    this.server.mechanic.characterRotate(character, data.rotation);
+    character.rotate(data.rotation);
     socket.data.characterWorldData.rotation = data.rotation;
 
     const eventData: CharRotate_OutEventData = {
@@ -247,13 +258,15 @@ class Sockets extends GamePlugin {
       forcePercent
     } = data;
     if (rotation) {
-      this.server.mechanic.characterRotate(character, rotation);
+      character.rotate(rotation);
       socket.data.characterWorldData.rotation = rotation;
     }
     if (forcePercent === 0) {
-      this.server.mechanic.characterMoveStop(character, this.parse_position(position));
+      character.moveStop();
+      character.updatePosition(this.parse_position(position));
     } else {
-      this.server.mechanic.characterMoveProgress(character, this.parse_position(position), direction, forcePercent);    
+      character.moveProgress(forcePercent, direction);
+      character.updatePosition(this.parse_position(position));
     }
     const eventData: CharMove_OutEventData = {
       worldIndex: character.worldIndex,

@@ -32,6 +32,7 @@
 
   const world_latitude = 180;
   const world_longitude = 180;
+  const world_height = 1;
 
   class Game {
 
@@ -42,6 +43,7 @@
       this.socket = null;
       this.sceneCharacters = null;
       this.userCharacterListeners = null;
+      this.userCharacterDirections = null;
     }
 
     initialize() {
@@ -49,8 +51,8 @@
     }
 
     initialize_view() {
-      character_create_node.addEventListener('click' , () => this.createCharacter(this.getInputName()));
-      character_get_node.addEventListener('click' , () => this.getCharacter(this.getInputName()));
+      character_create_node.addEventListener('click' , () => this.createCharacterRequest(this.getInputName()));
+      character_get_node.addEventListener('click' , () => this.getCharacterRequest(this.getInputName()));
       character_enter_node.addEventListener('click' , () => this.enterToWorld(this.getInputName()));
       character_leave_node.addEventListener('click' , () => this.leaveFromWorld());
       character_cancel_leave_node.addEventListener('click' , () => this.cancelLeaveFromWorld());
@@ -89,7 +91,7 @@
       return name;
     }
 
-    async createCharacter(characterName) {
+    async createCharacterRequest(characterName) {
       const data = await this.sendRequest(APIEvent.CharacterCreate, { name: characterName });
       console.log('create character', data);
       if (!data) {
@@ -99,7 +101,7 @@
       this.character = data.parameters;
     }
 
-    async getCharacter(characterName) {
+    async getCharacterRequest(characterName) {
       const data = await this.sendRequest(APIEvent.CharacterGet, { name: characterName });
       console.log('get character', data);
       if (!data) {
@@ -113,7 +115,7 @@
       character_enter_node.style.display = 'none';
 
       if (!this.character || this.character.name !== characterName) {
-        await this.getCharacter(characterName);
+        await this.getCharacterRequest(characterName);
         if (!this.character) {
           this.thenEnterToWorld();
           return;
@@ -148,32 +150,7 @@
         world_chat_node.scrollTo(0, world_chat_node.scrollHeight);
       });
 
-      this.socket.on(WSEvent.CharMove, data => {
-        const {
-          worldIndex,
-          rotation,
-          position,
-          direction,
-          forcePercent
-        } = data;
-
-        const [x, y, z] = position;
-        const rotate = rotation * 360 / (Math.PI * 2);
-        const character = this.worldData.characters[worldIndex];
-        const character_node = this.sceneCharacters[worldIndex];
-
-        character.position.x = x;
-        character.position.y = y;
-        character.position.z = z;
-        character_node.setAttribute('transform', `translate(${x}, ${world_longitude - z}) rotate(${rotate})`);
-
-        character.rotation = rotation;
-        character.forcePercent = forcePercent;
-
-        if (forcePercent !== 0) {
-          this.characterMoveStart(character, direction);
-        }
-      });
+      this.socket.on(WSEvent.CharMove, data => this.charMoveHandler(data));
 
       this.socket.on(WSEvent.CharUseSkill, data => {
         console.log('Char use skill', data);
@@ -203,6 +180,50 @@
 
     thenEnterToWorld() {
       character_enter_node.style.display = '';
+    }
+
+    charMoveHandler(data) {
+      const {
+        worldIndex,
+        rotation,
+        position,
+        direction,
+        forcePercent
+      } = data;
+
+      let character;
+      
+      if (worldIndex === this.worldIndex) {
+        console.warn('this character move action');
+        character = this.character;
+      } else {
+        character = this.worldData.characters[worldIndex];
+      }
+
+      let transform = '';
+
+      if (position) {
+        const [x, y, z] = position;
+        character.position.x = x;
+        character.position.y = y;
+        character.position.z = z;
+        character.forcePercent = forcePercent;
+        transform += ` translate(${x}, ${world_longitude - z})`;
+      }
+
+      if (rotation) {
+        character.rotation = rotation;
+        const rotate = rotation * 360 / (Math.PI * 2);
+        transform += ` rotate(${rotate})`;
+      }
+
+      const character_node = this.sceneCharacters[worldIndex];
+      character_node.setAttribute('transform', transform);
+
+      if (forcePercent !== 0) {
+        this.updateDirection(character, direction);
+        this.characterMoveStart(worldIndex, character);
+      }
     }
 
     updateWorldCharactersList() {
@@ -271,49 +292,94 @@
 
     initUserListeners() {
       this.userCharacterListeners = [];
+      this.userCharacterDirections = {
+        front: false,
+        right: false,
+        back: false,
+        left: false
+      };
 
       const keyDownHandler = event => {
         if (event.repeat) {
           return;
         }
+
         if (event.keyCode === 87) {
-          const moveDirection = 0;
-          this.userCharacterMoveStart(moveDirection);
+          this.userCharacterDirections.front = true;
         } else
         if (event.keyCode === 68) {
-          const moveDirection = Math.PI * 0.5;
-          this.userCharacterMoveStart(moveDirection);
+          this.userCharacterDirections.right = true;
         } else
         if (event.keyCode === 83) {
-          const moveDirection = Math.PI * 1;
-          this.userCharacterMoveStart(moveDirection);
+          this.userCharacterDirections.back = true;
         } else
         if (event.keyCode === 65) {
-          const moveDirection = Math.PI * 1.5;
-          this.userCharacterMoveStart(moveDirection);
+          this.userCharacterDirections.left = true;
+        } else {
+          return;
         }
+
+        this.userCharacterMoveUpdate();
       };
       document.addEventListener('keydown', keyDownHandler);
       this.userCharacterListeners.push(['keydown', keyDownHandler]);
 
       const keyUpHandler = event => {
-        if (
-          event.keyCode === 87
-          || event.keyCode === 68
-          || event.keyCode === 83
-          || event.keyCode === 65
-        ) {
-          this.userCharacterMoveStop();
+        if (event.keyCode === 87) {
+          this.userCharacterDirections.front = false;
+        } else
+        if (event.keyCode === 68) {
+          this.userCharacterDirections.right = false;
+        } else
+        if (event.keyCode === 83) {
+          this.userCharacterDirections.back = false;
+        } else
+        if (event.keyCode === 65) {
+          this.userCharacterDirections.left = false;
+        } else {
+          return;
         }
+        
+        // this.userCharacterMoveUpdate();
       };
       document.addEventListener('keyup', keyUpHandler);
       this.userCharacterListeners.push(['keyup', keyUpHandler]);
     }
 
-    userCharacterMoveStart(moveDirection) {
-      this.character.forcePercent = 1;
-      const { x, y, z } = this.character.position;
+    userCharacterMoveUpdate() {
+      const {
+        front,
+        right,
+        back,
+        left
+      } = this.userCharacterDirections;
+      let moveDirection;
 
+      if (front && right) moveDirection = Math.PI * 0.25;
+      else if (back && right) moveDirection = Math.PI * 0.75;
+      else if (back && left) moveDirection = Math.PI * 1.25;
+      else if (front && left) moveDirection = Math.PI * 1.75;
+      else if (front) moveDirection = 0;
+      else if (right) moveDirection = Math.PI * 0.5;
+      else if (back) moveDirection = Math.PI * 1;
+      else if (left) moveDirection = Math.PI * 1.5;
+      else {
+        return this.userCharacterMoveStop();
+      }
+
+      const { position, directionPoint } = this.character;
+      this.updateDirection(this.character, moveDirection);
+      
+      let needStop = this.checkMoveProgress(position, directionPoint);
+      
+      if (needStop) {
+        this.clearUserDirection();
+        return;
+      }
+
+      this.character.forcePercent = 1;
+      
+      const { x, y, z } = position;
       this.socket.emit(WSEvent.CharMove, {
         rotation: this.character.rotation,
         position: [x, y, z],
@@ -321,7 +387,14 @@
         forcePercent: this.character.forcePercent
       });
 
-      this.characterMoveStart(this.character, moveDirection)
+      this.characterMoveStart(this.worldIndex, this.character)
+    }
+
+    clearUserDirection() {
+      this.userCharacterDirections.front = false;
+      this.userCharacterDirections.right = false;
+      this.userCharacterDirections.back = false;
+      this.userCharacterDirections.left = false;
     }
 
     userCharacterMoveStop() {
@@ -336,12 +409,11 @@
       });
     }
 
-    characterMoveStart(character, moveDirection) {
+    characterMoveStart(worldIndex, character) {
       if (character.forcePercent !== 0) {
-        requestAnimationFrame(() => this.characterMoveProgress(character));
+        requestAnimationFrame(() => this.characterMoveProgress(worldIndex, character));
       }
       character.updatePositionTime = performance.now();
-      this.updateDirection(character, moveDirection);
     }
 
     updateDirection(character, moveDirection) {
@@ -355,39 +427,90 @@
       character.directionPoint.z = Math.cos(-radian);
     }
 
-    characterMoveProgress(character) {
+    characterMoveProgress(worldIndex, character) {
       if (character.forcePercent === 0) {
         return;
       }
 
       const lastTime = character.updatePositionTime;
       const nowTime = character.updatePositionTime = performance.now();
-      const character_node = this.sceneCharacters[this.worldIndex];
+      const character_node = this.sceneCharacters[worldIndex];
+      const directionPoint = character.directionPoint;
       
       const dt = (nowTime - lastTime) / 100;
       const moveForce = character.moveForce * character.forcePercent;
+      const position = {
+        x: character.position.x,
+        y: character.position.y,
+        z: character.position.z
+      };
 
-      let x = character.directionPoint.x * moveForce * dt;
-      // let y = character.directionPoint.y * moveForce * dt;
-      let z = character.directionPoint.z * moveForce * dt;
+      position.x += directionPoint.x * moveForce * dt;
+      position.y += directionPoint.y * moveForce * dt;
+      position.z += directionPoint.z * moveForce * dt;
 
-      x += character.position.x;
-      // y += character.position.y;
-      z += character.position.z;
+      let needStop = this.checkMoveProgress(position, directionPoint);
 
-      x = Math.min(world_latitude, x);
-      x = Math.max(0, x);
-      // y = Math.min(0, x);
-      // y = Math.max(0, y);
-      z = Math.min(world_longitude, z);
-      z = Math.max(0, z);
-
-      character.position.x = x;
-      // character.position.y = y;
-      character.position.z = z;
+      const x = character.position.x = position.x;
+      const y = character.position.y = position.y;
+      const z = character.position.z = position.z;
       character_node.setAttribute('transform', `translate(${x}, ${world_longitude - z})`);
 
-      requestAnimationFrame(() => this.characterMoveProgress(character));
+      if (needStop) {
+        this.clearUserDirection()
+        character.forcePercent = 0;
+
+        if (worldIndex === this.worldIndex) {
+          this.userCharacterMoveStop();
+        }
+      }
+
+      requestAnimationFrame(() => this.characterMoveProgress(worldIndex, character));
+    }
+
+    checkMoveProgress(position, direction) {
+      let needStop = false;
+      
+      if (direction.x > 0) {
+        if (position.x > world_latitude) {
+          position.x = world_latitude;
+          needStop = true;
+        }
+      } else
+      if (direction.x < 0) {
+        if (position.x < 0) {
+          position.x = 0;
+          needStop = true;
+        }
+      }
+      
+      if (direction.y > 0) {
+        if (position.y > world_height) {
+          position.y = world_height;
+          needStop = true;
+        }
+      } else
+      if (direction.y < 0) {
+        if (position.y < 0) {
+          position.y = 0;
+          needStop = true;
+        }
+      }
+      
+      if (direction.z > 0) {
+        if (position.z > world_longitude) {
+          position.z = world_longitude;
+          needStop = true;
+        }
+      } else
+      if (direction.z < 0) {
+        if (position.z < 0) {
+          position.z = 0;
+          needStop = true;
+        }
+      }
+
+      return needStop;
     }
 
     createSceneCharacter(worldIndex, character, prefab = '#character-prefab') {

@@ -105,12 +105,8 @@ class WorldObject {
 
   moveProgress(
     forcePercent?: number,
-    direction?: number,
-    position?: PointParameters
+    direction?: number
   ): void {
-    if (position) {
-      this.position.copy(position);
-    }
     if (direction) {
       this.move_direction = direction;
       this.update_direction();
@@ -120,12 +116,15 @@ class WorldObject {
     }
   }
 
-  moveStop(
+  moveStop(): void {
+    this.move_direction = 0;
+    this.move_force = 0;
+  }
+
+  updatePosition(
     position: PointParameters
   ): void {
     this.position.copy(position);
-    this.move_direction = 0;
-    this.move_force = 0;
   }
 
 }

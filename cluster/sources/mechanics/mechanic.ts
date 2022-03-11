@@ -67,35 +67,13 @@ class Mechanic {
     this.last_time = Date.now();
   }
 
-  characterRotate(
-    character: Character,
-    rotation: number
-  ): void {
-    character.rotate(rotation);
-  }
-
-  characterMoveProgress(
-    character: Character,
-    position?: PointParameters,
-    direction?: number,
-    forcePercent?: number
-  ): void {
-    character.moveProgress(forcePercent, direction, position);
-  }
-
-  characterMoveStop(
-    character: Character,
-    position: PointParameters
-  ): void {
-    character.moveStop(position);
-  }
-
-  characterUseSkill(
-    character: Character,
-    skillId: number | string
-  ): void {
-    character.useSkill(skillId);
-  }
+  // TODO:
+  // characterUseSkill(
+  //   character: Character,
+  //   skillId: number | string
+  // ): void {
+  //   character.useSkill(skillId);
+  // }
 
 }
 
