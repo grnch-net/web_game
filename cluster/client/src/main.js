@@ -28,6 +28,7 @@
   const world_chat_node = document.querySelector('#world-chat');
   const character_say_node = document.querySelector('#character-say');
   const character_say_text_node = document.querySelector('#character-say-text');
+  const svg_node = document.querySelector('svg');
   const world_scene_node = document.querySelector('#world-scene');
 
   const world_latitude = 180;
@@ -42,7 +43,7 @@
       this.worldIndex = null;
       this.socket = null;
       this.sceneCharacters = null;
-      this.userCharacterListeners = null;
+      this.onDestroyWorldHandlers = null;
       this.userCharacterDirections = null;
     }
 
@@ -132,7 +133,18 @@
       this.worldData = enter_data.world;
       this.worldIndex = enter_data.worldIndex;
       this.initWorld();
-  
+
+      this.initSocket();
+      
+      this.socket.emit(WSEvent.CharEnter, { secret: enter_data.secret });
+      this.thenEnterToWorld();
+    }
+
+    thenEnterToWorld() {
+      character_enter_node.style.display = '';
+    }
+
+    initSocket() {
       this.socket = io();
   
       this.socket.on(WSEvent.CharSay, data => {
@@ -173,13 +185,6 @@
   
         this.removeCharacter(data.worldIndex);
       });
-      
-      this.socket.emit(WSEvent.CharEnter, { secret: enter_data.secret });
-      this.thenEnterToWorld();
-    }
-
-    thenEnterToWorld() {
-      character_enter_node.style.display = '';
     }
 
     charMoveHandler(data) {
@@ -194,35 +199,30 @@
       let character;
       
       if (worldIndex === this.worldIndex) {
-        console.warn('this character move action');
         character = this.character;
       } else {
         character = this.worldData.characters[worldIndex];
       }
-
-      let transform = '';
 
       if (position) {
         const [x, y, z] = position;
         character.position.x = x;
         character.position.y = y;
         character.position.z = z;
-        character.forcePercent = forcePercent;
-        transform += ` translate(${x}, ${world_longitude - z})`;
       }
-
+      
       if (rotation) {
         character.rotation = rotation;
-        const rotate = rotation * 360 / (Math.PI * 2);
-        transform += ` rotate(${rotate})`;
       }
 
-      const character_node = this.sceneCharacters[worldIndex];
-      character_node.setAttribute('transform', transform);
-
-      if (forcePercent !== 0) {
-        this.updateDirection(character, direction);
-        this.characterMoveStart(worldIndex, character);
+      this.updateDirection(character, direction);
+      this.updateCharacterPosition(worldIndex, character);
+      
+      if (forcePercent || forcePercent === 0) {
+        character.forcePercent = forcePercent;
+        if (forcePercent > 0) {
+          this.characterMoveStart(worldIndex, character);
+        }
       }
     }
 
@@ -291,13 +291,44 @@
     }
 
     initUserListeners() {
-      this.userCharacterListeners = [];
+      this.onDestroyWorldHandlers = [];
       this.userCharacterDirections = {
         front: false,
         right: false,
         back: false,
         left: false
       };
+
+      let lastMousePosition;
+      const mouseMoveHandler = event => {
+        const rotate = (event.clientX - lastMousePosition) / 100;
+        this.character.rotation += rotate;
+        lastMousePosition = event.clientX;
+        this.updateDirection(this.character);
+        this.updateCharacterPosition(this.worldIndex, this.character);
+
+        const { x, y, z } = this.character.position;
+        this.socket.emit(WSEvent.CharMove, {
+          rotation: this.character.rotation,
+          position: [x, y, z]
+        });
+      };
+      const mouseUpHandler = () => {
+        document.removeEventListener('mousemove', mouseMoveHandler);
+        document.removeEventListener('mouseup', mouseUpHandler);
+      };
+      const mouseDownHandler = event => {
+        lastMousePosition = event.clientX;
+        document.addEventListener('mousemove', mouseMoveHandler);
+        document.addEventListener('mouseup', mouseUpHandler);
+      };
+      svg_node.addEventListener('mousedown', mouseDownHandler);
+      this.onDestroyWorldHandlers.push(() => {
+        mouseUpHandler();
+        document.removeEventListener('mouseup', mouseUpHandler);
+        svg_node.removeEventListener('mousedown', mouseDownHandler);
+      });
+
 
       const keyDownHandler = event => {
         if (event.repeat) {
@@ -322,7 +353,9 @@
         this.userCharacterMoveUpdate();
       };
       document.addEventListener('keydown', keyDownHandler);
-      this.userCharacterListeners.push(['keydown', keyDownHandler]);
+      this.onDestroyWorldHandlers.push(() => {
+        document.removeEventListener('keydown', keyDownHandler);
+      });
 
       const keyUpHandler = event => {
         if (event.keyCode === 87) {
@@ -340,10 +373,12 @@
           return;
         }
         
-        // this.userCharacterMoveUpdate();
+        this.userCharacterMoveUpdate();
       };
       document.addEventListener('keyup', keyUpHandler);
-      this.userCharacterListeners.push(['keyup', keyUpHandler]);
+      this.onDestroyWorldHandlers.push(() => {
+        document.removeEventListener('keyup', keyUpHandler);
+      });
     }
 
     userCharacterMoveUpdate() {
@@ -417,11 +452,18 @@
     }
 
     updateDirection(character, moveDirection) {
+      if (!moveDirection && moveDirection !== 0) {
+        moveDirection = character.direction;
+      } else {
+        character.direction = moveDirection;
+      }
+
       let radian = character.rotation + moveDirection;
       radian = radian % (Math.PI * 2);
       if (radian < 0) {
         radian += Math.PI * 2;
       }
+
       character.directionPoint.x = -Math.sin(-radian);
       character.directionPoint.y = 0;
       character.directionPoint.z = Math.cos(-radian);
@@ -451,10 +493,10 @@
 
       let needStop = this.checkMoveProgress(position, directionPoint);
 
-      const x = character.position.x = position.x;
-      const y = character.position.y = position.y;
-      const z = character.position.z = position.z;
-      character_node.setAttribute('transform', `translate(${x}, ${world_longitude - z})`);
+      character.position.x = position.x;
+      character.position.y = position.y;
+      character.position.z = position.z;
+      this.updateCharacterPosition(worldIndex, character);
 
       if (needStop) {
         this.clearUserDirection()
@@ -466,6 +508,19 @@
       }
 
       requestAnimationFrame(() => this.characterMoveProgress(worldIndex, character));
+    }
+
+    updateCharacterPosition(worldIndex, character) {
+      let transform = '';
+
+      const { x , y, z } = character.position;
+      transform += ` translate(${x}, ${world_longitude - z})`;
+
+      const rotate = character.rotation * 360 / (Math.PI * 2);
+      transform += ` rotate(${rotate})`;
+
+      const character_node = this.sceneCharacters[worldIndex];
+      character_node.setAttribute('transform', transform);
     }
 
     checkMoveProgress(position, direction) {
@@ -516,12 +571,9 @@
     createSceneCharacter(worldIndex, character, prefab = '#character-prefab') {
       const character_node = document.createElementNS('http://www.w3.org/2000/svg', 'use');
       character_node.setAttributeNS('http://www.w3.org/1999/xlink', 'href', prefab);
-
-      const { x, y, z } = character.position;
-      character_node.setAttribute('transform', `translate(${x}, ${world_longitude - z})`);
-
       this.sceneCharacters[worldIndex] = character_node;
       world_scene_node.appendChild(character_node);
+      this.updateCharacterPosition(worldIndex, character);
     }
 
     leaveFromWorld() {
@@ -545,10 +597,8 @@
         world_scene_node.removeChild(world_scene_node.lastChild);
       }
 
-      for (const [event, handler] of this.userCharacterListeners) {
-        document.removeEventListener(event, handler);
-      }
-      this.userCharacterListeners = [];
+      this.onDestroyWorldHandlers.forEach(callback => callback());
+      this.onDestroyWorldHandlers = [];
     }
 
     characterSay() {

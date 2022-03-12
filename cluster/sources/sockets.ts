@@ -50,15 +50,6 @@ interface CharSay_OutEventData {
   message: string;
 }
 
-interface CharRotate_InEventData {
-  rotation: number;
-}
-
-interface CharRotate_OutEventData {
-  worldIndex: number;
-  rotation: number;
-}
-
 interface CharMove_InEventData {
   direction?: number;
   rotation?: number;
@@ -83,7 +74,6 @@ enum SEvent {
   CharLeave = 'char:leave',
   CharCancelLeave = 'char:cancel-leave',
   CharSay = 'char:say',
-  CharRotate = 'char:rotate',
   CharMove = 'char:move',
   CharUseSkill = 'char:use-skill'
 }
@@ -161,7 +151,6 @@ class Sockets extends GamePlugin {
     socket.on(SEvent.Disconnect, () => this.char_wait_leave(socket));
     socket.on(SEvent.Reconnect, () => this.char_reconnect(socket));
     socket.on(SEvent.CharSay, data => this.character_say_event(socket, data));
-    socket.on(SEvent.CharRotate, data => this.character_rotate_event(socket, data));
     socket.on(SEvent.CharMove, data => this.character_move(socket, data));
   }
 
@@ -231,21 +220,6 @@ class Sockets extends GamePlugin {
     this.io.sockets.emit(SEvent.CharSay, eventData);
   }
 
-  protected character_rotate_event(
-    socket: Socket,
-    data: CharRotate_InEventData
-  ): void {
-    const character = socket.data.character;
-    character.rotate(data.rotation);
-    socket.data.characterWorldData.rotation = data.rotation;
-
-    const eventData: CharRotate_OutEventData = {
-      worldIndex: socket.data.character.worldIndex,
-      rotation: data.rotation
-    };
-    socket.emit(SEvent.CharRotate, eventData);
-  }
-
   protected character_move(
     socket: Socket,
     data: CharMove_InEventData
@@ -257,17 +231,23 @@ class Sockets extends GamePlugin {
       direction,
       forcePercent
     } = data;
-    if (rotation) {
+
+    if (UTILS.types.isNumber(rotation)) {
       character.rotate(rotation);
       socket.data.characterWorldData.rotation = rotation;
     }
+
     if (forcePercent === 0) {
       character.moveStop();
-      character.updatePosition(this.parse_position(position));
-    } else {
+    } else
+    if (forcePercent) {
       character.moveProgress(forcePercent, direction);
+    }
+
+    if (position) {
       character.updatePosition(this.parse_position(position));
     }
+
     const eventData: CharMove_OutEventData = {
       worldIndex: character.worldIndex,
       rotation: rotation,
