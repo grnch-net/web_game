@@ -1,6 +1,6 @@
 {
 	"files": [
-		"front/sources/main.ts"
+		"sources/main.ts"
 	],
 	"compilerOptions": {
 		"target":                 "ES5",

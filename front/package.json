@@ -1,6 +1,7 @@
 {
   "name": "web_game",
   "version": "1.0.0",
+  "main": "sources/main.ts",
   "devDependencies": {
     "@babel/core": "^7.8.4",
     "@babel/plugin-transform-modules-commonjs": "^7.8.3",
@@ -15,8 +16,7 @@
     "gulp-sourcemaps": "^2.6.5",
     "gulp-uglify": "^3.0.2",
     "gulp-util": "^3.0.8",
-    "pixi.js": "^5.2.3",
-    "three": "^0.130.1",
+    "socket.io-client": "^4.4.1",
     "ts-node": "^8.6.2",
     "tsify": "^4.0.1",
     "typescript": "^3.7.5",

@@ -1,2 +1,6 @@
-// import './mechanics/main';
-// import './visualize/main';
+export {
+  Game
+} from './game';
+
+const game = new Game;
+game.initialize();
