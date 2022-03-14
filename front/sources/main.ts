@@ -1,3 +1,5 @@
+import '../../utils/index';
+
 import {
   Game
 } from './game';

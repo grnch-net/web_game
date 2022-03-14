@@ -1,4 +1,3 @@
-import type * as globalTypes from './global.d';
 import { modifiable } from './modifiable';
 import { customize } from './customize';
 import { types } from './types';
@@ -7,7 +6,11 @@ import * as array from './array';
 import { wait } from './function';
 import { Range } from './range';
 
-const utils = (global as any).UTILS = {
+declare const global, window;
+
+const _global = global || window;
+
+const utils = (_global as any).UTILS = {
   modifiable,
   customize,
   types,
@@ -18,7 +21,10 @@ const utils = (global as any).UTILS = {
 };
 
 declare global {
-  const UTILS: typeof utils
+  const UTILS: typeof utils;
+  type Associative<T> = { [key: string]: T };
+  type AnyClass = { new(...constructorArgs: any[]) };
+  type List<T> = array.List<T>;
 }
 
 export {

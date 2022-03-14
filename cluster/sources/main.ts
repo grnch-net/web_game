@@ -1,4 +1,4 @@
-import './utils/index';
+import '../../utils/index';
 
 import type { GamePlugin } from './services/game_plugin';
 

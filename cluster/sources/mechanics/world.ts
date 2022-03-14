@@ -1,8 +1,4 @@
 import type {
-  List
-} from 'sources/utils/array';
-
-import type {
   PointParameters
 } from './point';
 
