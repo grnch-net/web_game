@@ -12,10 +12,11 @@ interface WorldConfig {
 class Store {
 
   worldConfig: WorldConfig;
-  worldData: WorldData;
+  protected worldData: WorldData;
 
-  initialize(): void {
+  initialize(): Store {
     this.initialize_configs();
+    return this;
   }
 
   protected initialize_configs(): void {
@@ -68,6 +69,10 @@ class Store {
 
   getUserCharacter(): CharacterData {
     return this.worldData?.[this.getUserIndex()];
+  }
+
+  getWorldCharacters(): CharacterData[] {
+    return this.worldData?.characters || [];
   }
   
 }

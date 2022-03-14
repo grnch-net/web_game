@@ -1,6 +1,12 @@
-export {
+import {
   Game
 } from './game';
 
-const game = new Game;
-game.initialize();
+declare global {
+  interface Window {
+    GAME: Game;
+  }
+  const GAME: Game;
+}
+
+const game = window.GAME = new Game().initialize();

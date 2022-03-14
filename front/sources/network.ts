@@ -34,13 +34,10 @@ interface EnterData {
 
 class Network {
 
-  protected game: Game;
   protected socket: Socket;
 
-  initialize(
-    game: Game
-  ): void {
-    this.game = game;
+  initialize(): Network {
+    return this;
   }
 
   async createCharacter(
@@ -120,7 +117,7 @@ class Network {
 
   protected initialize_socket_events(): void {
     this.socket.on(soketsEvents.CharSay, data => {
-      this.game.newMessage(data.worldIndex, data.message);
+      GAME.newMessage(data.worldIndex, data.message);
     });
 
     this.socket.on(soketsEvents.CharMove, data => {

@@ -8,7 +8,7 @@ import {
 
 import {
   View
-} from './view';
+} from './view/view';
 
 interface PointParameters {
   x: number;
@@ -18,6 +18,9 @@ interface PointParameters {
 
 interface CharacterData {
   name: string;
+  position: PointParameters;
+  rotation: number;
+  direction: number;
   directionPoint: PointParameters;
   forcePercent: number;
 }
@@ -33,25 +36,11 @@ class Game {
   network: Network;
   view: View;
 
-  initialize(): void {
-    this.initialize_store();
-    this.initialize_network();
-    this.initialize_view();
-  }
-
-  protected initialize_store(): void {
-    this.store = new Store;
-    this.store.initialize();
-  }
-
-  protected initialize_network(): void {
-    this.network = new Network;
-    this.network.initialize(this);
-  }
-
-  protected initialize_view(): void {
-    this.view = new View;
-    this.view.initialize(this);
+  initialize(): Game {
+    this.store = new Store().initialize();
+    this.network = new Network().initialize();
+    this.view = new View().initialize();
+    return this;
   }
 
   async createCharacter(
@@ -85,7 +74,8 @@ class Game {
   removeCharacter(
     index: number
   ): void {
-    delete this.store.worldData.characters[index];
+    const characters = this.store.getWorldCharacters();
+    delete characters[index];
     this.view.removeCharacter(index);
   }
 
@@ -107,14 +97,14 @@ class Game {
     index: number,
     message: string
   ): void {
-    const name = this.store.worldData.characters[index]?.name;
-    this.view.newMessage(name, message);
+    this.view.newMessage(index, message);
   }
 
 }
 
 export {
   Game,
+  PointParameters,
   CharacterData,
   WorldData
 };
