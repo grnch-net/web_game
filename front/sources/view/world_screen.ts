@@ -1,5 +1,6 @@
 import type {
-  CharacterData
+  CharacterData,
+  MoveData
 } from '../game';
 
 import {
@@ -9,6 +10,10 @@ import {
 import {
   GameObject
 } from './game_object';
+
+import {
+  UserGameObject
+} from './user_game_object';
 
 class WorldScreen {
 
@@ -79,16 +84,117 @@ class WorldScreen {
     GAME.say(message);
   }
 
-  updateUser(): void {
-    const character = GAME.store.getUserCharacter();
-    this.user_character_name_node.setValue(character.name);
-    this.initialize_user_character();
+  updateUser(
+    userData: CharacterData
+  ): void {
+    const index = GAME.store.getUserIndex();
+    this.user_character_name_node.setValue(userData.name);
+    this.initialize_user_character(index, userData);
   }
 
-  protected initialize_user_character(): void {
-    const index = GAME.store.getUserIndex();
-    const character = this.characters[index];
-    character.node.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#user-character-prefab');
+  protected initialize_user_character(
+    index: number,
+    data: CharacterData
+  ): void {
+    const character = new UserGameObject().create('#user-character-prefab', data);
+    this.characters[index] = character;
+    this.game_node.addChild(character);
+    this.initialize_user_events(character);
+  }
+
+  protected initialize_user_events(
+    character: UserGameObject
+  ): void {
+    this.add_user_move_start_event(character);
+    this.add_user_move_stop_event(character);
+  }
+
+  protected add_user_rotate_event(
+    character: UserGameObject
+  ): void {
+    let last_mouse_position: number;
+    const mouseMoveHandler = event => {
+      const rotate = (event.clientX - last_mouse_position) / 100;
+      character.data.rotation += rotate;
+      last_mouse_position = event.clientX;
+      character.updateDirection();
+      character.updatePosition();
+
+      GAME.userMove();
+    };
+    const mouseUpHandler = () => {
+      document.removeEventListener('mousemove', mouseMoveHandler);
+      document.removeEventListener('mouseup', mouseUpHandler);
+    };
+    const mouseDownHandler = event => {
+      last_mouse_position = event.clientX;
+      document.addEventListener('mousemove', mouseMoveHandler);
+      document.addEventListener('mouseup', mouseUpHandler);
+    };
+    this.scene_node.node.addEventListener('mousedown', mouseDownHandler);
+    this.destroy_world_handlers.push(() => {
+      mouseUpHandler();
+      document.removeEventListener('mouseup', mouseUpHandler);
+      this.scene_node.node.removeEventListener('mousedown', mouseDownHandler);
+    });
+  }
+
+  protected add_user_move_start_event(
+    character: UserGameObject
+  ): void {
+    const keyDownHandler = event => {
+      if (event.repeat) {
+        return;
+      }
+
+      if (event.keyCode === 87) {
+        character.userDirection.front = true;
+      } else
+      if (event.keyCode === 68) {
+        character.userDirection.right = true;
+      } else
+      if (event.keyCode === 83) {
+        character.userDirection.back = true;
+      } else
+      if (event.keyCode === 65) {
+        character.userDirection.left = true;
+      } else {
+        return;
+      }
+
+      character.userMoveUpdate();
+    };
+    document.addEventListener('keydown', keyDownHandler);
+    this.destroy_world_handlers.push(() => {
+      document.removeEventListener('keydown', keyDownHandler);
+    });
+  }
+
+  protected add_user_move_stop_event(
+    character: UserGameObject
+  ): void {
+    const keyUpHandler = event => {
+      if (event.keyCode === 87) {
+        character.userDirection.front = false;
+      } else
+      if (event.keyCode === 68) {
+        character.userDirection.right = false;
+      } else
+      if (event.keyCode === 83) {
+        character.userDirection.back = false;
+      } else
+      if (event.keyCode === 65) {
+        character.userDirection.left = false;
+      } else {
+        return;
+      }
+      
+      character.userMoveUpdate();
+    };
+    document.addEventListener('keyup', keyUpHandler);
+    this.destroy_world_handlers.push(() => {
+      document.removeEventListener('keyup', keyUpHandler);
+    });
   }
 
   updateCharactersList(): void {
@@ -141,6 +247,17 @@ class WorldScreen {
 
     this.destroy_world_handlers.forEach(callback => callback());
     this.destroy_world_handlers = [];
+  }
+
+  characterMove({
+    worldIndex,
+    position,
+    rotation,
+    direction,
+    forcePercent
+  }: MoveData): void {
+    const character = this.characters[worldIndex];
+    character.updateMove(position, rotation, direction, forcePercent);
   }
   
 }

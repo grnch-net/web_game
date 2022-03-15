@@ -64,7 +64,7 @@ class Store {
   }
 
   getUserIndex(): number {
-    return this.worldData.userIndex;
+    return this.worldData?.userIndex;
   }
 
   getUserCharacter(): CharacterData {
@@ -73,6 +73,10 @@ class Store {
 
   getWorldCharacters(): CharacterData[] {
     return this.worldData?.characters || [];
+  }
+
+  destroyWorld(): void {
+    this.worldData = null;
   }
   
 }

@@ -8,6 +8,7 @@
 		"target":                 "ES5",
     "downlevelIteration":     true,
     "experimentalDecorators": true,
+		"noImplicitOverride": 		true,
     "lib":                    ["ESNEXT", "DOM"]
 	}
 }

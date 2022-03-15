@@ -7,6 +7,7 @@ class MainScreen {
   protected main_screen_node: ViewNode;
   protected name_input_node: ViewNode;
   protected create_character_button_node: ViewNode;
+  protected get_character_data_node: ViewNode;
   protected enter_to_world_button_node: ViewNode;
 
   initialize(): MainScreen {
@@ -19,13 +20,14 @@ class MainScreen {
     this.main_screen_node = new ViewNode().initialize('#main-screen');
     this.name_input_node = new ViewNode().initialize('#character-name');
     this.create_character_button_node = new ViewNode().initialize('#character-create');
+    this.get_character_data_node = new ViewNode().initialize('#character-get');
     this.enter_to_world_button_node = new ViewNode().initialize('#character-enter');
   }
 
   protected initialize_handlers() {
     this.create_character_button_node.addClick(() => this.create_character());
-      // character_get_node.addClick(() => this.game.getCharacter(this.getInputName()));
-    this.create_character_button_node.addClick(() => this.enter_to_world());
+    this.get_character_data_node.addClick(() => GAME.getCharacterData(this.name_input_node.getValue()));
+    this.enter_to_world_button_node.addClick(() => this.enter_to_world());
   }
 
   show(): void {

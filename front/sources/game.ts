@@ -22,6 +22,15 @@ interface CharacterData {
   rotation: number;
   direction: number;
   directionPoint: PointParameters;
+  moveForce: number;
+  forcePercent: number;
+}
+
+interface MoveData {
+  worldIndex: number,
+  position: [number, number, number];
+  rotation: number;
+  direction: number;
   forcePercent: number;
 }
 
@@ -33,8 +42,8 @@ interface WorldData {
 class Game {
 
   store: Store;
-  network: Network;
-  view: View;
+  protected network: Network;
+  protected view: View;
 
   initialize(): Game {
     this.store = new Store().initialize();
@@ -49,6 +58,12 @@ class Game {
     return await this.network.createCharacter(characterName);
   }
 
+  async getCharacterData(
+    characterName: string
+  ): Promise<CharacterData> {
+    return await this.network.getCharacterData(characterName);
+  }
+
   async enterToWorld(
     characterName: string,
   ): Promise<boolean> {
@@ -57,9 +72,8 @@ class Game {
       return false;
     }
     const world_data = await this.network.enterToWorld(characterName);
-    world_data.characters[world_data.userIndex] = user_data;
     this.store.updateWorld(world_data);
-    this.view.createWorld(world_data);
+    this.view.createWorld(user_data, world_data);
     return true;
   }
 
@@ -77,6 +91,11 @@ class Game {
     const characters = this.store.getWorldCharacters();
     delete characters[index];
     this.view.removeCharacter(index);
+  }
+
+  destroyWorld(): void {
+    this.store.destroyWorld();
+    this.view.destroyWorld();
   }
 
   logout(): void {
@@ -100,11 +119,22 @@ class Game {
     this.view.newMessage(index, message);
   }
 
+  userMove(): void {
+    this.network.userMove();
+  }
+
+  characterMove(
+    data: MoveData
+  ): void {
+    this.view.characterMove(data);
+  }
+
 }
 
 export {
   Game,
   PointParameters,
   CharacterData,
+  MoveData,
   WorldData
 };

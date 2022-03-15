@@ -1,5 +1,6 @@
 import type {
   CharacterData,
+  MoveData,
   WorldData
 } from '../game';
 
@@ -27,13 +28,17 @@ class View {
   }
 
   createWorld(
-    data: WorldData
+    userData: CharacterData,
+    worldData: WorldData
   ): void {
     this.main_screen.hide();
     this.world_screen.show();
+    this.init_scene(worldData);
+    
+    this.world_screen.updateUser(userData);
+    GAME.store.addCharacter(worldData.userIndex, userData);
+
     this.world_screen.updateCharactersList();
-    this.init_scene(data);
-    this.world_screen.updateUser();
   }
 
   protected init_scene(
@@ -71,7 +76,12 @@ class View {
   }
 
   destroyWorld(): void {
+    this.world_screen.destroy();
     this.main_screen.show();
+  }
+
+  characterMove(data: MoveData): void {
+    this.world_screen.characterMove(data);
   }
 
 }

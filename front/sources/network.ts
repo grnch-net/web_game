@@ -1,6 +1,6 @@
 import type {
-  Game,
   CharacterData,
+  MoveData,
   WorldData
 } from './game';
 
@@ -9,6 +9,7 @@ import {
   Socket
 } from 'socket.io-client';
 
+const url = 'http://localhost:3009';
 
 const apiEvents = {
   CharacterCreate: '/character-create',
@@ -26,7 +27,7 @@ const soketsEvents = {
   CharUseSkill: 'char:use-skill'
 };
 
-interface EnterData {
+interface EnterToWorldData {
   secret: string;
   worldIndex: number;
   world: WorldData;
@@ -68,7 +69,7 @@ class Network {
 
   protected async enter_to_world_request(
     characterName: string
-  ): Promise<EnterData> {
+  ): Promise<EnterToWorldData> {
     const event = apiEvents.WorldEnter;
     const parameters = {
       name: characterName
@@ -83,8 +84,8 @@ class Network {
     this.socket.emit(event, { secret });
   }
 
-  protected async send_request(url, data) {
-    const response = await fetch(url, {
+  protected async send_request(path, data) {
+    const response = await fetch(url + path, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -107,6 +108,7 @@ class Network {
       return;
     }
 
+    console.log('Request', path, 'success', response.data);
     return response.data;
   }
 
@@ -120,8 +122,8 @@ class Network {
       GAME.newMessage(data.worldIndex, data.message);
     });
 
-    this.socket.on(soketsEvents.CharMove, data => {
-      // this.charMoveHandler(data)
+    this.socket.on(soketsEvents.CharMove, (data: MoveData) => {
+      GAME.characterMove(data);
     });
 
     this.socket.on(soketsEvents.CharUseSkill, data => {
@@ -130,21 +132,25 @@ class Network {
 
     this.socket.on(soketsEvents.CharEnter, data => {
       console.log('Char enter to world', data);
-      // this.worldData.characters[data.worldIndex] = data.characterData;
-      // this.updateWorldCharactersList();
-      // this.addCharacter(data.worldIndex, data.characterData);
+      GAME.addCharacter(data.worldIndex, data.characterData);
     });
 
-    this.socket.on(soketsEvents.CharLeave, data => {  
-      // if (this.worldIndex == data.worldIndex) {
-      //   console.warn('Your char leave from world');
-      //   this.socket.disconnect();
-      //   this.destroyWorld();
-      //   return;
-      // }
+    this.socket.on(soketsEvents.CharLeave, data => this.char_leave(data.worldIndex));
+  }
 
-      // this.removeCharacter(data.worldIndex);
-    });
+  protected char_leave(
+    index: number
+  ): void {
+    const user_index = GAME.store.getUserIndex();
+
+    if (user_index == index) {
+      console.warn('Your char leave from world');
+      this.socket.disconnect();
+      GAME.destroyWorld();
+      return;
+    }
+
+    GAME.removeCharacter(index);
   }
 
   logout() {
@@ -159,6 +165,17 @@ class Network {
     message: string
   ) {
     this.socket.emit(soketsEvents.CharSay, { message });
+  }
+
+  userMove(): void {
+    const data = GAME.store.getUserCharacter();
+    const { x, y, z } = data.position;
+    this.socket.emit(soketsEvents.CharMove, {
+      rotation: data.rotation,
+      position: [x, y, z],
+      direction: data.direction,
+      forcePercent: data.forcePercent
+    });
   }
 
 }
