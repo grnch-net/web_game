@@ -3,6 +3,7 @@ import '../../utils/index';
 import type { GamePlugin } from './services/game_plugin';
 
 import fastify, { FastifyInstance } from 'fastify';
+import fastifyCORS from 'fastify-cors';
 
 import { Mechanic } from './mechanics/index';
 import { Store } from './store';
@@ -43,10 +44,18 @@ class Game {
     this.register_decorator('store', Store);
   }
 
-  protected initialize_plugins(): void {
+  protected initialize_plugins(): void {    
+    this.initialize_cors();
     this.initialize_view();
     this.initialize_api();
     this.initialize_sockets();
+  }
+
+  protected initialize_cors(): void {
+    this.server.register(fastifyCORS, { 
+      origin: "*",
+      methods: ["POST"]
+    });
   }
 
   protected initialize_view(): void {
@@ -80,7 +89,10 @@ class Game {
   }
 
   runServer(): void {
-    this.server.listen(3000, (err, address) => {
+    this.server.listen({
+      port: 3009,
+      // host: '192.168.1.122'
+    }, (err, address) => {
       if (err) {
         this.server.log.error(err)
         process.exit(1)
