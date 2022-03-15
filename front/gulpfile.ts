@@ -30,13 +30,13 @@ function clearJS() {
 }
 
 function buildHTML() {
-	return gulp.src('src/index.html')
+	return gulp.src('index.html')
 	.pipe(gulp.dest('build/'));
 }
 
 function createBundler() {
 	return browserify({
-		entries: ['src/utils/index.ts', 'src/main.ts'],
+		entries: ['../utils/index.ts', 'sources/main.ts'],
 		debug: true
 	})
 	.plugin(tsify);
@@ -53,45 +53,45 @@ function destJS(bundler: any) {
   .pipe(gulp.dest('build/'));
 }
 
-function buildLibs() {
-	return browserify({
-		entries: 'src/libs/main.ts',
-		debug: true
-	})
-	.plugin(tsify, {
-		files: ['src/libs/main.ts'],
-		allowJs: true
-	})
-	.transform(babelify, {
-		only: ["./src/libs/*"],
-		plugins: ['@babel/plugin-transform-modules-commonjs']
-	})
-	.bundle()
-	.on('error', fancy_log)
-	.pipe(source('libs.js'))
-  .pipe(buffer())
-  .pipe(sourcemaps.init({loadMaps: true}))
-  .pipe(sourcemaps.write('./'))
-  .pipe(gulp.dest('build/'));
-}
+// function buildLibs() {
+// 	return browserify({
+// 		entries: 'sources/libs/main.ts',
+// 		debug: true
+// 	})
+// 	.plugin(tsify, {
+// 		files: ['sources/libs/main.ts'],
+// 		allowJs: true
+// 	})
+// 	.transform(babelify, {
+// 		only: ["./sources/libs/*"],
+// 		plugins: ['@babel/plugin-transform-modules-commonjs']
+// 	})
+// 	.bundle()
+// 	.on('error', fancy_log)
+// 	.pipe(source('libs.js'))
+//   .pipe(buffer())
+//   .pipe(sourcemaps.init({loadMaps: true}))
+//   .pipe(sourcemaps.write('./'))
+//   .pipe(gulp.dest('build/'));
+// }
 
-function buildLibs2D() {
-	return browserify({
-		entries: 'src/libs/main2d.ts',
-		debug: true
-	})
-	.plugin(tsify, {
-		files: ['src/libs/main2d.ts'],
-		allowJs: true
-	})
-	.bundle()
-	.on('error', fancy_log)
-	.pipe(source('libs.js'))
-  .pipe(buffer())
-  .pipe(sourcemaps.init({loadMaps: true}))
-  .pipe(sourcemaps.write('./'))
-  .pipe(gulp.dest('build/'));
-}
+// function buildLibs2D() {
+// 	return browserify({
+// 		entries: 'sources/libs/main2d.ts',
+// 		debug: true
+// 	})
+// 	.plugin(tsify, {
+// 		files: ['sources/libs/main2d.ts'],
+// 		allowJs: true
+// 	})
+// 	.bundle()
+// 	.on('error', fancy_log)
+// 	.pipe(source('libs.js'))
+//   .pipe(buffer())
+//   .pipe(sourcemaps.init({loadMaps: true}))
+//   .pipe(sourcemaps.write('./'))
+//   .pipe(gulp.dest('build/'));
+// }
 
 function buildJS() {
 	return destJS(createBundler());
@@ -136,8 +136,8 @@ const init = gulp.parallel(buildHTML);
 exports.clearjs = clearJS;
 exports.clearall = clearAll;
 exports.buildhtml = buildHTML;
-exports.buildlibs = buildLibs;
-exports.buildlibs2d = buildLibs2D;
+// exports.buildlibs = buildLibs;
+// exports.buildlibs2d = buildLibs2D;
 exports.init = init;
 exports.run = gulp.series(init, clearJS, runServer);
 exports.default = gulp.series(clearJS, buildJS);
