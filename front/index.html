@@ -1,9 +1,86 @@
-<script defer src="libs.js"></script>
-<script defer src="bundle.js"></script>
-<style>
-  body { margin: 0; background: #101010 }
-  canvas { display: block; }
-</style>
-<body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        background: #10161f;
+        color: white;
+      }
+      p {
+        margin-bottom: 0;
+      }
+      svg {
+        background: #ffffff;
+      }
+    </style>
+    <!-- <script defer src="libs.js"></script> -->
+    <script defer src="bundle.js"></script>
+  </head>
+  <body>
+    <h1>Live</h1>
 
-</body>
+    <div id="main-screen">
+      <h2>Main</h2>
+      <div>Character</div>
+      <input id="character-name" placeholder="Name" />
+      <button id="character-create">Create</button>
+      <button id="character-get">Get</button>
+      <button id="character-enter">Enter to world</button>
+    </div>
+
+    <div id="world-screen" style="display: none;">
+      <h2>World</h2>
+
+      <div>
+        <p>Your character</p>
+        <input id="user-character-name" placeholder="Name" readonly />
+        <button id="character-leave">Leave from world</button>
+        <button id="character-cancel-leave" style="display: none;">Cancel leave</button>
+      </div>
+
+      <div>
+        <p>Other character</p>
+        <textarea id="world-characters" readonly></textarea>
+      </div>
+
+      <div>
+        <p>Chat</p>
+        <textarea id="world-chat" readonly></textarea>
+        <div>
+          <input id="character-say-text" />
+          <button id="character-say">Say</button>
+        </div>
+      </div>
+
+      <div>
+        <p>Map</p>
+        <svg width="500" height="500" viewBox="0 0 200 200">
+          <defs>
+            <pattern id="background-pattern" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+              <g fill="#0000001a">
+                <rect x="0" y="4" width="10" height="1" />
+                <rect x="4" y="0" width="1" height="10" />
+              </g>
+            </pattern>
+            <g id="character-prefab">
+              <circle cx="0" cy="0" r="4" stroke="#000000" fill="#0000ff" stroke-width="1" />
+              <rect x="-0.5" y="-5" width="1" height="5" fill="#ffffff80"/>
+            </g>
+            <g id="user-character-prefab">
+              <circle cx="0" cy="0" r="4" stroke="#000000" fill="#00ff00" stroke-width="1" />
+              <rect x="-0.5" y="-5" width="1" height="5" fill="#ffffff80"/>
+            </g>
+          </defs>
+
+          <g transform="translate(10, 10)">
+            <rect fill="url(#background-pattern)" width="180" height="180"/>
+            <g id="world-scene"></g>
+          </g>
+        </svg>
+      </div>
+
+    </div>
+  </body>
+</html>
