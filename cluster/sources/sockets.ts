@@ -89,7 +89,10 @@ class Sockets extends GamePlugin {
 
   protected initialize_socket(): void {
     const options = {
-      serveClient: false
+      serveClient: false,
+      cors: {
+        origin: '*',
+      }
     };
     this.io = new SocketsServer(this.server.server, options);
     this.server.addHook('onClose', async() => {
@@ -119,14 +122,14 @@ class Sockets extends GamePlugin {
   ): void {    
     const { store } = this.server;
     const character = store.getSecretCharacter(data.secret);
-    const worldIndex = character.worldIndex;
-
-    console.info('- Char enter to world', character.name);
+    const worldIndex = character?.worldIndex;
 
     if (worldIndex == undefined) {
       socket.disconnect();
       return;
     }
+    
+    console.info('- Char enter to world', character.name);
     
     const characterWorldData = store.getWorldCharacterData(worldIndex);
     
