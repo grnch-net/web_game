@@ -14,7 +14,7 @@ class ViewNode {
   }
 
   show(): void {
-    this.node.style.display = 'block';
+    this.node.style.display = 'inline';
   }
 
   hide(): void {

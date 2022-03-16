@@ -34,6 +34,7 @@ class WorldScreen {
     this.characters = [];
     this.destroy_world_handlers = [];
     this.initialize_nodes();
+    this.initialize_handlers();
     return this;
   }
 
@@ -50,7 +51,7 @@ class WorldScreen {
     this.game_node = new ViewNode().initialize('#world-scene');
   }
 
-  initializeHandlers() {
+  initialize_handlers() {
     this.logout_button_node.addClick(() => this.logout());
     this.cancel_logout_button_node.addClick(() => this.cancelLogout());
     this.character_say_button_node.addClick(() => this.say());
@@ -105,6 +106,7 @@ class WorldScreen {
   protected initialize_user_events(
     character: UserGameObject
   ): void {
+    this.add_user_rotate_event(character);
     this.add_user_move_start_event(character);
     this.add_user_move_stop_event(character);
   }

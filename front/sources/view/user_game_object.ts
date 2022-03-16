@@ -62,10 +62,10 @@ class UserGameObject extends GameObject {
       return;
     }
 
-    const { position, directionPoint } = this.data;
+    const { position } = this.data;
     this.updateDirection(moveDirection);
     
-    let needStop = this.checkMoveProgress(position, directionPoint);
+    let needStop = this.checkMoveProgress(position, this.direction);
     
     if (needStop) {
       this.clearUserDirection();

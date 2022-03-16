@@ -21,7 +21,6 @@ interface CharacterData {
   position: PointParameters;
   rotation: number;
   direction: number;
-  directionPoint: PointParameters;
   moveForce: number;
   forcePercent: number;
 }
@@ -72,6 +71,9 @@ class Game {
       return false;
     }
     const world_data = await this.network.enterToWorld(characterName);
+    if (!world_data) {
+      return false;
+    }
     this.store.updateWorld(world_data);
     this.view.createWorld(user_data, world_data);
     return true;
@@ -88,8 +90,7 @@ class Game {
   removeCharacter(
     index: number
   ): void {
-    const characters = this.store.getWorldCharacters();
-    delete characters[index];
+    this.store.removeCharacter(index);
     this.view.removeCharacter(index);
   }
 

@@ -118,7 +118,8 @@ function runServer(done: any) {
 		},
 		ui: false,
 		notify: false,
-		logFileChanges: true
+		logFileChanges: true,
+		ghostMode: false
   });
 
 	watchedBrowserify

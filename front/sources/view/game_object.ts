@@ -7,6 +7,7 @@ class GameObject {
 
   node: SVGElement;
   data: CharacterData;
+  protected direction: PointParameters;
   protected update_time: number;
 
   create(
@@ -14,7 +15,9 @@ class GameObject {
     data: CharacterData
   ): GameObject {
     this.data = data;
+    this.direction = { x: 0, y: 0, z: 0 }
     this.create_node(path);
+    this.update();
     return this;
   }
 
@@ -85,9 +88,9 @@ class GameObject {
       radian += Math.PI * 2;
     }
 
-    this.data.directionPoint.x = -Math.sin(-radian);
-    this.data.directionPoint.y = 0;
-    this.data.directionPoint.z = Math.cos(-radian);
+    this.direction.x = -Math.sin(-radian);
+    this.direction.y = 0;
+    this.direction.z = Math.cos(-radian);
   }
 
   moveStart(): void {
@@ -153,7 +156,6 @@ class GameObject {
 
     const lastTime = this.update_time;
     const nowTime = this.update_time = performance.now();
-    const directionPoint = this.data.directionPoint;
     
     const dt = (nowTime - lastTime) / 100;
     const moveForce = this.data.moveForce * this.data.forcePercent;
@@ -163,11 +165,11 @@ class GameObject {
       z: this.data.position.z
     };
 
-    position.x += directionPoint.x * moveForce * dt;
-    position.y += directionPoint.y * moveForce * dt;
-    position.z += directionPoint.z * moveForce * dt;
+    position.x += this.direction.x * moveForce * dt;
+    position.y += this.direction.y * moveForce * dt;
+    position.z += this.direction.z * moveForce * dt;
 
-    let needStop = this.checkMoveProgress(position, directionPoint);
+    let needStop = this.checkMoveProgress(position, this.direction);
 
     this.data.position.x = position.x;
     this.data.position.y = position.y;

@@ -52,15 +52,13 @@ class Store {
       console.error('character_already_exists');
       return;
     }
-    this.initialize_character(data);
-    this.worldData[index] = data;
+    this.worldData.characters[index] = data;
   }
 
-  protected initialize_character(
-    data: CharacterData
+  removeCharacter(
+    index: number
   ): void {
-    data.directionPoint = { x: 0, y: 0, z: 0 };
-    data.forcePercent = 0;
+    delete this.worldData.characters[index];
   }
 
   getUserIndex(): number {
@@ -68,7 +66,7 @@ class Store {
   }
 
   getUserCharacter(): CharacterData {
-    return this.worldData?.[this.getUserIndex()];
+    return this.worldData?.characters[this.getUserIndex()];
   }
 
   getWorldCharacters(): CharacterData[] {

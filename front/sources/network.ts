@@ -9,7 +9,8 @@ import {
   Socket
 } from 'socket.io-client';
 
-const url = 'http://localhost:3009';
+const apiUrl = 'http://localhost:3009';
+const socketUrl = 'ws://localhost:3009';
 
 const apiEvents = {
   CharacterCreate: '/character-create',
@@ -61,6 +62,9 @@ class Network {
     characterName: string
   ): Promise<WorldData> {
     const data = await this.enter_to_world_request(characterName);
+    if (!data) {
+      return null;
+    }
     data.world.userIndex = data.worldIndex;
     this.create_socket();
     this.enter_to_world_emit(data.secret);
@@ -85,7 +89,7 @@ class Network {
   }
 
   protected async send_request(path, data) {
-    const response = await fetch(url + path, {
+    const response = await fetch(apiUrl + path, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -113,7 +117,7 @@ class Network {
   }
 
   protected create_socket(): void {
-    this.socket = io();
+    this.socket = io(socketUrl);
     this.initialize_socket_events();
   }
 
