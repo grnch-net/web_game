@@ -118,6 +118,10 @@ class CharacterSkill extends (Character as Mod).Latest {
     return true;
   }
 
+  protected cancel_use_skill(): boolean {
+    return this.skills.cancelUse();
+  }
+
   protected check_skill_needs(
     skill: Skill
   ) {

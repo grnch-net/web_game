@@ -65,6 +65,22 @@ interface CharMove_OutEventData {
   forcePercent?: number;
 }
 
+interface CharUseSkill_InEventData {
+  skillId: number;
+}
+
+interface CharUseSkill_OutEventData {
+  worldIndex: number;
+  skillId: number;
+}
+
+interface CharCancelUseSkill_InEventData {}
+
+interface CharCancelUseSkill_OutEventData {
+  worldIndex?: number;
+  code?: number;
+}
+
 enum SEvent {
   Connection = 'connection',
   Disconnect = 'disconnect',
@@ -75,7 +91,8 @@ enum SEvent {
   CharCancelLeave = 'char:cancel-leave',
   CharSay = 'char:say',
   CharMove = 'char:move',
-  CharUseSkill = 'char:use-skill'
+  CharUseSkill = 'char:use-skill',
+  CharCancelUseSkill = 'char:cancel-use-skill'
 }
 
 class Sockets extends GamePlugin {
@@ -155,6 +172,8 @@ class Sockets extends GamePlugin {
     socket.on(SEvent.Reconnect, () => this.char_reconnect(socket));
     socket.on(SEvent.CharSay, data => this.character_say_event(socket, data));
     socket.on(SEvent.CharMove, data => this.character_move(socket, data));
+    socket.on(SEvent.CharUseSkill, data => this.character_use_skill(socket, data));
+    socket.on(SEvent.CharCancelUseSkill, () => this.character_cancel_use_skill(socket));
   }
 
   protected char_reconnect(
@@ -272,6 +291,45 @@ class Sockets extends GamePlugin {
       y: input[1],
       z: input[2]
     };
+  }
+
+  protected character_use_skill(
+    socket: Socket,
+    data: CharUseSkill_InEventData
+  ): void {
+    const {
+      skillId
+    } = data;
+    const character = socket.data.character;
+    const success = character.useSkill(skillId);
+
+    if (success) {
+      const eventData: CharUseSkill_OutEventData = {
+        worldIndex: character.worldIndex,
+        skillId
+      };
+      socket.broadcast.emit(SEvent.CharUseSkill, eventData);
+    } else {
+      // TODO: return reason code
+      const eventData: CharCancelUseSkill_OutEventData = {
+        code: 1
+      };
+      socket.emit(SEvent.CharCancelUseSkill, eventData);
+    }
+  }
+
+  protected character_cancel_use_skill(
+    socket: Socket
+  ): void {
+    const character = socket.data.character;
+    const success = character.cancelUseSkill();
+
+    if (success) {
+      const eventData: CharCancelUseSkill_OutEventData = {
+        worldIndex: character.worldIndex
+      };
+      socket.broadcast.emit(SEvent.CharCancelUseSkill, eventData);
+    }
   }
 
 }

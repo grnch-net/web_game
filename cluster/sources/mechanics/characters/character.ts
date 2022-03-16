@@ -226,6 +226,15 @@ class Character extends WorldObject {
     return false;
   }
 
+  cancelUseSkill(): boolean {
+    this.tick(0);
+    return this.cancel_use_skill();
+  }
+
+  protected cancel_use_skill(): boolean {
+    return false;
+  }
+
   protected get_skill_needs(
     needs: SkillNeeds
   ): SkillNeedsResult {

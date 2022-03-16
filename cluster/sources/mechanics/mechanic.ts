@@ -67,14 +67,6 @@ class Mechanic {
     this.last_time = Date.now();
   }
 
-  // TODO:
-  // characterUseSkill(
-  //   character: Character,
-  //   skillId: number | string
-  // ): void {
-  //   character.useSkill(skillId);
-  // }
-
 }
 
 export {

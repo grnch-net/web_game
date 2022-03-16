@@ -147,8 +147,8 @@ class SkillsController {
     this.using = skill;
   }
 
-  cancelUse() {
-    if (!this.using) return;
+  cancelUse(): boolean {
+    if (!this.using) return false;
     if (this.using.state == SkillState.Cast) {
       this.using.reset();
     } else {
@@ -156,6 +156,7 @@ class SkillsController {
       this.add_to_recovery(this.using);
     }
     this.using = null;
+    return true;
   }
 
   protected add_to_recovery(
