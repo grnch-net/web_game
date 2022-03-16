@@ -13,7 +13,10 @@
   },
   "homepage": "https://github.com/grnch-net/web_game#readme",
   "scripts": {
-    "start": "cd cluster && npm start",
+    "cluster_init": "cd cluster && npm i",
+    "client_init": "cd front && npm i && gulp init",
+    "cluster_start": "cd cluster && npm start",
+    "client_start": "cd front && gulp run",
     "test_mechanics": "cd cluster && npm run test_mechanics"
   }
 }
