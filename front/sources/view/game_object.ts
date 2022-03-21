@@ -3,29 +3,39 @@ import type {
   CharacterData
 } from '../game';
 
+import {
+  SkillName
+} from '../config';
+
 class GameObject {
 
   node: SVGElement;
   data: CharacterData;
+  protected character_model_path: string;
   protected direction: PointParameters;
   protected update_time: number;
 
-  create(
-    path: string,
+  initialize(
     data: CharacterData
   ): GameObject {
     this.data = data;
-    this.direction = { x: 0, y: 0, z: 0 }
-    this.create_node(path);
+    this.initialize_vars();
+    this.create_node();
     this.update();
     return this;
   }
 
-  protected create_node(
-    path: string
-  ): void {
-    this.node = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-    this.node.setAttributeNS('http://www.w3.org/1999/xlink', 'href', path);
+  protected initialize_vars(): void {
+    this.character_model_path = '#character-prefab';
+    this.direction = { x: 0, y: 0, z: 0 };
+  }
+
+  protected create_node(): void {
+    this.node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    
+    const character_model = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+    character_model.setAttributeNS('http://www.w3.org/1999/xlink', 'href', this.character_model_path);
+    this.node.appendChild(character_model);
   }
 
   update(): void {
@@ -185,6 +195,25 @@ class GameObject {
 
   moveStop(): void {
     this.data.forcePercent = 0;
+  }
+
+  useSkill(
+    skillId: number
+  ): void {
+    if (skillId === SkillName.Attack) {
+      const attack_skill = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+      attack_skill.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#attack-skill-prefab');
+      this.node.appendChild(attack_skill);
+    } else
+    if (skillId === SkillName.Block) {
+      const block_skill = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+      block_skill.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#block-skill-prefab');
+      this.node.appendChild(block_skill);
+    }
+  }
+
+  cancelUseSkill(): void {
+    // TODO:
   }
 
 }

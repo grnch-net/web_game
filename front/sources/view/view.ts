@@ -84,6 +84,23 @@ class View {
     this.world_screen.characterMove(data);
   }
 
+  characterUseSkill(
+    index: number,
+    skillId: number
+  ): void {
+    this.world_screen.characterUseSkill(index, skillId);
+  }
+
+  characterCancelUseSkill(
+    index: number,
+    code?: number
+  ): void {
+    if (UTILS.types.isNumber(code)) {
+      console.warn('User skill canceled', code);
+    }
+    this.characterCancelUseSkill(index);
+  }
+
 }
 
 export {

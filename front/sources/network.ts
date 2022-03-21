@@ -25,7 +25,8 @@ const soketsEvents = {
   CharCancelLeave: 'char:cancel-leave',
   CharSay: 'char:say',
   CharMove: 'char:move',
-  CharUseSkill: 'char:use-skill'
+  CharUseSkill: 'char:use-skill',
+  CharCancelUseSkill: 'char:cancel-use-skill'
 };
 
 interface EnterToWorldData {
@@ -132,6 +133,12 @@ class Network {
 
     this.socket.on(soketsEvents.CharUseSkill, data => {
       console.log('Char use skill', data);
+      GAME.characterUseSkill(data);
+    });
+
+    this.socket.on(soketsEvents.CharCancelUseSkill, data => {
+      console.log('Char cancel use skill', data);
+      GAME.characterCancelUseSkill(data);
     });
 
     this.socket.on(soketsEvents.CharEnter, data => {
@@ -180,6 +187,18 @@ class Network {
       direction: data.direction,
       forcePercent: data.forcePercent
     });
+  }
+
+  userUseSkill(
+    skillId: number
+  ): void {
+    this.socket.emit(soketsEvents.CharUseSkill, {
+      skillId
+    });
+  }
+
+  userCancelUseSkill(): void {
+    this.socket.emit(soketsEvents.CharCancelUseSkill);
   }
 
 }

@@ -26,11 +26,21 @@ interface CharacterData {
 }
 
 interface MoveData {
-  worldIndex: number,
+  worldIndex: number;
   position: [number, number, number];
   rotation: number;
   direction: number;
   forcePercent: number;
+}
+
+interface UseSkillData {
+  worldIndex: number;
+  skillId: number;
+}
+
+interface CancelUseSkillData {
+  worldIndex?: number;
+  code?: number;
 }
 
 interface WorldData {
@@ -128,6 +138,37 @@ class Game {
     data: MoveData
   ): void {
     this.view.characterMove(data);
+  }
+
+  userUserSkill(
+    skillId: number
+  ): void {
+    this.network.userUseSkill(skillId);
+  }
+
+  userCancelUseSkill(): void {
+    this.network.userCancelUseSkill();
+  }
+
+  characterUseSkill(
+    data: UseSkillData
+  ): void {
+    const {
+      worldIndex,
+      skillId
+    } = data;
+    this.view.characterUseSkill(worldIndex, skillId);
+  }
+
+  characterCancelUseSkill(
+    data: CancelUseSkillData
+  ): void {
+    const {
+      worldIndex,
+      code
+    } = data;
+    const index = UTILS.types.isNumber(worldIndex) ? worldIndex : this.store.getUserIndex();
+    this.view.characterCancelUseSkill(index, code);
   }
 
 }

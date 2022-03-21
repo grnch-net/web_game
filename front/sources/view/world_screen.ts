@@ -1,7 +1,11 @@
 import type {
   CharacterData,
-  MoveData
+  MoveData,
 } from '../game';
+
+import {
+  SkillName
+} from '../config';
 
 import {
   ViewNode
@@ -97,7 +101,7 @@ class WorldScreen {
     index: number,
     data: CharacterData
   ): void {
-    const character = new UserGameObject().create('#user-character-prefab', data);
+    const character = new UserGameObject().initialize(data);
     this.characters[index] = character;
     this.game_node.addChild(character);
     this.initialize_user_events(character);
@@ -109,6 +113,7 @@ class WorldScreen {
     this.add_user_rotate_event(character);
     this.add_user_move_start_event(character);
     this.add_user_move_stop_event(character);
+    this.add_user_use_skill_event(character);
   }
 
   protected add_user_rotate_event(
@@ -199,6 +204,34 @@ class WorldScreen {
     });
   }
 
+  protected add_user_use_skill_event(
+    character: UserGameObject
+  ): void {
+    const keyUpHandler = event => {
+      let skill_id: number;
+
+      if (event.keyCode === 49) {
+        GAME.userCancelUseSkill();
+        return;
+      } else
+      if (event.keyCode === 50) {
+        skill_id = SkillName.Attack;
+      } else
+      if (event.keyCode === 51) {
+        skill_id = SkillName.Block;
+      } else {
+        return;
+      }
+      
+      character.useSkill(skill_id);
+      GAME.userUserSkill(skill_id);
+    };
+    document.addEventListener('keyup', keyUpHandler);
+    this.destroy_world_handlers.push(() => {
+      document.removeEventListener('keyup', keyUpHandler);
+    });
+  }
+
   updateCharactersList(): void {
     const characters_list = [];
     const characters = GAME.store.getWorldCharacters();
@@ -217,7 +250,7 @@ class WorldScreen {
     index: number,
     data: CharacterData
   ): void {
-    const character = new GameObject().create('#character-prefab', data);
+    const character = new GameObject().initialize(data);
     this.characters[index] = character;
     this.game_node.addChild(character);
   }
@@ -260,6 +293,21 @@ class WorldScreen {
   }: MoveData): void {
     const character = this.characters[worldIndex];
     character.updateMove(position, rotation, direction, forcePercent);
+  }
+
+  characterUseSkill(
+    index: number,
+    skillId: number
+  ): void {
+    const character = this.characters[index];
+    character.useSkill(skillId);
+  }
+
+  characterCancelUseSkill(
+    index: number
+  ): void {
+    const character = this.characters[index];
+    character.cancelUseSkill();
   }
   
 }

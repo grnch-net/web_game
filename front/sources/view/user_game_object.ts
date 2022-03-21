@@ -16,19 +16,21 @@ interface UserDirection {
 class UserGameObject extends GameObject {
 
   userDirection: UserDirection;
+  
+  override initialize(data: CharacterData): UserGameObject {
+    super.initialize(data);
+    return this;
+  }
 
-  override create(
-    path: string,
-    data: CharacterData
-  ): UserGameObject {
-    super.create(path, data);
+  protected override initialize_vars(): void {
+    super.initialize_vars();
+    this.character_model_path = '#user-character-prefab';
     this.userDirection = {
       front: false,
       right: false,
       back: false,
       left: false
     };
-    return this;
   }
 
   override moveStop(): void {
