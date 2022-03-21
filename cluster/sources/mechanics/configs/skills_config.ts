@@ -5,12 +5,12 @@ import type {
 type SkillsConfig = Associative<SkillConfig>;
 
 enum SkillName {
-  Recreation,
-  Attack,
-  Block,
-  Parry,
-  Throw,
-  Shot
+  Recreation = 0,
+  Attack = 1,
+  Block = 2,
+  Parry = 3,
+  Throw = 4,
+  Shot = 5
 }
 
 const skillsConfig: SkillsConfig = {

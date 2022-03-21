@@ -154,11 +154,11 @@ class Sockets extends GamePlugin {
     socket.data.characterWorldData = characterWorldData;
     store.addSocketsId(worldIndex, socket.id);
 
-    const eventData: CharEnter_OutEventData = {
+    const event_data: CharEnter_OutEventData = {
       worldIndex,
       characterData: characterWorldData
     };
-    socket.broadcast.emit(SEvent.CharEnter, eventData);
+    socket.broadcast.emit(SEvent.CharEnter, event_data);
 
     this.add_socket_listeners(socket);
   }
@@ -194,12 +194,12 @@ class Sockets extends GamePlugin {
     const character = socket.data.character;
     character.moveStop();
 
-    const eventData: CharMove_OutEventData = {
+    const event_data: CharMove_OutEventData = {
       worldIndex: character.worldIndex,
       position: character.position.toArray(),
       forcePercent: 0
     };
-    this.io.sockets.emit(SEvent.CharMove, eventData);
+    this.io.sockets.emit(SEvent.CharMove, event_data);
 
     console.log('Char ready to leave', socket.data.character.name);
     socket.data.logout = setTimeout(() => this.char_leave(socket), 5000);
@@ -221,11 +221,11 @@ class Sockets extends GamePlugin {
     socket.removeAllListeners();
     store.removeWorldCharacter(worldIndex);
 
-    const eventData: CharLeave_OutEventData = {
+    const event_data: CharLeave_OutEventData = {
       worldIndex
     };
 
-    this.io.sockets.emit(SEvent.CharLeave, eventData);
+    this.io.sockets.emit(SEvent.CharLeave, event_data);
     socket.disconnect();
     console.log('Char leave', socket.data.character.name);
   }
@@ -235,11 +235,11 @@ class Sockets extends GamePlugin {
     data: CharSay_InEventData
   ): void {
     console.info('Char say', data);
-    const eventData: CharSay_OutEventData = {
+    const event_data: CharSay_OutEventData = {
       worldIndex: socket.data.character.worldIndex,
       message: data.message
     };
-    this.io.sockets.emit(SEvent.CharSay, eventData);
+    this.io.sockets.emit(SEvent.CharSay, event_data);
   }
 
   protected character_move(
@@ -270,14 +270,14 @@ class Sockets extends GamePlugin {
       character.updatePosition(this.parse_position(position));
     }
 
-    const eventData: CharMove_OutEventData = {
+    const event_data: CharMove_OutEventData = {
       worldIndex: character.worldIndex,
       rotation: rotation,
       position: position,
       direction: direction,
       forcePercent
     };
-    socket.broadcast.emit(SEvent.CharMove, eventData);
+    socket.broadcast.emit(SEvent.CharMove, event_data);
   }
 
   protected parse_position(
@@ -301,20 +301,19 @@ class Sockets extends GamePlugin {
       skillId
     } = data;
     const character = socket.data.character;
-    const success = character.useSkill(skillId);
+    const event_code = character.useSkill(skillId);
 
-    if (success) {
-      const eventData: CharUseSkill_OutEventData = {
+    if (event_code === 0) {
+      const event_data: CharUseSkill_OutEventData = {
         worldIndex: character.worldIndex,
         skillId
       };
-      socket.broadcast.emit(SEvent.CharUseSkill, eventData);
+      socket.broadcast.emit(SEvent.CharUseSkill, event_data);
     } else {
-      // TODO: return reason code
-      const eventData: CharCancelUseSkill_OutEventData = {
-        code: 1
+      const event_data: CharCancelUseSkill_OutEventData = {
+        code: event_code
       };
-      socket.emit(SEvent.CharCancelUseSkill, eventData);
+      socket.emit(SEvent.CharCancelUseSkill, event_data);
     }
   }
 
@@ -322,13 +321,13 @@ class Sockets extends GamePlugin {
     socket: Socket
   ): void {
     const character = socket.data.character;
-    const success = character.cancelUseSkill();
+    const event_code = character.cancelUseSkill();
 
-    if (success) {
-      const eventData: CharCancelUseSkill_OutEventData = {
+    if (event_code === 0) {
+      const event_data: CharCancelUseSkill_OutEventData = {
         worldIndex: character.worldIndex
       };
-      socket.broadcast.emit(SEvent.CharCancelUseSkill, eventData);
+      socket.broadcast.emit(SEvent.CharCancelUseSkill, event_data);
     }
   }
 

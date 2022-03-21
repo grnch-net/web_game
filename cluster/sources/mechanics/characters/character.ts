@@ -8,7 +8,8 @@ import type {
   SkillParameters,
   SkillsController,
   SkillNeeds,
-  SkillNeedsResult
+  SkillNeedsResult,
+  SkillResponseCode
 } from '../skills/index';
 
 import type {
@@ -182,9 +183,9 @@ class Character extends WorldObject {
   useInventoryItem(
     inventoryIndex: number,
     itemIndex: number
-  ): boolean {
+  ): SkillResponseCode {
     const item = this.get_inventory_item(inventoryIndex, itemIndex);
-    return !!item && this.use_inventory_item(item);
+    return this.use_inventory_item(item);
   }
 
   protected get_inventory_item(
@@ -196,8 +197,8 @@ class Character extends WorldObject {
 
   protected use_inventory_item(
     item: Item
-  ): boolean {
-    return false;
+  ): SkillResponseCode {
+    return 1;
   }
 
   protected check_skill(
@@ -208,10 +209,10 @@ class Character extends WorldObject {
 
   useSkill(
     id: string | number
-  ): boolean {
+  ): SkillResponseCode {
     this.tick(0);
     const skill = this.get_skill(id);
-    return !!skill && this.use_skill(skill);
+    return this.use_skill(skill);
   }
 
   protected get_skill(
@@ -221,18 +222,18 @@ class Character extends WorldObject {
   }
 
   protected use_skill(
-    skill: Skill
-  ): boolean {
-    return false;
+    id: Skill
+  ): SkillResponseCode {
+    return 1;
   }
 
-  cancelUseSkill(): boolean {
+  cancelUseSkill(): SkillResponseCode {
     this.tick(0);
     return this.cancel_use_skill();
   }
 
-  protected cancel_use_skill(): boolean {
-    return false;
+  protected cancel_use_skill(): SkillResponseCode {
+    return 1;
   }
 
   protected get_skill_needs(

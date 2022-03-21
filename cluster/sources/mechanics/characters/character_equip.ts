@@ -2,6 +2,10 @@ import type {
   Item
 } from '../item/index';
 
+import type {
+  SkillResponseCode
+} from '../skills/index';
+
 import {
   Impact,
   TargetInteractResult
@@ -70,7 +74,7 @@ function CharacterEquip_ModCall(Latest: typeof Character) {
   
     protected use_inventory_item(
       item: Item
-    ): boolean {
+    ): SkillResponseCode {
       super.use_inventory_item(item);
       const is_ready = this.check_skill(item.skill);
       return is_ready && this.use_skill(item.skill);

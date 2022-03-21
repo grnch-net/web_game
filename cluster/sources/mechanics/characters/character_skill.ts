@@ -9,7 +9,8 @@ import {
   SkillParameters,
   SkillsController,
   SkillNeeds,
-  SkillNeedsResult
+  SkillNeedsResult,
+  SkillResponseCode
 } from '../skills/index';
 
 import {
@@ -95,19 +96,22 @@ class CharacterSkill extends (Character as Mod).Latest {
 
   protected use_skill(
     skill: Skill
-  ): boolean {
+  ): SkillResponseCode {
+    if (!skill) {
+      return SkillResponseCode.Undefined;
+    }
     super.use_skill(skill);
     const checked_needs = this.check_skill_needs(skill);
     if (!checked_needs) {
-      return false;
+      return SkillResponseCode.NotEnough;
     }
     const checked_stock = this.check_skill_stock(skill);
     if (!checked_stock) {
-      return false;
+      return SkillResponseCode.NotEnough;
     }
     const paid_cost = this.pay_skill_cost(skill);
     if (!paid_cost) {
-      return false;
+      return SkillResponseCode.NotEnough;
     }
     const innerImpact = new Impact;
     const outerImpact = new Impact;
@@ -115,10 +119,10 @@ class CharacterSkill extends (Character as Mod).Latest {
     this.skill_listeners(innerImpact, outerImpact);
     this.apply_impact(innerImpact);
     this.apply_interaction(outerImpact);
-    return true;
+    return SkillResponseCode.Success;
   }
 
-  protected cancel_use_skill(): boolean {
+  protected cancel_use_skill(): SkillResponseCode {
     return this.skills.cancelUse();
   }
 

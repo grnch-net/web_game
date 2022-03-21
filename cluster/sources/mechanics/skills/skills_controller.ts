@@ -10,6 +10,14 @@ import {
   SkillState
 } from './skill';
 
+enum SkillResponseCode {
+  Success = 0,
+  Unknow = 1,
+  Undefined = 2,
+  Cooldown = 3,
+  NotEnough = 4
+}
+
 class SkillsController {
   list: Associative<Skill>;
   using: Skill;
@@ -137,7 +145,7 @@ class SkillsController {
     skill: Skill,
     innerImpact: Impact,
     outerImpact: Impact
-  ) {
+  ): void {
     if (this.using) {
       if (!this.using.reusable || this.using != skill) {
         this.cancelUse();
@@ -147,8 +155,10 @@ class SkillsController {
     this.using = skill;
   }
 
-  cancelUse(): boolean {
-    if (!this.using) return false;
+  cancelUse(): SkillResponseCode {
+    if (!this.using) {
+      return SkillResponseCode.Undefined;
+    }
     if (this.using.state == SkillState.Cast) {
       this.using.reset();
     } else {
@@ -156,7 +166,7 @@ class SkillsController {
       this.add_to_recovery(this.using);
     }
     this.using = null;
-    return true;
+    return SkillResponseCode.Success;
   }
 
   protected add_to_recovery(
@@ -187,5 +197,6 @@ class SkillsController {
 }
 
 export {
-  SkillsController
+  SkillsController,
+  SkillResponseCode
 }
