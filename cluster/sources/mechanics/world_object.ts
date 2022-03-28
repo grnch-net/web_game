@@ -89,11 +89,10 @@ class WorldObject {
     radian = radian % (Math.PI * 2);
     if (radian < 0) radian += Math.PI * 2;
     this.parameters.rotation = radian;
-    this.update_direction();
   }
 
   protected update_direction(): void {
-    let radian = this.parameters.rotation + this.move_direction;
+    let radian = this.move_direction;
     radian = radian % (Math.PI * 2);
     if (radian < 0) {
       radian += Math.PI * 2;
