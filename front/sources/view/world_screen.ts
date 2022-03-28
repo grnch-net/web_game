@@ -19,6 +19,7 @@ import {
   UserGameObject
 } from './user_game_object';
 
+@UTILS.modifiable
 class WorldScreen {
 
   protected world_screen_node: ViewNode;
@@ -110,98 +111,7 @@ class WorldScreen {
   protected initialize_user_events(
     character: UserGameObject
   ): void {
-    this.add_user_rotate_event(character);
-    this.add_user_move_start_event(character);
-    this.add_user_move_stop_event(character);
     this.add_user_use_skill_event(character);
-  }
-
-  protected add_user_rotate_event(
-    character: UserGameObject
-  ): void {
-    let last_mouse_position: number;
-    const mouseMoveHandler = event => {
-      const rotate = (event.clientX - last_mouse_position) / 100;
-      character.data.rotation += rotate;
-      last_mouse_position = event.clientX;
-      character.updateDirection();
-      character.updatePosition();
-
-      GAME.userMove();
-    };
-    const mouseUpHandler = () => {
-      document.removeEventListener('mousemove', mouseMoveHandler);
-      document.removeEventListener('mouseup', mouseUpHandler);
-    };
-    const mouseDownHandler = event => {
-      last_mouse_position = event.clientX;
-      document.addEventListener('mousemove', mouseMoveHandler);
-      document.addEventListener('mouseup', mouseUpHandler);
-    };
-    this.scene_node.node.addEventListener('mousedown', mouseDownHandler);
-    this.destroy_world_handlers.push(() => {
-      mouseUpHandler();
-      document.removeEventListener('mouseup', mouseUpHandler);
-      this.scene_node.node.removeEventListener('mousedown', mouseDownHandler);
-    });
-  }
-
-  protected add_user_move_start_event(
-    character: UserGameObject
-  ): void {
-    const keyDownHandler = event => {
-      if (event.repeat) {
-        return;
-      }
-
-      if (event.keyCode === 87) {
-        character.userDirection.front = true;
-      } else
-      if (event.keyCode === 68) {
-        character.userDirection.right = true;
-      } else
-      if (event.keyCode === 83) {
-        character.userDirection.back = true;
-      } else
-      if (event.keyCode === 65) {
-        character.userDirection.left = true;
-      } else {
-        return;
-      }
-
-      character.userMoveUpdate();
-    };
-    document.addEventListener('keydown', keyDownHandler);
-    this.destroy_world_handlers.push(() => {
-      document.removeEventListener('keydown', keyDownHandler);
-    });
-  }
-
-  protected add_user_move_stop_event(
-    character: UserGameObject
-  ): void {
-    const keyUpHandler = event => {
-      if (event.keyCode === 87) {
-        character.userDirection.front = false;
-      } else
-      if (event.keyCode === 68) {
-        character.userDirection.right = false;
-      } else
-      if (event.keyCode === 83) {
-        character.userDirection.back = false;
-      } else
-      if (event.keyCode === 65) {
-        character.userDirection.left = false;
-      } else {
-        return;
-      }
-      
-      character.userMoveUpdate();
-    };
-    document.addEventListener('keyup', keyUpHandler);
-    this.destroy_world_handlers.push(() => {
-      document.removeEventListener('keyup', keyUpHandler);
-    });
   }
 
   protected add_user_use_skill_event(

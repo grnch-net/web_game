@@ -11,8 +11,8 @@ class GameObject {
 
   node: SVGElement;
   data: CharacterData;
+  direction: PointParameters;
   protected character_model_path: string;
-  protected direction: PointParameters;
   protected update_time: number;
 
   initialize(
@@ -39,7 +39,7 @@ class GameObject {
   }
 
   update(): void {
-    this.updatePosition();
+    this.updateTransform();
   }
 
   updateMove(
@@ -60,7 +60,7 @@ class GameObject {
     }
 
     this.updateDirection(direction);
-    this.updatePosition();
+    this.updateTransform();
     
     if (forcePercent || forcePercent === 0) {
       this.data.forcePercent = forcePercent;
@@ -70,7 +70,7 @@ class GameObject {
     }
   }
 
-  updatePosition(): void {
+  updateTransform(): void {
     const { longitude } = GAME.store.worldConfig;
     let transform = '';
 
@@ -92,7 +92,7 @@ class GameObject {
       this.data.direction = moveDirection;
     }
 
-    let radian = this.data.rotation + moveDirection;
+    let radian = moveDirection;
     radian = radian % (Math.PI * 2);
     if (radian < 0) {
       radian += Math.PI * 2;
@@ -184,7 +184,7 @@ class GameObject {
     this.data.position.x = position.x;
     this.data.position.y = position.y;
     this.data.position.z = position.z;
-    this.updatePosition();
+    this.updateTransform();
 
     if (needStop) {
       this.moveStop();

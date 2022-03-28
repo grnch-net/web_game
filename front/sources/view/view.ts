@@ -12,6 +12,9 @@ import {
   WorldScreen
 } from './world_screen';
 
+// export * from './wasd_move';
+export * from './cursor_move';
+
 class View {
 
   protected main_screen: MainScreen;
