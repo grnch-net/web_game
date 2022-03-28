@@ -121,6 +121,7 @@ class WorldScreen {
       let skill_id: number;
 
       if (event.keyCode === 49) {
+        character.cancelUseSkill();
         GAME.userCancelUseSkill();
         return;
       } else

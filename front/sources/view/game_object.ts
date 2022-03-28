@@ -7,6 +7,14 @@ import {
   SkillName
 } from '../config';
 
+const svgURI = 'http://www.w3.org/2000/svg';
+const xlink = 'http://www.w3.org/1999/xlink';
+
+interface Skill {
+  id: number;
+  node: SVGElement;
+}
+
 class GameObject {
 
   node: SVGElement;
@@ -14,6 +22,7 @@ class GameObject {
   direction: PointParameters;
   protected character_model_path: string;
   protected update_time: number;
+  protected current_skill: Skill;
 
   initialize(
     data: CharacterData
@@ -31,10 +40,10 @@ class GameObject {
   }
 
   protected create_node(): void {
-    this.node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    this.node = document.createElementNS(svgURI, 'g');
     
-    const character_model = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-    character_model.setAttributeNS('http://www.w3.org/1999/xlink', 'href', this.character_model_path);
+    const character_model = document.createElementNS(svgURI, 'use');
+    character_model.setAttributeNS(xlink, 'href', this.character_model_path);
     this.node.appendChild(character_model);
   }
 
@@ -200,20 +209,53 @@ class GameObject {
   useSkill(
     skillId: number
   ): void {
+    if (this.current_skill) {
+      this.cancelUseSkill();
+    }
+
+    let skill_node: SVGElement;
+
     if (skillId === SkillName.Attack) {
-      const attack_skill = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-      attack_skill.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#attack-skill-prefab');
-      this.node.appendChild(attack_skill);
+      skill_node = document.createElementNS(svgURI, 'use');
+      skill_node.setAttributeNS(xlink, 'href', '#attack-skill-prefab');
     } else
     if (skillId === SkillName.Block) {
-      const block_skill = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-      block_skill.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#block-skill-prefab');
-      this.node.appendChild(block_skill);
+      skill_node = document.createElementNS(svgURI, 'use');
+      skill_node.setAttributeNS(xlink, 'href', '#block-skill-prefab');
+    } else {
+      return;
+    }
+
+    skill_node.setAttribute('opacity', '0.2');
+    this.node.appendChild(skill_node);
+
+    this.current_skill = {
+      id: skillId,
+      node: skill_node
+    };
+  }
+
+  applySkill(
+    skillId: number
+  ): void {
+    if (!this.current_skill) {
+      this.useSkill(skillId);
+    } else
+    if (this.current_skill.id !== skillId) {
+      this.cancelUseSkill();
+      this.useSkill(skillId);
+    }
+
+    this.current_skill.node.setAttribute('opacity', '1');
+
+    if (this.current_skill.id === SkillName.Attack) {
+      setTimeout(() => this.cancelUseSkill(), 500);
     }
   }
 
   cancelUseSkill(): void {
-    // TODO:
+    this.node.removeChild(this.current_skill.node);
+    this.current_skill = null;
   }
 
 }

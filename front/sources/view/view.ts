@@ -101,7 +101,7 @@ class View {
     if (UTILS.types.isNumber(code)) {
       console.warn('User skill canceled', code);
     }
-    this.characterCancelUseSkill(index);
+    this.world_screen.characterCancelUseSkill(index);
   }
 
 }
