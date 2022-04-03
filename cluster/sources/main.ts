@@ -90,8 +90,8 @@ class Game {
 
   runServer(): void {
     this.server.listen({
-      port: 3009,
-      // host: '192.168.1.122'
+      port: 8000,
+      host: '91.223.180.20'
     }, (err, address) => {
       if (err) {
         this.server.log.error(err)
