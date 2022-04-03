@@ -46,7 +46,8 @@ function test_move() {
 
   for (const [rotate, direction, x, y, z] of test_parameters) {
     hero.rotate(Math.PI * rotate);
-    hero.moveProgress(1, Math.PI * direction, start_position);
+    hero.updatePosition(start_position);
+    hero.moveProgress(1, Math.PI * direction);
   
     const move_point = new Point({ x, y, z });
     const time_to_point = hero.position.lengthTo(move_point);

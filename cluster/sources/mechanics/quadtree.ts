@@ -1,6 +1,6 @@
 import type {
   Point
-} from './Point';
+} from './point';
 
 interface Rect {
   x1: number;
