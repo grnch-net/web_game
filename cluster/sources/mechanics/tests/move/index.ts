@@ -22,30 +22,21 @@ function test_move() {
   world.addCharacter(hero);
 
   const test_parameters = [
-  // rotate   direction        x   y   z
-    [0,       0,              10,  0, 11],
-    [0.25,    0,              11,  0, 11],
-    [0.5,     0,              11,  0, 10],
-    [0.75,    0,              11,  0,  9],
-    [1,       0,              10,  0,  9],
-    [1.25,    0,               9,  0,  9],
-    [1.5,     0,               9,  0, 10],
-    [1.75,    0,               9,  0, 11],
-    [2,       0,              10,  0, 11],
-    [0,       0.25,           11,  0, 11],
-    [0.25,    0.25,           11,  0, 10],
-    [0.25,    0.5,            11,  0,  9],
-    [0,       1,              10,  0,  9],
-    [0.25,    1,               9,  0,  9],
-    [1,       0.5,             9,  0, 10],
-    [1,       0.75,            9,  0, 11],
-    [0,       2,              10,  0, 11]
+  // direction  x   y   z
+    [0,        10,  0, 11],
+    [0.25,     11,  0, 11],
+    [0.5,      11,  0, 10],
+    [0.75,     11,  0,  9],
+    [1,        10,  0,  9],
+    [1.25,      9,  0,  9],
+    [1.5,       9,  0, 10],
+    [1.75,      9,  0, 11],
+    [2,        10,  0, 11]
   ];
 
   const start_position = { x: 10, y: 0, z: 10 };
 
-  for (const [rotate, direction, x, y, z] of test_parameters) {
-    hero.rotate(Math.PI * rotate);
+  for (const [direction, x, y, z] of test_parameters) {
     hero.updatePosition(start_position);
     hero.moveProgress(1, Math.PI * direction);
   
@@ -59,7 +50,6 @@ function test_move() {
         || hero.position.z !== z
     ) {
       console.error('- Failed');
-      console.error(`-- Rotation: PI * ${rotate}`);
       console.error(`-- Direction: PI * ${direction}`);
       console.error(`-- Hero: ${hero.position.toString()}`);
       console.error(`-- Need: ${move_point.toString()}`);

@@ -4,7 +4,7 @@
   "main": "sources/main.ts",
   "scripts": {
     "start": "tsc -p tsconfig_main.json && node build/cluster/sources/main.js",
-    "test_mechanics": "tsc -p tsconfig_test.json && node build/test_mechanics.js"
+    "test_mechanics": "tsc -p tsconfig_test.json && node build/cluster/sources/test_mechanics.js"
   },
   "devDependencies": {
     "@types/node": "^16.11.6",
