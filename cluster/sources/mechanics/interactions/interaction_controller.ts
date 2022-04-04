@@ -99,7 +99,7 @@ class InteractionController {
     };
     for (const target of targets) {
       if (author == target) continue;
-      if (impact.rules.sector < 6.3) {
+      if (impact.rules.sector < Math.PI * 2) {
         const hit = this.check_sector_hit(author, target, impact.rules.sector);
         if (!hit) continue;
       }
@@ -117,10 +117,16 @@ class InteractionController {
     target: Character,
     sector: number
   ): boolean {
+    const rotation = author.getRotation();
+    const author_direction = {
+      x: -Math.sin(-rotation),
+      z: Math.cos(-rotation)
+    };
+    
     const x = target.position.x - author.position.x;
     const z = target.position.z - author.position.z;
-    const sin = author.direction.x;
-    const cos = author.direction.z;
+    const sin = author_direction.x;
+    const cos = author_direction.z;
     const vx = x * cos - z * sin;
     const vz = z * cos + x * sin;
     const angle = Math.acos(vz / Math.sqrt(vx ** 2 + vz ** 2));

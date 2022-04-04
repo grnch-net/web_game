@@ -106,12 +106,12 @@ class WorldObject {
     forcePercent?: number,
     direction?: number
   ): void {
-    if (direction) {
+    if (UTILS.types.isNumber(forcePercent)) {
+      this.move_force = this.parameters.moveForce * forcePercent;
+    }
+    if (UTILS.types.isNumber(direction)) {
       this.move_direction = direction;
       this.update_direction();
-    }
-    if (forcePercent) {
-      this.move_force = this.parameters.moveForce * forcePercent;
     }
   }
 
