@@ -135,7 +135,7 @@ class WorldScreen {
       }
       
       character.useSkill(skill_id);
-      GAME.userUserSkill(skill_id);
+      GAME.userUseSkill(skill_id);
     };
     document.addEventListener('keyup', keyUpHandler);
     this.destroy_world_handlers.push(() => {
@@ -212,6 +212,14 @@ class WorldScreen {
   ): void {
     const character = this.characters[index];
     character.useSkill(skillId);
+  }
+
+  characterApplySkill(
+    index: number,
+    skillId: number
+  ): void {
+    const character = this.characters[index];
+    character.applySkill(skillId);
   }
 
   characterCancelUseSkill(

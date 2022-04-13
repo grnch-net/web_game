@@ -43,6 +43,12 @@ interface CancelUseSkillData {
   code?: number;
 }
 
+interface WorldActionData {
+  authorIndex: number;
+  skill: number;
+  targets: any;
+}
+
 interface WorldData {
   userIndex: number;
   characters: CharacterData[];
@@ -140,7 +146,7 @@ class Game {
     this.view.characterMove(data);
   }
 
-  userUserSkill(
+  userUseSkill(
     skillId: number
   ): void {
     this.network.userUseSkill(skillId);
@@ -169,6 +175,17 @@ class Game {
     } = data;
     const index = UTILS.types.isNumber(worldIndex) ? worldIndex : this.store.getUserIndex();
     this.view.characterCancelUseSkill(index, code);
+  }
+
+  worldAction(
+    data: WorldActionData
+  ): void {
+    const {
+      authorIndex,
+      skill
+    } = data;
+    const index = UTILS.types.isNumber(authorIndex) ? authorIndex : this.store.getUserIndex();
+    this.view.characterApplySkill(index, skill);
   }
 
 }

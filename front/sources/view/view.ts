@@ -94,6 +94,13 @@ class View {
     this.world_screen.characterUseSkill(index, skillId);
   }
 
+  characterApplySkill(
+    index: number,
+    skillId: number
+  ): void {
+    this.world_screen.characterApplySkill(index, skillId);
+  }
+
   characterCancelUseSkill(
     index: number,
     code?: number

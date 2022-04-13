@@ -249,11 +249,19 @@ class GameObject {
     this.current_skill.node.setAttribute('opacity', '1');
 
     if (this.current_skill.id === SkillName.Attack) {
-      setTimeout(() => this.cancelUseSkill(), 500);
+      setTimeout(() => this.completeUseSkill(), 500);
     }
   }
 
+  completeUseSkill(): void {
+    this.node.removeChild(this.current_skill.node);
+    this.current_skill = null;
+  }
+
   cancelUseSkill(): void {
+    if (!this.current_skill) {
+      return;
+    }
     this.node.removeChild(this.current_skill.node);
     this.current_skill = null;
   }

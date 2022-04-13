@@ -26,7 +26,8 @@ const soketsEvents = {
   CharSay: 'char:say',
   CharMove: 'char:move',
   CharUseSkill: 'char:use-skill',
-  CharCancelUseSkill: 'char:cancel-use-skill'
+  CharCancelUseSkill: 'char:cancel-use-skill',
+  WorldAction: 'world:action'
 };
 
 interface EnterToWorldData {
@@ -139,6 +140,11 @@ class Network {
     this.socket.on(soketsEvents.CharCancelUseSkill, data => {
       console.log('Char cancel use skill', data);
       GAME.characterCancelUseSkill(data);
+    });
+
+    this.socket.on(soketsEvents.WorldAction, data => {
+      console.log('World action', data);
+      GAME.worldAction(data);
     });
 
     this.socket.on(soketsEvents.CharEnter, data => {
