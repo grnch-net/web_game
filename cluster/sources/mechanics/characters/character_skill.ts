@@ -118,7 +118,10 @@ class CharacterSkill extends (Character as Mod).Latest {
     this.skills.use(skill, innerImpact, outerImpact);
     this.skill_listeners(innerImpact, outerImpact);
     this.apply_impact(innerImpact);
-    this.apply_interaction(outerImpact);
+    const result = this.apply_interaction(outerImpact);
+    if (result) {
+      return SkillResponseCode.SuccessInstantly;
+    }
     return SkillResponseCode.Success;
   }
 

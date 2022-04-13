@@ -10,6 +10,9 @@ import {
   Character
 } from './mechanics/index';
 
+import {
+  SkillResponseCode
+} from './mechanics/skills';
 
 import {
   GamePlugin
@@ -92,7 +95,8 @@ enum SEvent {
   CharSay = 'char:say',
   CharMove = 'char:move',
   CharUseSkill = 'char:use-skill',
-  CharCancelUseSkill = 'char:cancel-use-skill'
+  CharCancelUseSkill = 'char:cancel-use-skill',
+  WorldAction = 'world:action'
 }
 
 class Sockets extends GamePlugin {
@@ -174,6 +178,10 @@ class Sockets extends GamePlugin {
     socket.on(SEvent.CharMove, data => this.character_move(socket, data));
     socket.on(SEvent.CharUseSkill, data => this.character_use_skill(socket, data));
     socket.on(SEvent.CharCancelUseSkill, () => this.character_cancel_use_skill(socket));
+
+    this.server.mechanic.addActionListener(result => {
+      socket.emit(SEvent.WorldAction, result);
+    });
   }
 
   protected char_reconnect(
@@ -303,12 +311,15 @@ class Sockets extends GamePlugin {
     const character = socket.data.character;
     const event_code = character.useSkill(skillId);
 
-    if (event_code === 0) {
+    if (event_code === SkillResponseCode.Success) {
       const event_data: CharUseSkill_OutEventData = {
         worldIndex: character.worldIndex,
         skillId
       };
       socket.broadcast.emit(SEvent.CharUseSkill, event_data);
+    } else
+    if (event_code === SkillResponseCode.SuccessInstantly) {
+      // Skip
     } else {
       const event_data: CharCancelUseSkill_OutEventData = {
         code: event_code

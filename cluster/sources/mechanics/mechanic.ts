@@ -1,44 +1,45 @@
-import type {
-  PointParameters
-} from './point';
-
 import {
   World
-} from './world';
+} from './world/index';
 
 import {
   Character,
   CharacterParameters
 } from './characters/character';
 
+import type {
+  ActionListener
+} from './interactions/index';
+
 class Mechanic {
 
-  world: World;
-  protected last_time: number;
+  protected open_world: World;
 
-  initialize(): void {
+  initialize(): Mechanic {
     this.initialize_vars();
-    this.create_world();
+    return this;
   }
 
   protected initialize_vars(): void {
     
   }
 
-  protected create_world(): void {
-    this.world = new World;
-    this.world.initialize();
+  isCreatedOpenWorld(): boolean {
+    return !!this.open_world;
   }
 
-  destroy(): void {
-    // TODO: Destroy world
+  isFullOpenWorld(): boolean {
+    return this.open_world.characters.count < 2;
   }
 
-  createCharacter(
+  createWorld(): void {
+    this.open_world = (new World).initialize();
+  }
+
+  createCharacterConfig(
     characterName: string
   ): CharacterParameters {
-    const parameters = Character.createParameters(characterName);
-    return parameters;
+    return Character.createParameters(characterName);
   }
 
   enterToWorld(
@@ -46,25 +47,28 @@ class Mechanic {
   ): Character {
     const character = new Character;
     character.initialize(parameters);
-    this.world.addCharacter(character);
+    if (!this.open_world) {
+      console.log('World not created');
+    }
+    this.open_world.addCharacter(character);
     return character;
   }
 
   leaveFromWorld(
     index: number
   ): boolean {
-    const success = this.world.removeCharacter(index);
-    return success;
+    return this.open_world.removeCharacter(index);
   }
 
-  removeCharacter(
-    index: number
+  addActionListener(
+    listener: ActionListener
   ): void {
-    this.world.removeCharacter(index);
+    this.open_world.addActionListener(listener);
   }
 
-  startTicker(): void {
-    this.last_time = Date.now();
+  runWorld(): void {
+    this.open_world.startTicker();
+    this.open_world = null;
   }
 
 }

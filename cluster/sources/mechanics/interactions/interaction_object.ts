@@ -14,6 +14,7 @@ interface TargetInteractResult {
 }
 
 interface InteractResult {
+  authorIndex: number;
   skill: string | number;
   targets: TargetInteractResult[];
 }

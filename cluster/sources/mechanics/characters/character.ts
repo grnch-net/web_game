@@ -273,8 +273,12 @@ class Character extends WorldObject {
 
   protected apply_interaction(
     impact: Impact,
-  ) {
-    this.world.action(this, impact);
+  ): InteractResult {
+    const results = this.world.action(this, impact);
+    if (results) {
+      this.interactResult(results);
+    }
+    return results;
   }
 
   interactResult(

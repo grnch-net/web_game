@@ -65,7 +65,7 @@ class CharacretCreate_API extends APIPlugin {
       return;
     }
 
-    const character_parameters = mechanic.createCharacter(character_name);
+    const character_parameters = mechanic.createCharacterConfig(character_name);
     store.addNewCharacter(character_name, character_parameters);
 
     let response_body: CharacterCreate_ResponseBody = {

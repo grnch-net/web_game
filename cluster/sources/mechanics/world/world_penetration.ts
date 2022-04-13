@@ -1,6 +1,6 @@
 import type {
   Impact,
-} from './interactions/index';
+} from '../interactions/index';
 
 import {
   World
