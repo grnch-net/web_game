@@ -109,12 +109,12 @@ class InteractionController {
     impact: Impact
   ): InteractResult {
     this.update_tree();
-    const targets = this._tree.findByRadius(author.position, impact.rules.range);
     const results: InteractResult = {
       authorIndex: author.worldIndex,
       skill: impact.rules.skill,
       targets: []
     };
+    const targets = this._tree.findByRadius(author.position, impact.rules.range);
     for (const target of targets) {
       if (author == target) continue;
       if (impact.rules.sector < Math.PI * 2) {

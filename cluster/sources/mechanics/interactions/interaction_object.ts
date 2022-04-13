@@ -9,6 +9,7 @@ import {
 } from './influences';
 
 interface TargetInteractResult {
+  worldIndex: number;
   avoid?: boolean;
   hit?: boolean;
 }
