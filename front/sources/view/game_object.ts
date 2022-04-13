@@ -266,6 +266,15 @@ class GameObject {
     this.current_skill = null;
   }
 
+  applyAttack(): void {
+    const interact_node = document.createElementNS(svgURI, 'use');
+    interact_node.setAttributeNS(xlink, 'href', '#interact-attack-prefab');
+    this.node.appendChild(interact_node);
+    setTimeout(() => {
+      this.node.removeChild(interact_node);
+    }, 1000);
+  }
+
 }
 
 export {

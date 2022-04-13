@@ -19,6 +19,11 @@ import {
   UserGameObject
 } from './user_game_object';
 
+interface TargetInteract {
+  worldIndex: number,
+  hit: boolean
+}
+
 @UTILS.modifiable
 class WorldScreen {
 
@@ -228,9 +233,24 @@ class WorldScreen {
     const character = this.characters[index];
     character.cancelUseSkill();
   }
+
+  interact(
+    skillId: number,
+    targets: TargetInteract[]
+  ): void {
+    if (skillId == SkillName.Attack) {
+      for (const target of targets) {
+        const character = this.characters[target.worldIndex];
+        if (target.hit) {
+          character.applyAttack();
+        }
+      }
+    }
+  }
   
 }
 
 export {
-  WorldScreen
+  WorldScreen,
+  TargetInteract
 };

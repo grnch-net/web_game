@@ -182,10 +182,12 @@ class Game {
   ): void {
     const {
       authorIndex,
-      skill
+      skill,
+      targets
     } = data;
     const index = UTILS.types.isNumber(authorIndex) ? authorIndex : this.store.getUserIndex();
     this.view.characterApplySkill(index, skill);
+    this.view.interact(skill, targets);
   }
 
 }

@@ -9,7 +9,8 @@ import {
 } from './main_screen';
 
 import {
-  WorldScreen
+  WorldScreen,
+  TargetInteract
 } from './world_screen';
 
 // export * from './wasd_move';
@@ -109,6 +110,13 @@ class View {
       console.warn('User skill canceled', code);
     }
     this.world_screen.characterCancelUseSkill(index);
+  }
+
+  interact(
+    skillId: number,
+    targets: TargetInteract[]
+  ): void {
+    this.world_screen.interact(skillId, targets);
   }
 
 }
