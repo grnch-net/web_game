@@ -1,6 +1,7 @@
 import type {
   CharacterData,
   MoveData,
+  PointParameters,
   WorldData
 } from './game';
 
@@ -193,6 +194,19 @@ class Network {
       direction: data.direction,
       forcePercent: data.forcePercent
     });
+  }
+
+  userMoveTo(
+    position: PointParameters
+  ): void {
+    const data = GAME.store.getUserCharacter();
+    const { x, y, z } = position;
+    // this.socket.emit(soketsEvents.CharMove, {
+    //   rotation: data.rotation,
+    //   position: [x, y, z],
+    //   direction: data.direction,
+    //   forcePercent: data.forcePercent
+    // });
   }
 
   userUseSkill(

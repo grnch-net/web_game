@@ -1,4 +1,5 @@
 import type {
+  PointParameters,
   CharacterData
 } from '../game';
 
@@ -37,8 +38,16 @@ class UserGameObject extends GameObject {
       this.data.forcePercent = 1;
       this.moveStart();
     }
-    
+
     GAME.userMove();
+  }
+
+  userMoveTo(
+    position: PointParameters,
+    length: number
+  ): void {
+    this.moveTo(position, length);
+    GAME.userMoveTo(position);
   }
 
 }

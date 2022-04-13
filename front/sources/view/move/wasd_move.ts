@@ -1,10 +1,10 @@
 import {
   WorldScreen
-} from './world_screen';
+} from '../world_screen';
 
 import {
   UserGameObject
-} from './user_game_object';
+} from '../user_game_object';
 
 interface UserDirection {
   front: boolean;

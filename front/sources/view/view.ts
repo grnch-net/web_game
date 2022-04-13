@@ -13,8 +13,9 @@ import {
   TargetInteract
 } from './world_screen';
 
-// export * from './wasd_move';
-export * from './cursor_move';
+// export * from './move/wasd_move';
+// export * from './move/cursor_move';
+export * from './move/target_move';
 
 class View {
 

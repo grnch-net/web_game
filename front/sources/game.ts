@@ -140,6 +140,12 @@ class Game {
     this.network.userMove();
   }
 
+  userMoveTo(
+    position: PointParameters
+  ): void {
+    this.network.userMoveTo(position);
+  }
+
   characterMove(
     data: MoveData
   ): void {

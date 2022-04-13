@@ -92,6 +92,55 @@ class GameObject {
     this.node.setAttribute('transform', transform);
   }
 
+  moveTo(
+    position: PointParameters,
+    length?: number
+  ): boolean {
+    const checked = this.checkMovePosition(position);
+    if (!checked) {
+      return false;
+    }
+
+    this.data.forcePercent = 1;
+    this.moveStart();
+
+    if (!length) {
+      const qX = (position.x - this.data.position.x) ** 2;
+      const qZ = (position.z - this.data.position.z) ** 2;
+      length = Math.sqrt(qX + qZ);
+    }
+    const move_force = this.data.moveForce * this.data.forcePercent;
+    const move_time = length / move_force / 10;
+    setTimeout(() => {
+      this.moveStop();
+      // this.data.position.x = position.x;
+      // this.data.position.y = position.y;
+      // this.data.position.z = position.z;
+      // this.updateTransform();
+    }, move_time * 1000);
+
+    return true;
+  }
+
+  protected checkMovePosition(
+    position: PointParameters
+  ): boolean {
+    const { latitude, longitude, height } = GAME.store.worldConfig;
+
+    if (
+      position.x > latitude
+      || position.x < 0
+      || position.y > height
+      || position.y < 0
+      || position.z > longitude
+      || position.z < 0
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
   updateDirection(
     moveDirection?: number
   ) {
