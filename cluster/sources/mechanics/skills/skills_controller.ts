@@ -153,7 +153,9 @@ class SkillsController {
       }
     }
     skill.use(innerImpact, outerImpact);
-    this.using = skill;
+    if (skill.state !== SkillState.Complete) {
+      this.using = skill;
+    }
   }
 
   cancelUse(): SkillResponseCode {

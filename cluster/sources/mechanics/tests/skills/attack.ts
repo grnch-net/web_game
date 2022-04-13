@@ -51,13 +51,15 @@ function test_attack() {
     console.groupEnd();
     return
   }
-  if (target.attributes.health.value !== max_health) {
-    console.error('- Failed 2', target.attributes.health.value, max_health, damage);
-    console.groupEnd();
-    return
+  if (attack_config.castTime > 0) {
+    if (target.attributes.health.value !== max_health) {
+      console.error('- Failed 2', target.attributes.health.value, max_health, damage);
+      console.groupEnd();
+      return
+    }
+    world.tick(attack_config.castTime);
+    world.update();
   }
-  world.tick(attack_config.castTime);
-  world.update();
   if (target.attributes.health.value !== (max_health - damage)) {
     console.error('- Failed 3 ', {
       'target health': target.attributes.health.value,

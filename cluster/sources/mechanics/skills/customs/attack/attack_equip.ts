@@ -61,6 +61,7 @@ class AttackEquip extends (Attack as Mod).Latest {
     if (main_hand) {
       this.usage_equip = main_hand
     }
+    this.reset_cast_timer();
     return true;
   }
 
@@ -74,13 +75,11 @@ class AttackEquip extends (Attack as Mod).Latest {
   }
 
   protected get_cast_time(): number {
-    const cast_time = super.get_cast_time();
     const equip_speed = this.usage_equip?.stats?.speed;
     if (equip_speed) {
-      // return Math.max(equip_speed, cast_time);
       return equip_speed;
     }
-    return cast_time;
+    return super.get_cast_time();
   }
 
   interactResult(
