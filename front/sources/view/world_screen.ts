@@ -1,6 +1,7 @@
 import type {
   CharacterData,
   MoveData,
+  MoveToData
 } from '../game';
 
 import {
@@ -18,6 +19,11 @@ import {
 import {
   UserGameObject
 } from './user_game_object';
+
+interface TargetInteract {
+  worldIndex: number,
+  hit: boolean
+}
 
 @UTILS.modifiable
 class WorldScreen {
@@ -135,7 +141,7 @@ class WorldScreen {
       }
       
       character.useSkill(skill_id);
-      GAME.userUserSkill(skill_id);
+      GAME.userUseSkill(skill_id);
     };
     document.addEventListener('keyup', keyUpHandler);
     this.destroy_world_handlers.push(() => {
@@ -206,6 +212,21 @@ class WorldScreen {
     character.updateMove(position, rotation, direction, forcePercent);
   }
 
+  characterMoveTo({
+    worldIndex,
+    position,
+    rotation
+  }: MoveToData): void {
+    const character = this.characters[worldIndex];
+    const { longitude } = GAME.store.worldConfig;
+    const [x, y, z] = position;
+    const point = { x, y, z: longitude - z };
+    character.data.rotation = rotation;
+    character.data.direction = rotation;
+    character.updateDirection();
+    character.moveTo(point);
+  }
+
   characterUseSkill(
     index: number,
     skillId: number
@@ -214,15 +235,38 @@ class WorldScreen {
     character.useSkill(skillId);
   }
 
+  characterApplySkill(
+    index: number,
+    skillId: number
+  ): void {
+    const character = this.characters[index];
+    character.applySkill(skillId);
+  }
+
   characterCancelUseSkill(
     index: number
   ): void {
     const character = this.characters[index];
     character.cancelUseSkill();
   }
+
+  interact(
+    skillId: number,
+    targets: TargetInteract[]
+  ): void {
+    if (skillId == SkillName.Attack) {
+      for (const target of targets) {
+        const character = this.characters[target.worldIndex];
+        if (target.hit) {
+          character.applyAttack();
+        }
+      }
+    }
+  }
   
 }
 
 export {
-  WorldScreen
+  WorldScreen,
+  TargetInteract
 };

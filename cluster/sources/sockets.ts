@@ -10,6 +10,9 @@ import {
   Character
 } from './mechanics/index';
 
+import {
+  SkillResponseCode
+} from './mechanics/skills';
 
 import {
   GamePlugin
@@ -91,8 +94,10 @@ enum SEvent {
   CharCancelLeave = 'char:cancel-leave',
   CharSay = 'char:say',
   CharMove = 'char:move',
+  CharMoveTo = 'char:move-to',
   CharUseSkill = 'char:use-skill',
-  CharCancelUseSkill = 'char:cancel-use-skill'
+  CharCancelUseSkill = 'char:cancel-use-skill',
+  WorldAction = 'world:action'
 }
 
 class Sockets extends GamePlugin {
@@ -172,8 +177,13 @@ class Sockets extends GamePlugin {
     socket.on(SEvent.Reconnect, () => this.char_reconnect(socket));
     socket.on(SEvent.CharSay, data => this.character_say_event(socket, data));
     socket.on(SEvent.CharMove, data => this.character_move(socket, data));
+    socket.on(SEvent.CharMoveTo, data => this.character_move_to(socket, data));
     socket.on(SEvent.CharUseSkill, data => this.character_use_skill(socket, data));
     socket.on(SEvent.CharCancelUseSkill, () => this.character_cancel_use_skill(socket));
+
+    this.server.mechanic.addActionListener(result => {
+      socket.emit(SEvent.WorldAction, result);
+    });
   }
 
   protected char_reconnect(
@@ -280,6 +290,33 @@ class Sockets extends GamePlugin {
     socket.broadcast.emit(SEvent.CharMove, event_data);
   }
 
+  protected character_move_to(
+    socket: Socket,
+    data: CharMove_InEventData
+  ): void {
+    const character = socket.data.character;
+    const {
+      rotation,
+      position
+    } = data;
+
+    if (UTILS.types.isNumber(rotation)) {
+      character.rotate(rotation);
+      socket.data.characterWorldData.rotation = rotation;
+    }
+
+    if (position) {
+      character.updatePosition(this.parse_position(position));
+    }
+
+    const event_data: CharMove_OutEventData = {
+      worldIndex: character.worldIndex,
+      rotation: rotation,
+      position: position
+    };
+    socket.broadcast.emit(SEvent.CharMoveTo, event_data);
+  }
+
   protected parse_position(
     input?: [number, number, number]
   ): PointParameters {
@@ -303,12 +340,15 @@ class Sockets extends GamePlugin {
     const character = socket.data.character;
     const event_code = character.useSkill(skillId);
 
-    if (event_code === 0) {
+    if (event_code === SkillResponseCode.Success) {
       const event_data: CharUseSkill_OutEventData = {
         worldIndex: character.worldIndex,
         skillId
       };
       socket.broadcast.emit(SEvent.CharUseSkill, event_data);
+    } else
+    if (event_code === SkillResponseCode.SuccessInstantly) {
+      // Skip
     } else {
       const event_data: CharCancelUseSkill_OutEventData = {
         code: event_code

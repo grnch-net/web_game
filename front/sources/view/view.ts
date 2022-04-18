@@ -1,6 +1,7 @@
 import type {
   CharacterData,
   MoveData,
+  MoveToData,
   WorldData
 } from '../game';
 
@@ -9,11 +10,13 @@ import {
 } from './main_screen';
 
 import {
-  WorldScreen
+  WorldScreen,
+  TargetInteract
 } from './world_screen';
 
-// export * from './wasd_move';
-export * from './cursor_move';
+// export * from './move/wasd_move';
+// export * from './move/cursor_move';
+export * from './move/target_move';
 
 class View {
 
@@ -87,11 +90,22 @@ class View {
     this.world_screen.characterMove(data);
   }
 
+  characterMoveTo(data: MoveToData): void {
+    this.world_screen.characterMoveTo(data);
+  }
+
   characterUseSkill(
     index: number,
     skillId: number
   ): void {
     this.world_screen.characterUseSkill(index, skillId);
+  }
+
+  characterApplySkill(
+    index: number,
+    skillId: number
+  ): void {
+    this.world_screen.characterApplySkill(index, skillId);
   }
 
   characterCancelUseSkill(
@@ -102,6 +116,13 @@ class View {
       console.warn('User skill canceled', code);
     }
     this.world_screen.characterCancelUseSkill(index);
+  }
+
+  interact(
+    skillId: number,
+    targets: TargetInteract[]
+  ): void {
+    this.world_screen.interact(skillId, targets);
   }
 
 }

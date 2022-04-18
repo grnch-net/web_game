@@ -20,11 +20,14 @@ import {
   QuadTree
 } from '../quadtree';
 
+type ActionListener = (result: InteractResult) => void;
+
 class InteractionController {
 
   protected _characters: List<Character>;
   protected _timeline: Timeline<Character>;
   protected _tree: QuadTree<Character>;
+  protected action_listeners: ActionListener[];
 
   initialize(
     characters: List<Character>,
@@ -33,6 +36,7 @@ class InteractionController {
   ) {
     this._characters = characters;
     this._timeline = timeline;
+    this.action_listeners = [];
     this.initialize_tree(size);
   }
 
@@ -41,6 +45,12 @@ class InteractionController {
   ) {
     this._tree = new QuadTree;
     this._tree.initialize(size);
+  }
+
+  addActionListener(
+    listener: ActionListener
+  ): void {
+    this.action_listeners.push(listener);
   }
 
   tick(
@@ -64,17 +74,24 @@ class InteractionController {
   action(
     character: Character,
     impact: Impact
-  ) {
+  ): InteractResult {
+    let results: InteractResult;
     if (impact.timers) {
       this.add_timers(character, impact.timers);
     }
     if (impact.rules.range) {
       if (impact.rules.sector) {
-        this.interact_sector(character, impact);
+        results = this.interact_sector(character, impact);
       } else {
-        this.interact_distance(character, impact);
+        results = this.interact_distance(character, impact);
       }
     }
+    if (results) {
+      for (const listener of this.action_listeners) {
+        listener(results);
+      }
+    }
+    return results;
   }
 
   protected add_timers(
@@ -90,13 +107,14 @@ class InteractionController {
   protected interact_sector(
     author: Character,
     impact: Impact
-  ) {
+  ): InteractResult {
     this.update_tree();
-    const targets = this._tree.findByRadius(author.position, impact.rules.range);
     const results: InteractResult = {
+      authorIndex: author.worldIndex,
       skill: impact.rules.skill,
       targets: []
     };
+    const targets = this._tree.findByRadius(author.position, impact.rules.range);
     for (const target of targets) {
       if (author == target) continue;
       if (impact.rules.sector < Math.PI * 2) {
@@ -109,7 +127,7 @@ class InteractionController {
       const result = target.interact(target_impact);
       results.targets.push(result);
     }
-    author.interactResult(results);
+    return results;
   }
 
   protected check_sector_hit(
@@ -155,14 +173,16 @@ class InteractionController {
   protected interact_distance(
     author: Character,
     impact: Impact
-  ) {
+  ): InteractResult {
     this.update_tree();
     // TODO:
     // this._tree.findByDirection
+    return;
   }
 
 }
 
 export {
-  InteractionController
+  InteractionController,
+  ActionListener
 };

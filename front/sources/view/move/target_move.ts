@@ -1,14 +1,14 @@
 import {
   WorldScreen
-} from './world_screen';
+} from '../world_screen';
 
 import {
   UserGameObject
-} from './user_game_object';
+} from '../user_game_object';
 
 
 const WorldScreen_Mod = WorldScreen as Modifiable<typeof WorldScreen>;
-class WorldScreen_cursorMove extends WorldScreen_Mod.Latest {
+class WorldScreen_targetMove extends WorldScreen_Mod.Latest {
 
   protected override initialize_user_events(
     character: UserGameObject
@@ -20,16 +20,18 @@ class WorldScreen_cursorMove extends WorldScreen_Mod.Latest {
   protected add_user_cursor_move_event(
     character: UserGameObject
   ): void {
-    const mouse_move_handler = event => {
+    const mouse_up_handler = event => {
       const { longitude } = GAME.store.worldConfig;
       const character_position = {
-        x: character.data.position.x + 10,
-        z: longitude - character.data.position.z + 10
+        x: character.data.position.x,
+        y: character.data.position.y,
+        z: longitude - character.data.position.z
       };
 
       const cursor_position = {
-        x: event.offsetX * (200 / 500),
-        z: event.offsetY * (200 / 500)
+        x: event.offsetX * (200 / 500) - 10,
+        y: 0,
+        z: event.offsetY * (200 / 500) - 10
       };
 
       const qX = (cursor_position.x - character_position.x) ** 2;
@@ -48,34 +50,23 @@ class WorldScreen_cursorMove extends WorldScreen_Mod.Latest {
       character.direction.z = direction_z;
       character.data.direction = character.data.rotation;
 
-      character.userMoveUpdate();
-    };
-
-    const mouse_up_handler = () => {
-      character.moveStop();
-      document.removeEventListener('mousemove', mouse_move_handler);
+      character.userMoveTo(cursor_position, length);
       document.removeEventListener('mouseup', mouse_up_handler);
     };
 
-    const mouse_down_handler = event => {
-      mouse_move_handler(event);
-      document.addEventListener('mousemove', mouse_move_handler);
-      document.addEventListener('mouseup', mouse_up_handler);
-    };
-
-    this.scene_node.node.addEventListener('mousedown', mouse_down_handler);
+    document.addEventListener('mouseup', mouse_up_handler);
+    this.scene_node.node.addEventListener('mousedown', mouse_up_handler);
 
     this.destroy_world_handlers.push(() => {
-      mouse_up_handler();
       document.removeEventListener('mouseup', mouse_up_handler);
-      this.scene_node.node.removeEventListener('mousedown', mouse_down_handler);
+      this.scene_node.node.removeEventListener('mousedown', mouse_up_handler);
     });
   }
 
 }
 
-WorldScreen_Mod.modify(WorldScreen_cursorMove);
+WorldScreen_Mod.modify(WorldScreen_targetMove);
 
 export {
-  WorldScreen_cursorMove
+  WorldScreen_targetMove
 };

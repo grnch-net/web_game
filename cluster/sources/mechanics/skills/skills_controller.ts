@@ -12,10 +12,11 @@ import {
 
 enum SkillResponseCode {
   Success = 0,
-  Unknow = 1,
-  Undefined = 2,
-  Cooldown = 3,
-  NotEnough = 4
+  SuccessInstantly = 1,
+  Unknow = 2,
+  Undefined = 3,
+  Cooldown = 4,
+  NotEnough = 5
 }
 
 class SkillsController {
@@ -152,7 +153,9 @@ class SkillsController {
       }
     }
     skill.use(innerImpact, outerImpact);
-    this.using = skill;
+    if (skill.state !== SkillState.Complete) {
+      this.using = skill;
+    }
   }
 
   cancelUse(): SkillResponseCode {

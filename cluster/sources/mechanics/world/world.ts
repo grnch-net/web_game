@@ -1,42 +1,45 @@
 import type {
   PointParameters
-} from './point';
+} from '../point';
 
 import type {
   Inventory
-} from './inventory/index';
+} from '../inventory/index';
 
 import {
   Timeline
-} from './timeline';
+} from '../timeline';
 
 import {
   Character
-} from './characters/character';
+} from '../characters/character';
 
 import {
-  InteractionController
-} from './interactions/index';
+  InteractionController,
+  ActionListener
+} from '../interactions/index';
 
 import {
   BoxParameters,
   Box
-} from './box';
+} from '../box';
 
 type CharacterList = List<Character>;
 
 @UTILS.modifiable
-export class World {
+class World {
 
   characters: CharacterList;
   boxes: Box[];
   protected _size: number;
   protected _timeline: Timeline<Character>;
   protected interaction_controller: InteractionController;
+  protected last_time: number;
 
-  initialize() {
+  initialize(): World {
     this.initialize_variables();
     this.initialize_interaction();
+    return this;
   }
 
   protected initialize_variables() {
@@ -49,6 +52,16 @@ export class World {
   protected initialize_interaction() {
     this.interaction_controller = new InteractionController;
     this.interaction_controller.initialize(this.characters, this._timeline, this._size);
+  }
+
+  destroy(): void {
+    // TODO: Destroy world
+  }
+
+  addActionListener(
+    listener: ActionListener
+  ): void {
+    this.interaction_controller.addActionListener(listener);
   }
 
   addCharacter(
@@ -75,6 +88,10 @@ export class World {
     index: number
   ): Character {
     return this.characters.elements[index];
+  }
+
+  startTicker(): void {
+    this.last_time = Date.now();
   }
 
   tick(
@@ -146,3 +163,7 @@ export class World {
     return box;
   }
 }
+
+export {
+  World
+};

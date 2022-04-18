@@ -57,22 +57,25 @@ function test_equip_item() {
   damage += sword_config.stats.meleeDamage;
 
   hero.useSkill(SkillName.Attack);
-  if (enemy.attributes.health.value !== max_health) {
-    console.error('- Failed', enemy.attributes.health.value, max_health, damage);
-    console.groupEnd();
-    return
+  if (sword_config.stats.speed > 0) {
+    if (enemy.attributes.health.value !== max_health) {
+      console.error('- Failed 1', {
+        'target health': enemy.attributes.health.value,
+        'target max health': max_health,
+        damage
+      });
+      console.groupEnd();
+      return
+    }
+    world.tick(sword_config.stats.speed);
+    world.update();
   }
-  world.tick(attack_config.castTime);
-  world.update();
-  if (enemy.attributes.health.value !== max_health) {
-    console.error('- Failed', enemy.attributes.health.value, max_health, damage);
-    console.groupEnd();
-    return
-  }
-  world.tick(sword_config.stats.speed - attack_config.castTime);
-  world.update();
   if (enemy.attributes.health.value !== (max_health - damage)) {
-    console.error('- Failed', enemy.attributes.health.value, max_health, damage);
+    console.error('- Failed 2', {
+      'target health': enemy.attributes.health.value,
+      'target max health': max_health,
+      damage
+    });
     console.groupEnd();
     return
   }

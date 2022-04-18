@@ -169,7 +169,10 @@ class Character extends WorldObject {
     innerImpact: Impact
   ): TargetInteractResult {
     this.tick(0);
-    const result: TargetInteractResult = { hit: true };
+    const result: TargetInteractResult = {
+      worldIndex: this.worldIndex,
+      hit: true
+    };
     this.interact_listeners(innerImpact, result);
     this.apply_impact(innerImpact);
     return result;
@@ -273,8 +276,12 @@ class Character extends WorldObject {
 
   protected apply_interaction(
     impact: Impact,
-  ) {
-    this.world.action(this, impact);
+  ): InteractResult {
+    const results = this.world.action(this, impact);
+    if (results) {
+      this.interactResult(results);
+    }
+    return results;
   }
 
   interactResult(
