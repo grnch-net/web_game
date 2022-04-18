@@ -1,6 +1,7 @@
 import type {
   CharacterData,
   MoveData,
+  MoveToData,
   WorldData
 } from '../game';
 
@@ -87,6 +88,10 @@ class View {
 
   characterMove(data: MoveData): void {
     this.world_screen.characterMove(data);
+  }
+
+  characterMoveTo(data: MoveToData): void {
+    this.world_screen.characterMoveTo(data);
   }
 
   characterUseSkill(

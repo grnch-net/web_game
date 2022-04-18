@@ -33,6 +33,12 @@ interface MoveData {
   forcePercent: number;
 }
 
+interface MoveToData {
+  worldIndex: number;
+  position: [number, number, number];
+  rotation: number;
+}
+
 interface UseSkillData {
   worldIndex: number;
   skillId: number;
@@ -152,6 +158,12 @@ class Game {
     this.view.characterMove(data);
   }
 
+  characterMoveTo(
+    data: MoveToData
+  ): void {
+    this.view.characterMoveTo(data);
+  }
+
   userUseSkill(
     skillId: number
   ): void {
@@ -203,5 +215,6 @@ export {
   PointParameters,
   CharacterData,
   MoveData,
+  MoveToData,
   WorldData
 };

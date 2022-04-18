@@ -26,6 +26,7 @@ const soketsEvents = {
   CharCancelLeave: 'char:cancel-leave',
   CharSay: 'char:say',
   CharMove: 'char:move',
+  CharMoveTo: 'char:move-to',
   CharUseSkill: 'char:use-skill',
   CharCancelUseSkill: 'char:cancel-use-skill',
   WorldAction: 'world:action'
@@ -133,6 +134,10 @@ class Network {
       GAME.characterMove(data);
     });
 
+    this.socket.on(soketsEvents.CharMoveTo, (data: MoveData) => {
+      GAME.characterMoveTo(data);
+    });
+
     this.socket.on(soketsEvents.CharUseSkill, data => {
       console.log('Char use skill', data);
       GAME.characterUseSkill(data);
@@ -201,12 +206,10 @@ class Network {
   ): void {
     const data = GAME.store.getUserCharacter();
     const { x, y, z } = position;
-    // this.socket.emit(soketsEvents.CharMove, {
-    //   rotation: data.rotation,
-    //   position: [x, y, z],
-    //   direction: data.direction,
-    //   forcePercent: data.forcePercent
-    // });
+    this.socket.emit(soketsEvents.CharMoveTo, {
+      rotation: data.rotation,
+      position: [x, y, z]
+    });
   }
 
   userUseSkill(

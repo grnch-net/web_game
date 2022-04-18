@@ -1,6 +1,7 @@
 import type {
   CharacterData,
   MoveData,
+  MoveToData
 } from '../game';
 
 import {
@@ -209,6 +210,21 @@ class WorldScreen {
   }: MoveData): void {
     const character = this.characters[worldIndex];
     character.updateMove(position, rotation, direction, forcePercent);
+  }
+
+  characterMoveTo({
+    worldIndex,
+    position,
+    rotation
+  }: MoveToData): void {
+    const character = this.characters[worldIndex];
+    const { longitude } = GAME.store.worldConfig;
+    const [x, y, z] = position;
+    const point = { x, y, z: longitude - z };
+    character.data.rotation = rotation;
+    character.data.direction = rotation;
+    character.updateDirection();
+    character.moveTo(point);
   }
 
   characterUseSkill(

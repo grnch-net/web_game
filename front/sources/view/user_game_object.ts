@@ -20,10 +20,10 @@ class UserGameObject extends GameObject {
     this.character_model_path = '#user-character-prefab';
   }
 
-  override moveStop(): void {
-    super.moveStop();
-    GAME.userMove();
-  }
+  // override moveStop(): void {
+  //   super.moveStop();
+  //   GAME.userMove();
+  // }
 
   userMoveUpdate(): void {
     const { position } = this.data;
@@ -46,8 +46,13 @@ class UserGameObject extends GameObject {
     position: PointParameters,
     length: number
   ): void {
-    this.moveTo(position, length);
-    GAME.userMoveTo(position);
+    this.moveTo(position, length);    
+    const { longitude } = GAME.store.worldConfig;
+    GAME.userMoveTo({
+      x: position.x,
+      y: position.y,
+      z: longitude - position.z
+    });
   }
 
 }

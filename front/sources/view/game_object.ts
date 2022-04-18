@@ -105,10 +105,12 @@ class GameObject {
     this.moveStart();
 
     if (!length) {
+      const { longitude } = GAME.store.worldConfig;
       const qX = (position.x - this.data.position.x) ** 2;
-      const qZ = (position.z - this.data.position.z) ** 2;
+      const qZ = (position.z - (longitude - this.data.position.z)) ** 2;
       length = Math.sqrt(qX + qZ);
     }
+
     const move_force = this.data.moveForce * this.data.forcePercent;
     const move_time = length / move_force / 10;
     setTimeout(() => {
