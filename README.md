@@ -73,7 +73,7 @@ interface Response {
 interface Request {
   data: {
     secret: string,
-    worldIndex: number,
+    id: number,
     world: {
       characters: Character[]
     }
@@ -100,7 +100,7 @@ interface OutData {
 socket.emit('char:enter', { secret });
 
 interface InData {
-  worldIndex: number;
+  id: number;
   characterData: Character;
 }
 
@@ -113,7 +113,7 @@ event: "char:leave"
 interface OutData {}
 
 interface InData {
-  worldIndex: number;
+  id: number;
 }
 ````
 #### Cancel Leave
@@ -131,7 +131,7 @@ interface OutData {
 }
 
 interface InData {
-  worldIndex: number;
+  id: number;
   message: string;
 }
 ````
@@ -144,7 +144,7 @@ interface OutData {
 }
 
 interface InData {
-  worldIndex: number;
+  id: number;
   position: number[]; // [x, y, z]
 }
 ````
@@ -157,7 +157,7 @@ interface OutData {
 }
 
 interface InData {
-  worldIndex: number;
+  id: number;
   skillId: number;
 }
 ````
@@ -168,7 +168,7 @@ event: "char:cancel-use-skill"
 interface OutData {}
 
 interface InData {
-  worldIndex: number;
+  id: number;
   code?: number;
 }
 ````
