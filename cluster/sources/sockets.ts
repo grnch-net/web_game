@@ -3,8 +3,9 @@ import type {
 } from './mechanics/point';
 
 import type {
-  CharacterWorldData,
-} from './store';
+  Session,
+  CharacterWorldData
+} from './session';
 
 import {
   Character
@@ -28,20 +29,22 @@ interface Socket extends ioSocket {
     logout: NodeJS.Timeout;
     character: Character;
     characterWorldData: CharacterWorldData;
+    session: Session;
   }
 }
 
 interface CharEnter_InEventData {
   secret: string;
+  sessionId: number;
 }
 
 interface CharEnter_OutEventData {
-  worldIndex: number;
+  id: number;
   characterData: CharacterWorldData;
 }
 
 interface CharLeave_OutEventData {
-  worldIndex: number;
+  id: number;
 }
 
 interface CharSay_InEventData {
@@ -49,7 +52,7 @@ interface CharSay_InEventData {
 }
 
 interface CharSay_OutEventData {
-  worldIndex: number;
+  id: number;
   message: string;
 }
 
@@ -61,7 +64,7 @@ interface CharMove_InEventData {
 }
 
 interface CharMove_OutEventData {
-  worldIndex: number;
+  id: number;
   direction?: number;
   rotation?: number;
   position?: [number, number, number];
@@ -73,14 +76,14 @@ interface CharUseSkill_InEventData {
 }
 
 interface CharUseSkill_OutEventData {
-  worldIndex: number;
+  id: number;
   skillId: number;
 }
 
 interface CharCancelUseSkill_InEventData {}
 
 interface CharCancelUseSkill_OutEventData {
-  worldIndex?: number;
+  id?: number;
   code?: number;
 }
 
@@ -97,6 +100,7 @@ enum SEvent {
   CharMoveTo = 'char:move-to',
   CharUseSkill = 'char:use-skill',
   CharCancelUseSkill = 'char:cancel-use-skill',
+  WorldStart = 'world:start',
   WorldAction = 'world:action'
 }
 
@@ -143,33 +147,37 @@ class Sockets extends GamePlugin {
     data: CharEnter_InEventData
   ): void {    
     const { store } = this.server;
-    const character = store.getSecretCharacter(data.secret);
-    const worldIndex = character?.worldIndex;
 
-    if (worldIndex == undefined) {
+    const session = store.getSession(data.sessionId);
+    const character = session.getSecretCharacter(data.secret);
+    const id = character?.id;
+
+    if (id == undefined) {
       socket.disconnect();
       return;
     }
     
     console.info('- Char enter to world', character.name);
     
-    const characterWorldData = store.getWorldCharacterData(worldIndex);
+    const characterWorldData = session.getWorldCharacterData(id);
     
     socket.data.character = character;
     socket.data.characterWorldData = characterWorldData;
-    store.addSocketsId(worldIndex, socket.id);
+    socket.data.session = session;
+    session.addSocketsId(id, socket.id);
 
     const event_data: CharEnter_OutEventData = {
-      worldIndex,
+      id,
       characterData: characterWorldData
     };
     socket.broadcast.emit(SEvent.CharEnter, event_data);
 
     this.add_socket_listeners(socket);
+    this.check_start_session(session);
   }
 
   protected add_socket_listeners(
-    socket: Socket
+    socket: Socket,
   ): void {
     socket.on(SEvent.CharLeave, () => this.char_wait_leave(socket));
     socket.on(SEvent.CharCancelLeave, () => this.char_reconnect(socket));
@@ -181,9 +189,17 @@ class Sockets extends GamePlugin {
     socket.on(SEvent.CharUseSkill, data => this.character_use_skill(socket, data));
     socket.on(SEvent.CharCancelUseSkill, () => this.character_cancel_use_skill(socket));
 
-    this.server.mechanic.addActionListener(result => {
+    socket.data.session.world.addActionListener(result => {
       socket.emit(SEvent.WorldAction, result);
     });
+  }
+
+  protected check_start_session(
+    session: Session
+  ): void {
+    if (session.isFull()) {
+      session.runWorld();
+    }
   }
 
   protected char_reconnect(
@@ -205,7 +221,7 @@ class Sockets extends GamePlugin {
     character.moveStop();
 
     const event_data: CharMove_OutEventData = {
-      worldIndex: character.worldIndex,
+      id: character.id,
       position: character.position.toArray(),
       forcePercent: 0
     };
@@ -218,21 +234,21 @@ class Sockets extends GamePlugin {
   protected char_leave(
     socket: Socket
   ): void {
-    const { mechanic, store } = this.server;
+    const { store } = this.server;
 
-    const worldIndex = socket.data.character.worldIndex;
-    const success = mechanic.leaveFromWorld(worldIndex);
+    const id = socket.data.character.id;
+    const success = socket.data.session.leaveFromWorld(id);
 
     if (!success) {
       socket.send(SEvent.ServerError, SEvent.CharLeave);
       return;
     }
-
+    
     socket.removeAllListeners();
-    store.removeWorldCharacter(worldIndex);
-
+    store.removeWorldCharacter(id);
+    
     const event_data: CharLeave_OutEventData = {
-      worldIndex
+      id
     };
 
     this.io.sockets.emit(SEvent.CharLeave, event_data);
@@ -246,7 +262,7 @@ class Sockets extends GamePlugin {
   ): void {
     console.info('Char say', data);
     const event_data: CharSay_OutEventData = {
-      worldIndex: socket.data.character.worldIndex,
+      id: socket.data.character.id,
       message: data.message
     };
     this.io.sockets.emit(SEvent.CharSay, event_data);
@@ -281,7 +297,7 @@ class Sockets extends GamePlugin {
     }
 
     const event_data: CharMove_OutEventData = {
-      worldIndex: character.worldIndex,
+      id: character.id,
       rotation: rotation,
       position: position,
       direction: direction,
@@ -310,7 +326,7 @@ class Sockets extends GamePlugin {
     }
 
     const event_data: CharMove_OutEventData = {
-      worldIndex: character.worldIndex,
+      id: character.id,
       rotation: rotation,
       position: position
     };
@@ -342,7 +358,7 @@ class Sockets extends GamePlugin {
 
     if (event_code === SkillResponseCode.Success) {
       const event_data: CharUseSkill_OutEventData = {
-        worldIndex: character.worldIndex,
+        id: character.id,
         skillId
       };
       socket.broadcast.emit(SEvent.CharUseSkill, event_data);
@@ -365,10 +381,14 @@ class Sockets extends GamePlugin {
 
     if (event_code === 0) {
       const event_data: CharCancelUseSkill_OutEventData = {
-        worldIndex: character.worldIndex
+        id: character.id
       };
       socket.broadcast.emit(SEvent.CharCancelUseSkill, event_data);
     }
+  }
+
+  protected start_game_session(): void {
+
   }
 
 }

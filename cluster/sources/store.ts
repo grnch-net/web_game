@@ -3,121 +3,72 @@ import type {
   CharacterParameters
 } from './mechanics/index';
 
-import * as crypto from 'crypto';
-
-interface Position {
-  x: number;
-  y: number;
-  z: number;
-}
-
-interface CharacterWorldData {
-  name: string;
-  position: Position;
-  rotation: number;
-  moveForce: number;
-  attributes: Associative<number>;
-  effects: number[];
-  equips: number[];
-}
-
-interface WorldData {
-  characters: CharacterWorldData[]
-}
+import {
+  Session,
+  WorldData
+} from './session';
 
 class Store {
 
-  protected charactersCollect: Associative<CharacterParameters>
-  protected worldData: WorldData
-  protected socketsId: string[]
-  protected charactersInWorld: string[]
-  protected charactersSecret: { [secret: string]: Character }
+  protected characters_collect: Associative<CharacterParameters>;
+  protected characters_in_world: string[];
+  protected sessions: Session[];
+  protected open_session: Session;
 
   initialize() {
-    this.charactersCollect = {};
-    this.worldData = {
-      characters: []
-    };
-    this.socketsId = [];
-    this.charactersInWorld = [];
-    this.charactersSecret = {};
+    this.characters_collect = {};
+    this.characters_in_world = [];
+    this.sessions = [];
   }
 
   hasCharacter(name: string): boolean {
-    return this.charactersCollect.hasOwnProperty(name);
+    return this.characters_collect.hasOwnProperty(name);
   }
 
   getCharacter(name: string): CharacterParameters {
-    return this.charactersCollect[name];
+    return this.characters_collect[name];
   }
 
   addNewCharacter(name: string, parameters: CharacterParameters): void {
-    this.charactersCollect[name] = parameters
+    this.characters_collect[name] = parameters
   }
 
-
   hasCharacterInWorld(name: string): boolean {
-    return this.charactersInWorld.includes(name);
+    return this.characters_in_world.includes(name);
   }
 
   getCharacterInWorld(index: number): string {
-    return this.charactersInWorld[index];
+    return this.characters_in_world[index];
   }
 
-  addCharacterInWorld(index: number, name: string): void {
-    this.charactersInWorld[index] = name;
-  }
-
-
-  protected generateSecretKey(): string {
-    return crypto.randomBytes(10).toString('hex');
-  }
-
-  createSecretCharacter(data: Character): string {
-    const secret = this.generateSecretKey();
-    this.charactersSecret[secret] = data;
-    return secret;
-  }
-
-  getSecretCharacter(secret: string): Character {
-    const character = this.charactersSecret[secret];
-    delete this.charactersSecret[secret];
-    return character;
-  }
-
-
-  getSocketId(index: number): string {
-    return this.socketsId[index];
-  }
-
-  addSocketsId(index: number, id: string): void {
-    this.socketsId[index] = id;
-  }
-
-
-  getWorldData(): WorldData {
-    return this.worldData;
-  }
-
-  getWorldCharacterData(index: number): CharacterWorldData {
-    return this.worldData.characters[index];
-  }
-
-  addWorldCharacterData(index: number, characterData: CharacterWorldData): void {
-    this.worldData.characters[index] = characterData;
+  addCharacterInWorld(id: number, name: string): void {
+    this.characters_in_world[id] = name;
   }
 
   removeWorldCharacter(index: number) {
-    this.worldData.characters[index] = null;
-    this.charactersInWorld[index] = null;
-    this.socketsId[index] = null;
+    this.characters_in_world[index] = null;
+  }
+
+  protected create_session(): void {
+    this.open_session = (new Session).initialize();
+    const id = this.sessions.push(this.open_session);
+    this.open_session.id = id;
+  }
+
+  getOpenSession(): Session {
+    if (!this.open_session || this.open_session.isFull()) {
+      this.create_session();
+    }
+
+    return this.open_session;
+  }
+
+  getSession(id: number): Session {
+    return this.sessions[id];
   }
 
 }
 
 export {
-  Store,
-  WorldData,
-  CharacterWorldData,
-  Position
+  Store
 };

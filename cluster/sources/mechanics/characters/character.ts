@@ -170,7 +170,7 @@ class Character extends WorldObject {
   ): TargetInteractResult {
     this.tick(0);
     const result: TargetInteractResult = {
-      worldIndex: this.worldIndex,
+      id: this.id,
       hit: true
     };
     this.interact_listeners(innerImpact, result);

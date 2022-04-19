@@ -110,7 +110,7 @@ class InteractionController {
   ): InteractResult {
     this.update_tree();
     const results: InteractResult = {
-      authorIndex: author.worldIndex,
+      authorId: author.id,
       skill: impact.rules.skill,
       targets: []
     };

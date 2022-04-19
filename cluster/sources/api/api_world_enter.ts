@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ObjectProperties } from 'fast-json-stringify';
-import type { WorldData, CharacterWorldData } from '../store';
+import type { WorldData, CharacterWorldData } from '../session';
 
 import { APIPlugin, APISchema } from './services/api_plugin';
 import { characterWorldData_SchemaProperties } from './services/api_schemas';
@@ -20,7 +20,7 @@ class WorldEnter_APISchema extends APISchema {
         type: 'object',
         properties: {
           secret: { type: 'string' },
-          worldIndex: { type: 'number' },
+          id: { type: 'number' },
           world: {
             type: 'object',
             properties: {
@@ -46,7 +46,8 @@ interface WorldEnter_RequestBody {
 
 interface WorldEnter_ResponseBody {
   secret: string;
-  worldIndex: number;
+  id: number;
+  sessionId: number;
   world: WorldData;
 }
 
@@ -63,34 +64,34 @@ class WorldEnter_API extends APIPlugin {
   protected handler(
     request: FastifyRequest,
     reply: FastifyReply
-  ): void {
-    const { store, mechanic } = this.server;
-    
+  ): void {    
     const {
       name: character_name
     } = request.body as WorldEnter_RequestBody;    
 
-    if (store.hasCharacterInWorld(character_name)) {
-      this.sendError(reply, 'character_already_exists');
-      return;
-    }
-  
-    const character_parameters = store.getCharacter(character_name);
+    const character_parameters = this.server.store.getCharacter(character_name);
     if (!character_parameters) {
       this.sendError(reply, 'character_not_found');
       return;
     }
+    
+    if (this.server.store.hasCharacterInWorld(character_name)) {
+      this.sendError(reply, 'character_already_exists');
+      return;
+    }
   
-    const character = mechanic.enterToWorld(character_parameters);
-    const worldIndex = character.worldIndex;
-    store.addCharacterInWorld(worldIndex, character_name);
+    const session = this.server.store.getOpenSession();
+    const character = session.enterToWorld(character_parameters);
+    const id = character.id;
+    this.server.store.addCharacterInWorld(id, character_name);
   
-    const secret = store.createSecretCharacter(character);
+    const secret = session.createSecretCharacter(character);
   
     let response_body: WorldEnter_ResponseBody = {
       secret,
-      worldIndex,
-      world: store.getWorldData(),
+      id: character.id,
+      sessionId: session.id,
+      world: session.getWorldData(),
     };
     reply.send({ data: response_body });
     
@@ -120,7 +121,7 @@ class WorldEnter_API extends APIPlugin {
       equips: character_equips
     };
   
-    store.addWorldCharacterData(worldIndex, charWorldData);
+    session.addWorldCharacterData(id, charWorldData);
   }
 
 }

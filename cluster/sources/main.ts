@@ -89,8 +89,6 @@ class Game {
   }
 
   runServer(): void {
-    this.server.mechanic.createWorld();
-    
     this.server.listen({
       port: 3009,
       // host: '192.168.1.122'

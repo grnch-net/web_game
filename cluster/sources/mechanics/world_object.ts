@@ -17,7 +17,7 @@ interface WorldObjectParameters {
 class WorldObject {
 
   world: InteractionController;
-  worldIndex: number;
+  id: number;
   position: Point;
   direction: Point;
   wait: number;

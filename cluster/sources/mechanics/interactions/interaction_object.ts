@@ -9,13 +9,13 @@ import {
 } from './influences';
 
 interface TargetInteractResult {
-  worldIndex: number;
+  id: number;
   avoid?: boolean;
   hit?: boolean;
 }
 
 interface InteractResult {
-  authorIndex: number;
+  authorId: number;
   skill: string | number;
   targets: TargetInteractResult[];
 }
