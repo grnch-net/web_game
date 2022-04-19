@@ -26,7 +26,7 @@ interface CharacterData {
 }
 
 interface MoveData {
-  worldIndex: number;
+  id: number;
   position: [number, number, number];
   rotation: number;
   direction: number;
@@ -34,23 +34,23 @@ interface MoveData {
 }
 
 interface MoveToData {
-  worldIndex: number;
+  id: number;
   position: [number, number, number];
   rotation: number;
 }
 
 interface UseSkillData {
-  worldIndex: number;
+  id: number;
   skillId: number;
 }
 
 interface CancelUseSkillData {
-  worldIndex?: number;
+  id?: number;
   code?: number;
 }
 
 interface WorldActionData {
-  authorIndex: number;
+  authorId: number;
   skill: number;
   targets: any;
 }
@@ -178,33 +178,33 @@ class Game {
     data: UseSkillData
   ): void {
     const {
-      worldIndex,
+      id,
       skillId
     } = data;
-    this.view.characterUseSkill(worldIndex, skillId);
+    this.view.characterUseSkill(id, skillId);
   }
 
   characterCancelUseSkill(
     data: CancelUseSkillData
   ): void {
     const {
-      worldIndex,
+      id,
       code
     } = data;
-    const index = UTILS.types.isNumber(worldIndex) ? worldIndex : this.store.getUserIndex();
-    this.view.characterCancelUseSkill(index, code);
+    const character_id = UTILS.types.isNumber(id) ? id : this.store.getUserIndex();
+    this.view.characterCancelUseSkill(character_id, code);
   }
 
   worldAction(
     data: WorldActionData
   ): void {
     const {
-      authorIndex,
+      authorId,
       skill,
       targets
     } = data;
-    const index = UTILS.types.isNumber(authorIndex) ? authorIndex : this.store.getUserIndex();
-    this.view.characterApplySkill(index, skill);
+    const id = UTILS.types.isNumber(authorId) ? authorId : this.store.getUserIndex();
+    this.view.characterApplySkill(id, skill);
     this.view.interact(skill, targets);
   }
 

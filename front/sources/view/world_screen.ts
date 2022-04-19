@@ -21,7 +21,7 @@ import {
 } from './user_game_object';
 
 interface TargetInteract {
-  worldIndex: number,
+  id: number,
   hit: boolean
 }
 
@@ -202,22 +202,22 @@ class WorldScreen {
   }
 
   characterMove({
-    worldIndex,
+    id,
     position,
     rotation,
     direction,
     forcePercent
   }: MoveData): void {
-    const character = this.characters[worldIndex];
+    const character = this.characters[id];
     character.updateMove(position, rotation, direction, forcePercent);
   }
 
   characterMoveTo({
-    worldIndex,
+    id,
     position,
     rotation
   }: MoveToData): void {
-    const character = this.characters[worldIndex];
+    const character = this.characters[id];
     const { longitude } = GAME.store.worldConfig;
     const [x, y, z] = position;
     const point = { x, y, z: longitude - z };
@@ -256,7 +256,7 @@ class WorldScreen {
   ): void {
     if (skillId == SkillName.Attack) {
       for (const target of targets) {
-        const character = this.characters[target.worldIndex];
+        const character = this.characters[target.id];
         if (target.hit) {
           character.applyAttack();
         }

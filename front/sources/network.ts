@@ -34,7 +34,8 @@ const soketsEvents = {
 
 interface EnterToWorldData {
   secret: string;
-  worldIndex: number;
+  id: number;
+  sessionId: number;
   world: WorldData;
 }
 
@@ -69,9 +70,9 @@ class Network {
     if (!data) {
       return null;
     }
-    data.world.userIndex = data.worldIndex;
+    data.world.userIndex = data.id;
     this.create_socket();
-    this.enter_to_world_emit(data.secret);
+    this.enter_to_world_emit(data.sessionId, data.secret);
     return data.world;
   }
 
@@ -86,10 +87,11 @@ class Network {
   }
 
   protected enter_to_world_emit(
+    sessionId: number,
     secret: string
   ): void {
     const event = soketsEvents.CharEnter;
-    this.socket.emit(event, { secret });
+    this.socket.emit(event, { sessionId, secret });
   }
 
   protected async send_request(path, data) {
@@ -127,7 +129,7 @@ class Network {
 
   protected initialize_socket_events(): void {
     this.socket.on(soketsEvents.CharSay, data => {
-      GAME.newMessage(data.worldIndex, data.message);
+      GAME.newMessage(data.id, data.message);
     });
 
     this.socket.on(soketsEvents.CharMove, (data: MoveData) => {
@@ -155,10 +157,10 @@ class Network {
 
     this.socket.on(soketsEvents.CharEnter, data => {
       console.log('Char enter to world', data);
-      GAME.addCharacter(data.worldIndex, data.characterData);
+      GAME.addCharacter(data.id, data.characterData);
     });
 
-    this.socket.on(soketsEvents.CharLeave, data => this.char_leave(data.worldIndex));
+    this.socket.on(soketsEvents.CharLeave, data => this.char_leave(data.id));
   }
 
   protected char_leave(
