@@ -50,12 +50,13 @@ class View {
   protected init_scene(
     data: WorldData
   ): void {
-    for (const index in data.characters) {
-      const character = data.characters[index];
-      if (!character) {
+    const user_id = GAME.store.getUserIndex();
+    for (const id in data.characters) {
+      const character = data.characters[id];
+      if (!character || +id === user_id) {
         continue;
       }
-      this.world_screen.addCharacter(+index, character);
+      this.world_screen.addCharacter(+id, character);
     }
   }
 

@@ -34,9 +34,10 @@ const soketsEvents = {
 
 interface EnterToWorldData {
   secret: string;
-  id: number;
+  characterId: number;
   sessionId: number;
   world: WorldData;
+  reconnect: boolean;
 }
 
 class Network {
@@ -70,9 +71,9 @@ class Network {
     if (!data) {
       return null;
     }
-    data.world.userIndex = data.id;
+    data.world.userIndex = data.characterId;
     this.create_socket();
-    this.enter_to_world_emit(data.sessionId, data.secret);
+    this.enter_to_world_emit(data);
     return data.world;
   }
 
@@ -86,12 +87,13 @@ class Network {
     return await this.send_request(event, parameters);
   }
 
-  protected enter_to_world_emit(
-    sessionId: number,
-    secret: string
-  ): void {
+  protected enter_to_world_emit({
+    sessionId,
+    secret,
+    reconnect
+  }: EnterToWorldData): void {
     const event = soketsEvents.CharEnter;
-    this.socket.emit(event, { sessionId, secret });
+    this.socket.emit(event, { sessionId, secret, reconnect });
   }
 
   protected async send_request(path, data) {
