@@ -1,10 +1,34 @@
-import type { FastifyReply, FastifyRequest } from 'fastify';
-import type { ObjectProperties } from 'fast-json-stringify';
-import type { WorldData, CharacterWorldData } from '../session';
+import type {
+  FastifyReply,
+  FastifyRequest
+} from 'fastify';
 
-import { APIPlugin, APISchema } from './services/api_plugin';
-import { characterWorldData_SchemaProperties } from './services/api_schemas';
-import { APIUrl } from './services/api_urls';
+import type {
+  ObjectProperties
+} from 'fast-json-stringify';
+
+import type {
+  WorldData,
+  CharacterWorldData,
+  Session
+} from '../session';
+
+import {
+  APIPlugin,
+  APISchema
+} from './services/api_plugin';
+
+import {
+  characterWorldData_SchemaProperties
+} from './services/api_schemas';
+
+import {
+  APIUrl
+} from './services/api_urls';
+
+import {
+  Character
+} from '../mechanics/index';
 
 class WorldEnter_APISchema extends APISchema {
 
@@ -20,7 +44,9 @@ class WorldEnter_APISchema extends APISchema {
         type: 'object',
         properties: {
           secret: { type: 'string' },
-          id: { type: 'number' },
+          characterId: { type: 'number' },
+          sessionId: { type: 'number' },
+          reconnect: { type: 'boolean' },
           world: {
             type: 'object',
             properties: {
@@ -46,9 +72,10 @@ interface WorldEnter_RequestBody {
 
 interface WorldEnter_ResponseBody {
   secret: string;
-  id: number;
+  characterId: number;
   sessionId: number;
   world: WorldData;
+  reconnect: boolean;
 }
 
 class WorldEnter_API extends APIPlugin {
@@ -75,53 +102,62 @@ class WorldEnter_API extends APIPlugin {
       return;
     }
     
-    if (this.server.store.hasCharacterInWorld(character_name)) {
-      this.sendError(reply, 'character_already_exists');
-      return;
+    const character_info = this.server.store.getWorldCharacterInfo(character_name);
+    let session: Session;
+    let character: Character;
+    let reconnect: boolean;
+
+    if (character_info) {
+      // this.sendError(reply, 'character_already_exists');
+      // return;
+      session = this.server.store.getSession(character_info.sessionId);
+      character = session.world.getCharacter(character_info.characterId);
+      reconnect = true;
+    } else {
+      session = this.server.store.getOpenSession();
+      character = session.enterToWorld(character_parameters);
+      this.server.store.addCharacterInWorld(character_name, session.id, character.id);
+
+      const character_attributes: Associative<number> = {};
+      for (const key in character_parameters.attributes) {
+        const attribute = character_parameters.attributes[key];
+        character_attributes[key] = attribute.value;
+      }
+
+      const character_effects: number[] = [];
+      for (const effect of character_parameters.effects) {
+        character_effects.push(effect.id as number);
+      }
+
+      const character_equips: number[] = [];
+      for (const equip of character_parameters.equips) {
+        character_equips.push(equip.id as number);
+      }
+
+      const charWorldData: CharacterWorldData = {
+        name: character_parameters.name,
+        position: character_parameters.position,
+        rotation: character_parameters.rotation,
+        moveForce: character_parameters.moveForce,
+        attributes: character_attributes,
+        effects: character_effects,
+        equips: character_equips
+      };
+    
+      session.addWorldCharacterData(character.id, charWorldData);
+      reconnect = false;
     }
-  
-    const session = this.server.store.getOpenSession();
-    const character = session.enterToWorld(character_parameters);
-    const id = character.id;
-    this.server.store.addCharacterInWorld(id, character_name);
-  
+
     const secret = session.createSecretCharacter(character);
   
     let response_body: WorldEnter_ResponseBody = {
       secret,
-      id: character.id,
+      characterId: character.id,
       sessionId: session.id,
       world: session.getWorldData(),
+      reconnect
     };
     reply.send({ data: response_body });
-    
-    const character_attributes: Associative<number> = {};
-    for (const key in character_parameters.attributes) {
-      const attribute = character_parameters.attributes[key];
-      character_attributes[key] = attribute.value;
-    }
-  
-    const character_effects: number[] = [];
-    for (const effect of character_parameters.effects) {
-      character_effects.push(effect.id as number);
-    }
-  
-    const character_equips: number[] = [];
-    for (const equip of character_parameters.equips) {
-      character_equips.push(equip.id as number);
-    }
-  
-    const charWorldData: CharacterWorldData = {
-      name: character_parameters.name,
-      position: character_parameters.position,
-      rotation: character_parameters.rotation,
-      moveForce: character_parameters.moveForce,
-      attributes: character_attributes,
-      effects: character_effects,
-      equips: character_equips
-    };
-  
-    session.addWorldCharacterData(id, charWorldData);
   }
 
 }

@@ -1,23 +1,26 @@
 import type {
-  Character,
   CharacterParameters
 } from './mechanics/index';
 
 import {
-  Session,
-  WorldData
+  Session
 } from './session';
+
+interface WorldCharacterInfo {
+  characterId: number;
+  sessionId: number;
+}
 
 class Store {
 
   protected characters_collect: Associative<CharacterParameters>;
-  protected characters_in_world: string[];
+  protected characters_in_world: Associative<WorldCharacterInfo>;
   protected sessions: Session[];
   protected open_session: Session;
 
   initialize() {
     this.characters_collect = {};
-    this.characters_in_world = [];
+    this.characters_in_world = {};
     this.sessions = [];
   }
 
@@ -33,26 +36,26 @@ class Store {
     this.characters_collect[name] = parameters
   }
 
-  hasCharacterInWorld(name: string): boolean {
-    return this.characters_in_world.includes(name);
+  getWorldCharacterInfo(name: string): WorldCharacterInfo {
+    return this.characters_in_world[name];
   }
 
-  getCharacterInWorld(index: number): string {
-    return this.characters_in_world[index];
+  addCharacterInWorld(name: string, sessionId: number, characterId: number): void {
+    this.characters_in_world[name] = {
+      sessionId,
+      characterId
+    };
   }
 
-  addCharacterInWorld(id: number, name: string): void {
-    this.characters_in_world[id] = name;
-  }
-
-  removeWorldCharacter(index: number) {
-    this.characters_in_world[index] = null;
+  removeWorldCharacter(name: string) {
+    delete this.characters_in_world[name];
   }
 
   protected create_session(): void {
     this.open_session = (new Session).initialize();
-    const id = this.sessions.push(this.open_session);
-    this.open_session.id = id;
+    const id = this.sessions.length;
+    this.sessions.push(this.open_session);
+    this.open_session.setId(id);
   }
 
   getOpenSession(): Session {
