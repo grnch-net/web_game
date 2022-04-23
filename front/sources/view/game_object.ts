@@ -15,6 +15,7 @@ interface Skill {
   node: SVGElement;
 }
 
+@UTILS.modifiable
 class GameObject {
 
   node: SVGElement;
@@ -23,6 +24,7 @@ class GameObject {
   protected character_model_path: string;
   protected update_time: number;
   protected current_skill: Skill;
+  protected is_move: boolean;
 
   initialize(
     data: CharacterData
@@ -70,13 +72,6 @@ class GameObject {
 
     this.updateDirection(direction);
     this.updateTransform();
-    
-    if (forcePercent || forcePercent === 0) {
-      this.data.forcePercent = forcePercent;
-      if (forcePercent > 0) {
-        this.moveStart();
-      }
-    }
   }
 
   updateTransform(): void {
@@ -96,30 +91,43 @@ class GameObject {
     position: PointParameters,
     length?: number
   ): boolean {
+    if (this.is_move) {
+      return false;
+    }
+
     const checked = this.checkMovePosition(position);
     if (!checked) {
       return false;
     }
 
-    this.data.forcePercent = 1;
-    this.moveStart();
+    this.is_move = true;
 
+    const { longitude } = GAME.store.worldConfig;
     if (!length) {
-      const { longitude } = GAME.store.worldConfig;
       const qX = (position.x - this.data.position.x) ** 2;
       const qZ = (position.z - (longitude - this.data.position.z)) ** 2;
       length = Math.sqrt(qX + qZ);
     }
 
+    this.data.forcePercent = 1;
     const move_force = this.data.moveForce * this.data.forcePercent;
-    const move_time = length / move_force / 10;
-    setTimeout(() => {
-      this.moveStop();
-      // this.data.position.x = position.x;
-      // this.data.position.y = position.y;
-      // this.data.position.z = position.z;
-      // this.updateTransform();
-    }, move_time * 1000);
+    const move_time = length / move_force;
+
+    const start_point = {
+      x: this.data.position.x,
+      y: this.data.position.y,
+      z: this.data.position.z
+    };
+
+    const finish_point = {
+      x: position.x,
+      y: position.y,
+      z: longitude - position.z
+    };
+    const start_time = performance.now() / 100;
+    const finish_time = start_time + move_time;
+
+    setTimeout(() => this.move_to_progress(start_point, finish_point, start_time, finish_time));
 
     return true;
   }
@@ -143,6 +151,35 @@ class GameObject {
     return true;
   }
 
+  protected move_to_progress(
+    startPoint: PointParameters,
+    finishPoint: PointParameters,
+    startTime: number,
+    finishTime: number
+  ): void {
+    const now_time = performance.now() / 100;
+    let progress: number;
+
+    if (now_time >= finishTime) {
+      progress = 1;
+    } else {
+      progress = (now_time - startTime) / (finishTime - now_time);
+    }
+
+
+    this.data.position.x = startPoint.x + (finishPoint.x - startPoint.x) * progress,
+    this.data.position.y = 0,
+    this.data.position.z = startPoint.z + (finishPoint.z - startPoint.z) * progress
+
+    this.updateTransform();
+
+    if (progress < 1) {
+      setTimeout(() => this.move_to_progress(startPoint, finishPoint, startTime, finishTime));
+    } else {
+      this.is_move = false;
+    }
+  }
+
   updateDirection(
     moveDirection?: number
   ) {
@@ -164,97 +201,19 @@ class GameObject {
   }
 
   moveStart(): void {
-    if (this.data.forcePercent !== 0) {
-      requestAnimationFrame(() => this.moveProgress());
-    }
-    this.update_time = performance.now();
+    console.log('moveStart');
   }
 
-  checkMoveProgress(
+  protected check_move_progress(
     position: PointParameters,
     direction: PointParameters
-  ) {
-    const { latitude, longitude, height } = GAME.store.worldConfig;
-    let needStop = false;
-    
-    if (direction.x > 0) {
-      if (position.x > latitude) {
-        position.x = latitude;
-        needStop = true;
-      }
-    } else
-    if (direction.x < 0) {
-      if (position.x < 0) {
-        position.x = 0;
-        needStop = true;
-      }
-    }
-    
-    if (direction.y > 0) {
-      if (position.y > height) {
-        position.y = height;
-        needStop = true;
-      }
-    } else
-    if (direction.y < 0) {
-      if (position.y < 0) {
-        position.y = 0;
-        needStop = true;
-      }
-    }
-    
-    if (direction.z > 0) {
-      if (position.z > longitude) {
-        position.z = longitude;
-        needStop = true;
-      }
-    } else
-    if (direction.z < 0) {
-      if (position.z < 0) {
-        position.z = 0;
-        needStop = true;
-      }
-    }
-
-    return needStop;
-  }
-
-  moveProgress() {
-    if (this.data.forcePercent === 0) {
-      return;
-    }
-
-    const lastTime = this.update_time;
-    const nowTime = this.update_time = performance.now();
-    
-    const dt = (nowTime - lastTime) / 100;
-    const moveForce = this.data.moveForce * this.data.forcePercent;
-    const position = {
-      x: this.data.position.x,
-      y: this.data.position.y,
-      z: this.data.position.z
-    };
-
-    position.x += this.direction.x * moveForce * dt;
-    position.y += this.direction.y * moveForce * dt;
-    position.z += this.direction.z * moveForce * dt;
-
-    let needStop = this.checkMoveProgress(position, this.direction);
-
-    this.data.position.x = position.x;
-    this.data.position.y = position.y;
-    this.data.position.z = position.z;
-    this.updateTransform();
-
-    if (needStop) {
-      this.moveStop();
-    }
-
-    requestAnimationFrame(() => this.moveProgress());
+  ): boolean {
+    console.log('check_move_progress', { position, direction });
+    return true;
   }
 
   moveStop(): void {
-    this.data.forcePercent = 0;
+    console.log('moveStop');
   }
 
   useSkill(

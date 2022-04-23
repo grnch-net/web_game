@@ -1,6 +1,14 @@
+import type {
+  PointParameters,
+} from '../../game';
+
 import {
   WorldScreen
 } from '../world_screen';
+
+import {
+  GameObject
+} from '../game_object';
 
 import {
   UserGameObject
@@ -14,10 +22,10 @@ class WorldScreen_targetMove extends WorldScreen_Mod.Latest {
     character: UserGameObject
   ): void {
     super.initialize_user_events(character);
-    this.add_user_cursor_move_event(character);
+    this.add_user_target_move_event(character);
   }
 
-  protected add_user_cursor_move_event(
+  protected add_user_target_move_event(
     character: UserGameObject
   ): void {
     const mouse_up_handler = event => {
@@ -67,6 +75,26 @@ class WorldScreen_targetMove extends WorldScreen_Mod.Latest {
 
 WorldScreen_Mod.modify(WorldScreen_targetMove);
 
+
+const GameObject_Mod = GameObject as Modifiable<typeof GameObject>;
+class GameObject_targetMove extends GameObject_Mod.Latest {
+
+
+
+}
+
+GameObject_Mod.modify(GameObject_targetMove);
+
+
+const UserGameObject_Mod = UserGameObject as Modifiable<typeof UserGameObject>;
+class UserGameObject_targetMove extends UserGameObject_Mod.Latest {
+
+}
+
+UserGameObject_Mod.modify(UserGameObject_targetMove);
+
 export {
-  WorldScreen_targetMove
+  WorldScreen_targetMove,
+  GameObject_targetMove,
+  UserGameObject_targetMove
 };
