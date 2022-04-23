@@ -161,7 +161,7 @@ class Sockets extends GamePlugin {
     session.addSocket(socket);
     this.add_socket_listeners(socket);
 
-    if (data.reconnect) {
+    if (!data.reconnect) {
       const event_data: CharEnter_OutEventData = {
         id,
         characterData: characterWorldData
