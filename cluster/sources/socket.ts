@@ -13,7 +13,7 @@ import type {
 
 interface Socket extends ioSocket {
   data: {
-    logout: NodeJS.Timeout;
+    characterName: string,
     character: Character;
     characterWorldData: CharacterWorldData;
     session: Session;

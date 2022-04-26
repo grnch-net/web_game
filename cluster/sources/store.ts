@@ -2,11 +2,15 @@ import type {
   CharacterParameters
 } from './mechanics/index';
 
+import type {
+  Socket
+} from './socket';
+
 import {
   Session
 } from './session';
 
-interface WorldCharacterInfo {
+interface CharacterInfo {
   characterId: number;
   sessionId: number;
 }
@@ -14,13 +18,17 @@ interface WorldCharacterInfo {
 class Store {
 
   protected characters_collect: Associative<CharacterParameters>;
-  protected characters_in_world: Associative<WorldCharacterInfo>;
+  protected characters_find: string[];
+  protected characters_info: Associative<CharacterInfo>;
+  protected sockets: Associative<Socket>;
   protected sessions: Session[];
   protected open_session: Session;
 
   initialize() {
     this.characters_collect = {};
-    this.characters_in_world = {};
+    this.characters_find = [];
+    this.characters_info = {};
+    this.sockets = {};
     this.sessions = [];
   }
 
@@ -36,34 +44,55 @@ class Store {
     this.characters_collect[name] = parameters
   }
 
-  getWorldCharacterInfo(name: string): WorldCharacterInfo {
-    return this.characters_in_world[name];
+  addSocket(name: string, socket: Socket): void {
+    this.sockets[name] = socket;
   }
 
-  addCharacterInWorld(name: string, sessionId: number, characterId: number): void {
-    this.characters_in_world[name] = {
+  getSocket(name: string): Socket {
+    return this.sockets[name];
+  }
+
+  addFindCharacter(name: string): void {
+    if (this.characters_find.includes(name)) {
+      return;
+    }
+    this.characters_find.push(name);
+  }
+
+  getFindCharacters(): string[] {
+    return this.characters_find;
+  }
+
+  removeFindCharacter(name: string): boolean {
+    const index = this.characters_find.indexOf(name);
+    if (index === -1) {
+      return false;
+    }
+    this.characters_find.splice(index, 1);
+    return true;
+  }
+
+  getCharacterInfo(name: string): CharacterInfo {
+    return this.characters_info[name];
+  }
+
+  addCharacterInfo(name: string, sessionId: number, characterId: number): void {
+    this.characters_info[name] = {
       sessionId,
       characterId
     };
   }
 
-  removeWorldCharacter(name: string) {
-    delete this.characters_in_world[name];
+  removeCharacterInfo(name: string) {
+    delete this.characters_info[name];
   }
 
-  protected create_session(): void {
-    this.open_session = (new Session).initialize();
+  createSession(): Session {
+    const session = (new Session).initialize();
     const id = this.sessions.length;
-    this.sessions.push(this.open_session);
-    this.open_session.setId(id);
-  }
-
-  getOpenSession(): Session {
-    if (!this.open_session || this.open_session.isFull()) {
-      this.create_session();
-    }
-
-    return this.open_session;
+    this.sessions.push(session);
+    session.setId(id);
+    return session;
   }
 
   getSession(id: number): Session {

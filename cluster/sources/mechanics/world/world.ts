@@ -67,16 +67,16 @@ class World {
   addCharacter(
     character: Character
   ): number {
-    const index = this.characters.add(character);
+    const id = this.characters.add(character);
     character.world = this.interaction_controller;
-    character.id = index;
-    return index;
+    character.id = id;
+    return id;
   }
 
   removeCharacter(
-    index: number
+    id: number
   ): boolean {
-    const character = this.characters.remove(index);
+    const character = this.characters.remove(id);
     if (!character) {
       return false;
     }
@@ -85,9 +85,9 @@ class World {
   }
 
   getCharacter(
-    index: number
+    id: number
   ): Character {
-    return this.characters.elements[index];
+    return this.characters.elements[id];
   }
 
   startTicker(): void {

@@ -90,7 +90,7 @@ class Character extends WorldObject {
   effects: EffectsController;
   skills: SkillsController;
   equips: EquipsController;
-  protected parameters: CharacterParameters;
+  parameters: CharacterParameters;
   protected config: CharacterConfig;
 
   get name(): string {

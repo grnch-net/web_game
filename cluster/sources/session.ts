@@ -2,8 +2,6 @@ import type {
   Socket
 } from './socket';
 
-import * as crypto from 'crypto';
-
 import {
   World,
   Character,
@@ -45,8 +43,6 @@ class Session {
   id: number;
   sockets: Socket[];
   protected worldData: WorldData;
-  protected socketsId: string[];
-  protected charactersSecret: { [secret: string]: Character };
   protected status: SessionStatus;
 
   initialize(): Session {
@@ -61,8 +57,6 @@ class Session {
       characters: []
     };
     this.sockets = [];
-    this.socketsId = [];
-    this.charactersSecret = {};
   }
 
   protected create_world(): void {
@@ -74,13 +68,18 @@ class Session {
   }
 
   addSocket(
+    id: number,
     socket: Socket
   ): void {
-    this.sockets.push(socket);
+    this.sockets[id] = socket;
   }
 
   isOpen(): boolean {
     return this.status === SessionStatus.Open;
+  }
+
+  isLive(): boolean {
+    return this.status === SessionStatus.Live;
   }
 
   isFull(): boolean {
@@ -96,57 +95,64 @@ class Session {
     return character;
   }
 
-  // leaveFromWorld(
-  //   index: number
-  // ): boolean {
-  //   return this.world.removeCharacter(index);
-  // }
-
-  protected generateSecretKey(): string {
-    return crypto.randomBytes(10).toString('hex');
-  }
-
-  createSecretCharacter(data: Character): string {
-    const secret = this.generateSecretKey();
-    this.charactersSecret[secret] = data;
-    return secret;
-  }
-
-  getSecretCharacter(secret: string): Character {
-    const character = this.charactersSecret[secret];
-    delete this.charactersSecret[secret];
-    return character;
-  }
-
-  getSocketId(index: number): string {
-    return this.socketsId[index];
-  }
-
-  addSocketId(index: number, id: string): void {
-    this.socketsId[index] = id;
-  }
-
   getWorldData(): WorldData {
     return this.worldData;
   }
 
-  getWorldCharacterData(index: number): CharacterWorldData {
-    return this.worldData.characters[index];
+  getWorldCharacterData(
+    id: number
+  ): CharacterWorldData {
+    return this.worldData.characters[id];
   }
 
-  addWorldCharacterData(index: number, characterData: CharacterWorldData): void {
-    this.worldData.characters[index] = characterData;
-  }
-
-  removeWorldCharacter(index: number) {
-    this.worldData.characters[index] = null;
-    // this.charactersInWorld[index] = null;
-    this.socketsId[index] = null;
+  removeWorldCharacter(id: number) {
+    this.worldData.characters[id] = null;
   }
 
   runWorld(): void {
+    for (const character of this.world.characters.elements) {
+      if (!character) {
+        continue;
+      }
+
+      this.initialize_world_character_data(character.id, character.parameters);
+    }
+
     this.status = SessionStatus.Live;
     // this.world.startTicker();
+  }
+
+  initialize_world_character_data(
+    id: number,
+    characterParameters: CharacterParameters
+  ): void {
+    const character_attributes: Associative<number> = {};
+    for (const key in characterParameters.attributes) {
+      const attribute = characterParameters.attributes[key];
+      character_attributes[key] = attribute.value;
+    }
+
+    const character_effects: number[] = [];
+    for (const effect of characterParameters.effects) {
+      character_effects.push(effect.id as number);
+    }
+
+    const character_equips: number[] = [];
+    for (const equip of characterParameters.equips) {
+      character_equips.push(equip.id as number);
+    }
+
+    const charWorldData: CharacterWorldData = {
+      name: characterParameters.name,
+      position: characterParameters.position,
+      rotation: characterParameters.rotation,
+      moveForce: characterParameters.moveForce,
+      attributes: character_attributes,
+      effects: character_effects,
+      equips: character_equips
+    };
+
+    this.worldData.characters[id] = charWorldData;
   }
 
 }

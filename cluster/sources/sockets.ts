@@ -4,6 +4,7 @@ import type {
 
 import type {
   Session,
+  WorldData,
   CharacterWorldData
 } from './session';
 
@@ -22,22 +23,15 @@ import {
 import { 
   Server as SocketsServer
 } from 'socket.io';
+import { Character } from './mechanics';
 
-
-
-interface CharEnter_InEventData {
-  secret: string;
-  sessionId: number;
-  reconnect: boolean;
+interface SessionEnter_InEventData {
+  name: string;
 }
 
-interface CharEnter_OutEventData {
-  id: number;
-  characterData: CharacterWorldData;
-}
-
-interface CharLeave_OutEventData {
-  id: number;
+interface WorldEnter_OutEventData {
+  characterId: number;
+  worldData: WorldData;
 }
 
 interface CharSay_InEventData {
@@ -85,16 +79,17 @@ enum SEvent {
   Disconnect = 'disconnect',
   Reconnect = 'reconnect',
   ServerError = 'server:error',
-  CharEnter = 'char:enter',
-  CharLeave = 'char:leave',
-  CharCancelLeave = 'char:cancel-leave',
-  CharSay = 'char:say',
-  CharMove = 'char:move',
-  CharMoveTo = 'char:move-to',
-  CharUseSkill = 'char:use-skill',
-  CharCancelUseSkill = 'char:cancel-use-skill',
-  WorldStart = 'world:start',
-  WorldAction = 'world:action'
+  SessionEnter ='session:enter',
+  SessionCancelFind ='session:cancel-find',
+  SessionLeave ='session:leave',
+  WorldEnter ='world:enter',
+  WorldLeave ='world:leave',
+  WorldAction ='world:action',
+  CharSay ='char:say',
+  CharMove ='char:move',
+  CharMoveTo ='char:move-to',
+  CharUseSkill ='char:use-skill',
+  CharCancelUseSkill ='char:cancel-use-skill',
 }
 
 class Sockets extends GamePlugin {
@@ -132,48 +127,126 @@ class Sockets extends GamePlugin {
     socket: Socket
   ): void {
     console.info('Connection', socket.id);
-    socket.once(SEvent.CharEnter, (data: CharEnter_InEventData) => this.character_enter_event(socket, data));
+    socket.once(SEvent.SessionEnter, (data) => this.session_enter_event(socket, data));
+    socket.once(SEvent.SessionCancelFind, () => this.session_cancel_find_event(socket));
+    // socket.once(SEvent.CharEnter, (data) => this.character_enter_event(socket, data));
   }
 
-  protected character_enter_event(
+  protected session_cancel_find_event(
+    socket: Socket
+  ): void {
+    const { store } = this.server;
+    const success = store.removeFindCharacter(socket.data.characterName);
+    if (success) {
+      socket.emit(SEvent.SessionCancelFind);
+    }
+  }
+
+  protected session_enter_event(
     socket: Socket,
-    data: CharEnter_InEventData
-  ): void {    
+    data: SessionEnter_InEventData
+  ): void {
     const { store } = this.server;
 
-    const session = store.getSession(data.sessionId);
-    const character = session.getSecretCharacter(data.secret);
-    const id = character?.id;
+    socket.data.characterName = data.name;
 
-    if (id == undefined) {
-      socket.disconnect();
+    store.addSocket(data.name, socket);
+    const character_info = store.getCharacterInfo(data.name);
+
+    if (character_info) {
+      const { sessionId, characterId } = character_info;
+      this.reconnect_character(sessionId, characterId);
       return;
     }
+
+    store.addFindCharacter(data.name);
+    this.start_session();
+  }
+
+  protected reconnect_character(
+    sessionId: number,
+    characterId: number
+  ): void {    
+    const { store } = this.server;
+    const session = store.getSession(sessionId);
+    const character = session.world.characters.elements[characterId];
+    const socket = store.getSocket(character.name);
     
     console.info('- Char enter to world', character.name);
     
-    const characterWorldData = session.getWorldCharacterData(id);
+    this.socket_world_enter(session, socket, character);
+
+    const event_data: WorldEnter_OutEventData = {
+      characterId: character.id,
+      worldData: session.getWorldData()
+    };
+    socket.emit(SEvent.WorldEnter, event_data);
+
+    // const event_data: CharEnter_OutEventData = {
+    //   id: characterId,
+    // };
+
+    // for (const session_socket of session.sockets) {
+    //   if (session_socket === socket) {
+    //     continue;
+    //   }
+    //   session_socket.emit(SEvent.CharEnter, event_data);
+    // }
+  }
+
+  protected socket_world_enter(
+    session: Session,
+    socket: Socket,
+    character: Character,
+  ): void {
+    const characterWorldData = session.getWorldCharacterData(character.id);
     
     socket.data.character = character;
     socket.data.characterWorldData = characterWorldData;
     socket.data.session = session;
-    session.addSocketId(id, socket.id);
-    session.addSocket(socket);
+    session.addSocket(character.id, socket);
     this.add_socket_listeners(socket);
+  }
 
-    if (!data.reconnect) {
-      const event_data: CharEnter_OutEventData = {
-        id,
-        characterData: characterWorldData
-      };
-  
-      for (const session_socket of session.sockets) {
-        if (session_socket === socket) {
-          continue;
-        }
-        session_socket.emit(SEvent.CharEnter, event_data);
+  protected start_session(): void {
+    const { store } = this.server;
+    const session_characters_count = 2;
+    const character_find = store.getFindCharacters();
+
+    if (character_find.length < session_characters_count) {
+      return;
+    }
+
+    const session = store.createSession();
+
+    for (let index = 0; index < session_characters_count; index++) {
+      const character_name = character_find.shift();
+      store.removeFindCharacter(character_name);
+
+      const character_parameters = store.getCharacter(character_name);
+      const character = session.enterToWorld(character_parameters);
+      store.addCharacterInfo(character_name, session.id, character.id);
+    }
+    
+    session.runWorld();
+
+    for (const character of session.world.characters.elements) {
+      if (!character) {
+        continue;
       }
-      this.check_start_session(session);
+      const socket = store.getSocket(character.name);
+      this.socket_world_enter(session, socket, character);
+    }
+    
+    const world_data = session.getWorldData();
+    for (const socket of session.sockets) {
+      const character_name = socket.data.characterName;
+
+      const event_data: WorldEnter_OutEventData = {
+        characterId: socket.data.character.id,
+        worldData: world_data
+      };
+      socket.emit(SEvent.WorldEnter, event_data);
     }
   }
 
@@ -183,7 +256,7 @@ class Sockets extends GamePlugin {
     // socket.on(SEvent.CharLeave, () => this.char_wait_leave(socket));
     // socket.on(SEvent.CharCancelLeave, () => this.char_reconnect(socket));
     // socket.on(SEvent.Disconnect, () => this.char_wait_leave(socket));
-    socket.on(SEvent.CharLeave, () => this.char_leave(socket));
+    // socket.on(SEvent.CharLeave, () => this.char_leave(socket));
     socket.on(SEvent.Disconnect, () => this.char_leave(socket));
     
     // socket.on(SEvent.Reconnect, () => this.char_reconnect(socket));
@@ -196,14 +269,6 @@ class Sockets extends GamePlugin {
     socket.data.session.world.addActionListener(result => {
       socket.emit(SEvent.WorldAction, result);
     });
-  }
-
-  protected check_start_session(
-    session: Session
-  ): void {
-    if (session.isOpen && session.isFull()) {
-      session.runWorld();
-    }
   }
 
   // protected char_reconnect(

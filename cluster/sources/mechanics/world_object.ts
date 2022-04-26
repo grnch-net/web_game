@@ -21,7 +21,7 @@ class WorldObject {
   position: Point;
   direction: Point;
   wait: number;
-  protected parameters: WorldObjectParameters;
+  parameters: WorldObjectParameters;
   protected move_direction: number;
   protected move_force: number;
 

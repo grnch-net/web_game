@@ -10,7 +10,6 @@ import { Store } from './store';
 
 import { CharacretCreate_API } from './api/api_character_create';
 import { CharacretGet_API } from './api/api_character_get';
-import { WorldEnter_API } from './api/api_world_enter';
 import { View } from './view';
 import { Sockets } from './sockets';
 
@@ -65,7 +64,6 @@ class Game {
   protected initialize_api(): void {
     this.register_plugin('APICharacterCreate', CharacretCreate_API);
     this.register_plugin('APICharacretGet', CharacretGet_API);
-    this.register_plugin('APIWorldEnter', WorldEnter_API);
   }
 
   protected initialize_sockets(): void {
