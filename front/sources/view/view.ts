@@ -33,31 +33,36 @@ class View {
     this.world_screen = new WorldScreen().initialize();
   }
 
-  createWorld(
-    userData: CharacterData,
+  startSession(
     worldData: WorldData
   ): void {
     this.main_screen.hide();
     this.world_screen.show();
     this.init_scene(worldData);
-    
-    this.world_screen.updateUser(userData);
-    GAME.store.addCharacter(worldData.userIndex, userData);
+  }
 
-    this.world_screen.updateCharactersList();
+  leaveSession(): void {
+    // this.world_screen.destroy();
+    this.main_screen.showMainScreen();
   }
 
   protected init_scene(
     data: WorldData
   ): void {
-    const user_id = GAME.store.getUserIndex();
+    const user_id = GAME.store.getUserId();
     for (const id in data.characters) {
       const character = data.characters[id];
-      if (!character || +id === user_id) {
+      if (!character) {
         continue;
       }
-      this.world_screen.addCharacter(+id, character);
+      if (+id === user_id) {
+        this.world_screen.initializeUser(character);
+      } else {
+        this.world_screen.addCharacter(+id, character);
+      }
     }
+    
+    this.world_screen.updateCharactersList();
   }
 
   addCharacter(
@@ -80,11 +85,6 @@ class View {
     message: string
   ): void {
     this.world_screen.newMessage(index, message);
-  }
-
-  destroyWorld(): void {
-    this.world_screen.destroy();
-    this.main_screen.show();
   }
 
   characterMove(data: MoveData): void {

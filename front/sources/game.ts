@@ -85,20 +85,28 @@ class Game {
     return await this.network.getCharacterData(characterName);
   }
 
-  async enterToWorld(
+  findSession(
     characterName: string,
-  ): Promise<boolean> {
-    const user_data = await this.network.getCharacterData(characterName);
-    if (!user_data) {
-      return false;
-    }
-    const world_data = await this.network.enterToWorld(characterName);
-    if (!world_data) {
-      return false;
-    }
-    this.store.updateWorld(world_data);
-    this.view.createWorld(user_data, world_data);
-    return true;
+  ): void {
+    this.network.findSession(characterName);
+  }
+
+  cancelFindSession(): void {
+    this.network.cancelFindSession();
+  }
+
+  enterToWorld(
+    characterId: number,
+    worldData: WorldData
+  ): void {
+    this.store.updateUserId(characterId);
+    this.store.updateWorld(worldData);
+    this.view.startSession(worldData);
+  }
+
+  leaveSession(): void {
+    this.store.leaveSession();
+    this.view.leaveSession();
   }
 
   addCharacter(
@@ -116,18 +124,9 @@ class Game {
     this.view.removeCharacter(index);
   }
 
-  destroyWorld(): void {
-    this.store.destroyWorld();
-    this.view.destroyWorld();
-  }
-
-  logout(): void {
-    this.network.logout();
-  }
-
-  cancelLogout(): void {
-    this.network.cancelLogout();
-  }
+  // logout(): void {
+  //   this.network.logout();
+  // }
 
   say(
     message: string
@@ -191,7 +190,7 @@ class Game {
       id,
       code
     } = data;
-    const character_id = UTILS.types.isNumber(id) ? id : this.store.getUserIndex();
+    const character_id = UTILS.types.isNumber(id) ? id : this.store.getUserId();
     this.view.characterCancelUseSkill(character_id, code);
   }
 
@@ -203,7 +202,7 @@ class Game {
       skill,
       targets
     } = data;
-    const id = UTILS.types.isNumber(authorId) ? authorId : this.store.getUserIndex();
+    const id = UTILS.types.isNumber(authorId) ? authorId : this.store.getUserId();
     this.view.characterApplySkill(id, skill);
     this.view.interact(skill, targets);
   }

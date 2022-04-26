@@ -31,7 +31,6 @@ class WorldScreen {
   protected world_screen_node: ViewNode;
   protected world_characters_list_node: ViewNode;
   protected logout_button_node: ViewNode;
-  protected cancel_logout_button_node: ViewNode;
   protected user_character_name_node: ViewNode;
   protected world_chat_node: ViewNode;
   protected character_say_button_node: ViewNode;
@@ -53,7 +52,6 @@ class WorldScreen {
     this.world_screen_node = new ViewNode().initialize('#world-screen');
     this.world_characters_list_node = new ViewNode().initialize('#world-characters');
     this.logout_button_node = new ViewNode().initialize('#character-leave');
-    this.cancel_logout_button_node = new ViewNode().initialize('#character-cancel-leave');
     this.user_character_name_node = new ViewNode().initialize('#user-character-name');
     this.world_chat_node = new ViewNode().initialize('#world-chat');
     this.character_say_button_node = new ViewNode().initialize('#character-say');
@@ -64,7 +62,6 @@ class WorldScreen {
 
   initialize_handlers() {
     this.logout_button_node.addClick(() => this.logout());
-    this.cancel_logout_button_node.addClick(() => this.cancelLogout());
     this.character_say_button_node.addClick(() => this.say());
   }
 
@@ -75,19 +72,11 @@ class WorldScreen {
   show(): void {
     this.world_screen_node.show();
     this.logout_button_node.show();
-    this.cancel_logout_button_node.hide();
   }
 
   protected logout(): void {
     this.logout_button_node.hide();
-    this.cancel_logout_button_node.show();
-    GAME.logout();
-  }
-
-  protected cancelLogout(): void {
-    this.logout_button_node.show();
-    this.cancel_logout_button_node.hide();
-    GAME.cancelLogout();
+    // GAME.logout();
   }
 
   protected say() {
@@ -96,12 +85,12 @@ class WorldScreen {
     GAME.say(message);
   }
 
-  updateUser(
+  initializeUser(
     userData: CharacterData
   ): void {
-    const index = GAME.store.getUserIndex();
+    const id = GAME.store.getUserId();
     this.user_character_name_node.setValue(userData.name);
-    this.initialize_user_character(index, userData);
+    this.initialize_user_character(id, userData);
   }
 
   protected initialize_user_character(

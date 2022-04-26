@@ -12,9 +12,11 @@ interface WorldConfig {
 class Store {
 
   worldConfig: WorldConfig;
+  userId: number;
   protected worldData: WorldData;
 
   initialize(): Store {
+    this.userId = null;
     this.initialize_configs();
     return this;
   }
@@ -27,54 +29,71 @@ class Store {
     };
   }
 
+  leaveSession(): void {
+    this.worldData = null;
+  }
+
   updateWorld(
     data: WorldData
   ): void {
     this.worldData = data;
   }
 
-  updateUser(
-    index: number,
+  updateUserId(
+    id: number
+  ): void {
+    this.userId = id;
+  }
+
+  updateUserCharacter(
     data: CharacterData
   ): void {
-    this.addCharacter(index, data);
+    if (this.userId === null) {
+      console.error('updateUserCharacter: id is undefined');
+      return;
+    }
+    this.addCharacter(this.userId, data);
   }
 
   addCharacter(
-    index: number,
+    id: number,
     data: CharacterData
   ): void {
     if (!this.worldData) {
       console.error('need_create_world');
       return;
     }
-    if (this.worldData[index]) {
+    if (this.worldData[id]) {
       console.error('character_already_exists');
       return;
     }
-    this.worldData.characters[index] = data;
+    this.worldData.characters[id] = data;
   }
 
   removeCharacter(
-    index: number
+    id: number
   ): void {
-    delete this.worldData.characters[index];
+    delete this.worldData.characters[id];
   }
 
-  getUserIndex(): number {
-    return this.worldData?.userIndex;
+  getUserId(): number {
+    return this.userId;
   }
 
   getUserCharacter(): CharacterData {
-    return this.worldData?.characters[this.getUserIndex()];
+    if (!this.worldData) {
+      console.error('getUserCharacter: worldData is undefined');
+      return;
+    }
+    return this.worldData.characters[this.getUserId()];
   }
 
   getWorldCharacters(): CharacterData[] {
-    return this.worldData?.characters || [];
-  }
-
-  destroyWorld(): void {
-    this.worldData = null;
+    if (!this.worldData) {
+      console.error('getWorldCharacters: worldData is undefined');
+      return [];
+    }
+    return this.worldData.characters;
   }
   
 }

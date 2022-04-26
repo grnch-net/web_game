@@ -15,29 +15,26 @@ const socketUrl = 'ws://localhost:3009';
 
 const apiEvents = {
   CharacterCreate: '/character-create',
-  CharacterGet: '/character-get',
-  WorldEnter: '/world-enter',
-  WorldLeave: '/world-leave'
+  CharacterGet: '/character-get'
 };
 
-const soketsEvents = {
-  CharEnter: 'char:enter',
-  CharLeave: 'char:leave',
-  CharCancelLeave: 'char:cancel-leave',
+const socketsEvents = {
+  SessionEnter: 'session:enter',
+  SessionCancelFind: 'session:cancel-find',
+  SessionLeave: 'session:leave',
+  WorldEnter: 'world:enter',
+  WorldLeave: 'world:leave',
+  WorldAction: 'world:action',
   CharSay: 'char:say',
   CharMove: 'char:move',
   CharMoveTo: 'char:move-to',
   CharUseSkill: 'char:use-skill',
   CharCancelUseSkill: 'char:cancel-use-skill',
-  WorldAction: 'world:action'
 };
 
-interface EnterToWorldData {
-  secret: string;
+interface WorldEnterData {
   characterId: number;
-  sessionId: number;
-  world: WorldData;
-  reconnect: boolean;
+  worldData: WorldData;
 }
 
 class Network {
@@ -48,55 +45,10 @@ class Network {
     return this;
   }
 
-  async createCharacter(
-    name: string
-  ): Promise<CharacterData> {
-    const event = apiEvents.CharacterCreate;
-    const data = await this.send_request(event, { name });
-    return data?.parameters;
-  }
-
-  async getCharacterData(
-    name: string
-  ): Promise<CharacterData> {
-    const event = apiEvents.CharacterGet;
-    const data = await this.send_request(event, { name });
-    return data?.parameters;
-  }
-
-  async enterToWorld(
-    characterName: string
-  ): Promise<WorldData> {
-    const data = await this.enter_to_world_request(characterName);
-    if (!data) {
-      return null;
-    }
-    data.world.userIndex = data.characterId;
-    this.create_socket();
-    this.enter_to_world_emit(data);
-    return data.world;
-  }
-
-  protected async enter_to_world_request(
-    characterName: string
-  ): Promise<EnterToWorldData> {
-    const event = apiEvents.WorldEnter;
-    const parameters = {
-      name: characterName
-    };
-    return await this.send_request(event, parameters);
-  }
-
-  protected enter_to_world_emit({
-    sessionId,
-    secret,
-    reconnect
-  }: EnterToWorldData): void {
-    const event = soketsEvents.CharEnter;
-    this.socket.emit(event, { sessionId, secret, reconnect });
-  }
-
-  protected async send_request(path, data) {
+  protected async send_request(
+    path: string,
+    data: any
+  ): Promise<any> {
     const response = await fetch(apiUrl + path, {
       method: 'POST',
       headers: {
@@ -124,80 +76,124 @@ class Network {
     return response.data;
   }
 
-  protected create_socket(): void {
-    this.socket = io(socketUrl);
-    this.initialize_socket_events();
+  async createCharacter(
+    characterName: string
+  ): Promise<CharacterData> {
+    const event = apiEvents.CharacterCreate;
+    const data = await this.send_request(event, { name: characterName });
+    return data?.parameters;
   }
 
-  protected initialize_socket_events(): void {
-    this.socket.on(soketsEvents.CharSay, data => {
+  async getCharacterData(
+    characterName: string
+  ): Promise<CharacterData> {
+    const event = apiEvents.CharacterGet;
+    const data = await this.send_request(event, { name: characterName });
+    return data?.parameters;
+  }
+
+  async findSession(
+    characterName: string
+  ): Promise<void> {
+    const character_data = await this.getCharacterData(characterName);
+    if (!character_data) {
+      return;
+    }
+
+    this.create_socket();
+
+    const event = socketsEvents.SessionEnter;
+    this.socket.emit(event, { name: characterName });
+  }
+
+  protected create_socket(): void {
+    this.socket = io(socketUrl);
+    this.initialize_socket_session_events();
+  }
+
+  protected initialize_socket_session_events(): void {
+    this.socket.on(socketsEvents.CharSay, data => {
       GAME.newMessage(data.id, data.message);
     });
 
-    this.socket.on(soketsEvents.CharMove, (data: MoveData) => {
+    this.socket.on(socketsEvents.CharMove, (data: MoveData) => {
       GAME.characterMove(data);
     });
 
-    this.socket.on(soketsEvents.CharMoveTo, (data: MoveData) => {
+    this.socket.on(socketsEvents.CharMoveTo, (data: MoveData) => {
       GAME.characterMoveTo(data);
     });
 
-    this.socket.on(soketsEvents.CharUseSkill, data => {
+    this.socket.on(socketsEvents.CharUseSkill, data => {
       console.log('Char use skill', data);
       GAME.characterUseSkill(data);
     });
 
-    this.socket.on(soketsEvents.CharCancelUseSkill, data => {
+    this.socket.on(socketsEvents.CharCancelUseSkill, data => {
       console.log('Char cancel use skill', data);
       GAME.characterCancelUseSkill(data);
     });
 
-    this.socket.on(soketsEvents.WorldAction, data => {
+    this.socket.on(socketsEvents.WorldAction, data => {
       console.log('World action', data);
       GAME.worldAction(data);
     });
 
-    this.socket.on(soketsEvents.CharEnter, data => {
-      console.log('Char enter to world', data);
-      GAME.addCharacter(data.id, data.characterData);
-    });
-
-    this.socket.on(soketsEvents.CharLeave, data => this.char_leave(data.id));
+    this.socket.on(socketsEvents.SessionCancelFind, () => this.session_cancel_find());
+    this.socket.on(socketsEvents.WorldEnter, data => this.world_enter(data));
+    this.socket.on(socketsEvents.SessionLeave, data => this.session_leave(data.id));
   }
 
-  protected char_leave(
-    index: number
-  ): void {
-    const user_index = GAME.store.getUserIndex();
+  protected session_cancel_find(): void {
+    this.socket.disconnect();
+    GAME.leaveSession();
+  }
 
-    if (user_index == index) {
-      console.warn('Your char leave from world');
+  protected world_enter({
+    characterId,
+    worldData
+  }: WorldEnterData): void {
+    GAME.enterToWorld(characterId, worldData);
+  }
+
+  protected session_leave(
+    id: number
+  ): void {
+    const user_id = GAME.store.getUserId();
+
+    if (user_id == id) {
+      console.warn('Your char leave from session');
       this.socket.disconnect();
-      GAME.destroyWorld();
+      GAME.leaveSession();
       return;
     }
 
-    GAME.removeCharacter(index);
+    console.log('Player session leave', { id });
+    // GAME.removeCharacter(id);
   }
 
-  logout() {
-    this.socket.emit(soketsEvents.CharLeave);
+  cancelFindSession() {
+    this.socket.emit(socketsEvents.SessionCancelFind);
   }
 
-  cancelLogout(): void {
-    this.socket.emit(soketsEvents.CharCancelLeave);
+  leaveSession() {
+    this.socket.emit(socketsEvents.SessionLeave);
+  }
+
+  leaveWorld() {
+    this.socket.emit(socketsEvents.WorldLeave);
   }
 
   say(
     message: string
   ) {
-    this.socket.emit(soketsEvents.CharSay, { message });
+    this.socket.emit(socketsEvents.CharSay, { message });
   }
 
   userMove(): void {
     const data = GAME.store.getUserCharacter();
     const { x, y, z } = data.position;
-    this.socket.emit(soketsEvents.CharMove, {
+    this.socket.emit(socketsEvents.CharMove, {
       rotation: data.rotation,
       position: [x, y, z],
       direction: data.direction,
@@ -210,7 +206,7 @@ class Network {
   ): void {
     const data = GAME.store.getUserCharacter();
     const { x, y, z } = position;
-    this.socket.emit(soketsEvents.CharMoveTo, {
+    this.socket.emit(socketsEvents.CharMoveTo, {
       rotation: data.rotation,
       position: [x, y, z]
     });
@@ -219,13 +215,13 @@ class Network {
   userUseSkill(
     skillId: number
   ): void {
-    this.socket.emit(soketsEvents.CharUseSkill, {
+    this.socket.emit(socketsEvents.CharUseSkill, {
       skillId
     });
   }
 
   userCancelUseSkill(): void {
-    this.socket.emit(soketsEvents.CharCancelUseSkill);
+    this.socket.emit(socketsEvents.CharCancelUseSkill);
   }
 
 }
