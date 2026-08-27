@@ -108,13 +108,16 @@ class InteractionController {
     author: Character,
     impact: Impact
   ): InteractResult {
-    this.update_tree();
     const results: InteractResult = {
       authorId: author.id,
       skill: impact.rules.skill,
       targets: []
     };
-    const targets = this._tree.findByRadius(author.position, impact.rules.range);
+
+    // this.update_tree();
+    // const targets = this._tree.findByRadius(author.position, impact.rules.range); // TODO: fix
+    const targets = this._characters.elements;
+
     for (const target of targets) {
       if (author == target) continue;
       if (impact.rules.sector < Math.PI * 2) {

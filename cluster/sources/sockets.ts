@@ -230,6 +230,14 @@ class Sockets extends GamePlugin {
     
     session.runWorld();
 
+    session.world.addActionListener(result => {
+      session.updateWorldCharacterData(result.authorId, session.world.characters.elements[result.authorId].parameters);
+      for (const target of result.targets) {
+        const character = session.world.characters.elements[target.id];
+        session.updateWorldCharacterData(target.id, character.parameters);
+      }
+    });
+
     for (const character of session.world.characters.elements) {
       if (!character) {
         continue;
@@ -240,8 +248,6 @@ class Sockets extends GamePlugin {
     
     const world_data = session.getWorldData();
     for (const socket of session.sockets) {
-      const character_name = socket.data.characterName;
-
       const event_data: WorldEnter_OutEventData = {
         characterId: socket.data.character.id,
         worldData: world_data
@@ -266,8 +272,14 @@ class Sockets extends GamePlugin {
     socket.on(SEvent.CharUseSkill, data => this.character_use_skill(socket, data));
     socket.on(SEvent.CharCancelUseSkill, () => this.character_cancel_use_skill(socket));
 
-    socket.data.session.world.addActionListener(result => {
-      socket.emit(SEvent.WorldAction, result);
+    const session = socket.data.session;
+    session.world.addActionListener(result => {
+      const characters = {};
+      characters[result.authorId] = session.getWorldCharacterData(result.authorId);      
+      for (const target of result.targets) {
+        characters[target.id] = session.getWorldCharacterData(target.id);
+      }
+      socket.emit(SEvent.WorldAction, { ...result, characters });
     });
   }
 
@@ -444,22 +456,23 @@ class Sockets extends GamePlugin {
     const character = socket.data.character;
     const event_code = character.useSkill(skillId);
 
-    if (event_code === SkillResponseCode.Success) {
+    if (event_code === SkillResponseCode.Success
+      || event_code === SkillResponseCode.SuccessInstantly
+    ) {
       const session = socket.data.session;
       const event_data: CharUseSkill_OutEventData = {
         id: character.id,
         skillId
       };
       for (const session_socket of session.sockets) {
-        if (session_socket === socket) {
-          continue;
-        }
         session_socket.emit(SEvent.CharUseSkill, event_data);
       }
     } else
-    if (event_code === SkillResponseCode.SuccessInstantly) {
-      // Skip
-    } else {
+      if (event_code === SkillResponseCode.NotEnough
+        || event_code === SkillResponseCode.Cooldown
+        || event_code === SkillResponseCode.Undefined
+        || event_code === SkillResponseCode.Unknow
+      ) {
       const event_data: CharCancelUseSkill_OutEventData = {
         code: event_code
       };

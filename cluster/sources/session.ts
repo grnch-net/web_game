@@ -114,7 +114,6 @@ class Session {
       if (!character) {
         continue;
       }
-
       this.initialize_world_character_data(character.id, character.parameters);
     }
 
@@ -142,7 +141,7 @@ class Session {
       character_equips.push(equip.id as number);
     }
 
-    const charWorldData: CharacterWorldData = {
+    this.worldData.characters[id] = {
       name: characterParameters.name,
       position: characterParameters.position,
       rotation: characterParameters.rotation,
@@ -151,8 +150,23 @@ class Session {
       effects: character_effects,
       equips: character_equips
     };
+  }
 
-    this.worldData.characters[id] = charWorldData;
+  updateWorldCharacterData(
+    id: number,
+    characterParameters: CharacterParameters
+  ): void {
+    const characterData = this.worldData.characters[id];
+    
+    for (const key in characterParameters.attributes) {
+      const attribute = characterParameters.attributes[key];
+      characterData.attributes[key] = attribute.value;
+    }
+
+    characterData.effects = [];
+    for (const effect of characterParameters.effects) {
+      characterData.effects.push(effect.id as number);
+    }
   }
 
 }
