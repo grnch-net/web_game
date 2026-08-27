@@ -23,6 +23,11 @@ interface CharacterData {
   direction: number;
   moveForce: number;
   forcePercent: number;
+  attributes: { [name:string]: number };
+  effects: any;
+  equips: any;
+  skills: any;
+  slots: any;
 }
 
 interface MoveData {
@@ -53,10 +58,10 @@ interface WorldActionData {
   authorId: number;
   skill: number;
   targets: any;
+  characters: { [id:string]: Partial<CharacterData> }
 }
 
 interface WorldData {
-  userIndex: number;
   characters: CharacterData[];
 }
 
@@ -200,11 +205,16 @@ class Game {
     const {
       authorId,
       skill,
-      targets
+      targets,
+      characters
     } = data;
     const id = UTILS.types.isNumber(authorId) ? authorId : this.store.getUserId();
     this.view.characterApplySkill(id, skill);
     this.view.interact(skill, targets);
+    for (const id in characters) {
+      this.store.updateCharacter(+id, characters[id]);
+    }
+    this.view.updateCharactersData();
   }
 
 }

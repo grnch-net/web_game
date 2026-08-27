@@ -62,7 +62,7 @@ class View {
       }
     }
     
-    this.world_screen.updateCharactersList();
+    this.world_screen.updateWorldData();
   }
 
   addCharacter(
@@ -70,14 +70,18 @@ class View {
     data: CharacterData
   ): void {
     this.world_screen.addCharacter(index, data);
-    this.world_screen.updateCharactersList();
+    this.world_screen.updateWorldData();
+  }
+
+  updateCharactersData(){
+    this.world_screen.updateWorldData();
   }
 
   removeCharacter(
     index: number
   ) {
     this.world_screen.removeCharacter(index);
-    this.world_screen.updateCharactersList();
+    this.world_screen.updateWorldData();
   }
 
   newMessage(

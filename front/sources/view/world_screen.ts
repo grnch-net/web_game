@@ -31,7 +31,8 @@ class WorldScreen {
   protected world_screen_node: ViewNode;
   protected world_characters_list_node: ViewNode;
   protected logout_button_node: ViewNode;
-  protected user_character_name_node: ViewNode;
+  protected user_character_data_node: ViewNode;
+  protected world_data_node: ViewNode;
   protected world_chat_node: ViewNode;
   protected character_say_button_node: ViewNode;
   protected character_say_input_node: ViewNode;
@@ -52,7 +53,8 @@ class WorldScreen {
     this.world_screen_node = new ViewNode().initialize('#world-screen');
     this.world_characters_list_node = new ViewNode().initialize('#world-characters');
     this.logout_button_node = new ViewNode().initialize('#character-leave');
-    this.user_character_name_node = new ViewNode().initialize('#user-character-name');
+    this.user_character_data_node = new ViewNode().initialize('#user-character-data');
+    this.world_data_node = new ViewNode().initialize('#world-data');
     this.world_chat_node = new ViewNode().initialize('#world-chat');
     this.character_say_button_node = new ViewNode().initialize('#character-say');
     this.character_say_input_node = new ViewNode().initialize('#character-say-text');
@@ -88,17 +90,15 @@ class WorldScreen {
   initializeUser(
     userData: CharacterData
   ): void {
-    const id = GAME.store.getUserId();
-    this.user_character_name_node.setValue(userData.name);
-    this.initialize_user_character(id, userData);
+    this.initialize_user_character(userData);
   }
 
   protected initialize_user_character(
-    index: number,
     data: CharacterData
   ): void {
+    const user_id = GAME.store.getUserId();
     const character = new UserGameObject().initialize(data);
-    this.characters[index] = character;
+    this.characters[user_id] = character;
     this.game_node.addChild(character);
     this.initialize_user_events(character);
   }
@@ -114,7 +114,6 @@ class WorldScreen {
   ): void {
     const keyUpHandler = event => {
       let skill_id: number;
-
       if (event.keyCode === 49) {
         character.cancelUseSkill();
         GAME.userCancelUseSkill();
@@ -128,8 +127,6 @@ class WorldScreen {
       } else {
         return;
       }
-      
-      character.useSkill(skill_id);
       GAME.userUseSkill(skill_id);
     };
     document.addEventListener('keyup', keyUpHandler);
@@ -138,18 +135,43 @@ class WorldScreen {
     });
   }
 
-  updateCharactersList(): void {
-    const characters_list = [];
-    const characters = GAME.store.getWorldCharacters();
+  getCharacterDataLog(
+    data: CharacterData
+  ): string {
+    let dataLog = '';
+    dataLog += `${data.name}`;
+    dataLog += `\n  Health: ${data.attributes.health}`;
+    dataLog += `\n  Stamina: ${data.attributes.stamina}`;
+    dataLog += `\n  Effects: ${JSON.stringify(data.effects)}`;
+    // dataLog += `\nEquips: ${JSON.stringify(data.equips)}`;
+    // dataLog += `\nSkills: ${JSON.stringify(data.skills)}`;
+    // dataLog += `\nInventory: ${JSON.stringify(data.slots)}`;
+    return dataLog;
+  }
 
-    for (const character of characters) {
+  updateWorldData(): void {
+    const user_id = GAME.store.getUserId();
+    const characters = GAME.store.getWorldCharacters();
+    const name_list = [];
+    let world_data_log = '';
+
+    for (const id in characters) {
+      const character = characters[+id];
       if (!character) {
         continue;
       }
-      characters_list.push(character.name);
+      name_list.push(character.name);
+      if (+id === user_id) {
+        const data_log = this.getCharacterDataLog(character);
+        this.user_character_data_node.setValue(data_log);
+      } else {
+        const data_log = this.getCharacterDataLog(character);
+        world_data_log += data_log + '\n';
+      }
     }
 
-    this.world_characters_list_node.setValue(characters_list.join(', '));
+    this.world_characters_list_node.setValue(name_list.join(', '));
+    this.world_data_node.setValue(world_data_log);
   }
 
   addCharacter(
@@ -183,7 +205,6 @@ class WorldScreen {
 
   destroy(): void {
     this.hide();
-    this.user_character_name_node.setValue('');
     this.game_node.removeChildren();
 
     this.destroy_world_handlers.forEach(callback => callback());

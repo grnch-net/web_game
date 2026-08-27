@@ -39,6 +39,17 @@ class Store {
     this.worldData = data;
   }
 
+  updateCharacter(
+    id: number,
+    data: Partial<CharacterData>
+  ): void {
+    if (data.attributes) {
+      for (const key in data.attributes) {
+        this.worldData.characters[id].attributes[key] = data.attributes[key];
+      }
+    }
+  }
+
   updateUserId(
     id: number
   ): void {
