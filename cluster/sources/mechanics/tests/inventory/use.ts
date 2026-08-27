@@ -7,12 +7,9 @@ import type {
 } from '../../skills/index';
 
 import {
-  World
-} from '../../world';
-
-import {
+  World,
   Character
-} from '../../characters/character';
+} from '../../index';
 
 import {
   InventoryItemName,

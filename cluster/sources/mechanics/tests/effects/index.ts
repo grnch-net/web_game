@@ -1,10 +1,7 @@
 import {
-  World
-} from '../../world';
-
-import {
+  World,
   Character
-} from '../../characters/character';
+} from '../../index';
 
 import {
   EffectName,

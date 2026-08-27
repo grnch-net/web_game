@@ -3,12 +3,9 @@ import type {
 } from '../../item/index';
 
 import {
-  World
-} from '../../world';
-
-import {
+  World,
   Character
-} from '../../characters/character';
+} from '../../index';
 
 import {
   InventoryItemName,

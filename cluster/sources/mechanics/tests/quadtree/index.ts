@@ -4,7 +4,7 @@ import {
 
 import {
   Character
-} from '../../characters/character';
+} from '../../index';
 
 import {
   Point

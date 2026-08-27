@@ -3,12 +3,9 @@ import {
 } from '../../point';
 
 import {
-  World
-} from '../../world';
-
-import {
+  World,
   Character
-} from '../../characters/character';
+} from '../../index';
 
 function test_move() {
   console.group('Move');
